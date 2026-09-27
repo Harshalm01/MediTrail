@@ -35,9 +35,18 @@
                     <img src="image.png" alt="MediTrail Logo" class="logo-img">
                     <span class="logo-text-brand">MediTrail</span>
                 </a>
-                <div class="nav-actions" style="display: flex; gap: 0.75rem; align-items: center;">
-                    <a href="admin.html" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">🏥 Hospital & Doctor Portal</a>
-                    <button class="btn btn-primary landing-floating-cta" onclick="openPatientAuthModal()">Patient Sign In / Register</button>
+                <div class="nav-actions">
+                    <a href="admin.html" class="btn btn-secondary nav-hosp-btn" title="Hospital & Doctor Portal">
+                        <span class="nav-hosp-icon">🏥</span>
+                        <span class="btn-text-full">Hospital & Doctor Portal</span>
+                        <span class="btn-text-mobile">Hospital Portal</span>
+                        <span class="btn-text-xs">Portal</span>
+                    </a>
+                    <button class="btn btn-primary landing-floating-cta" onclick="openPatientAuthModal()">
+                        <span class="btn-text-full">Patient Sign In / Register</span>
+                        <span class="btn-text-mobile">Patient Sign In</span>
+                        <span class="btn-text-xs">Sign In</span>
+                    </button>
                 </div>
             </div>
         </header>
