@@ -22,6 +22,21 @@
     </noscript>
 
     <style>
+        html, body {
+            height: auto !important;
+            min-height: 100vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+
+        .admin-dashboard-container,
+        .admin-auth-wrapper {
+            height: auto !important;
+            min-height: 100vh !important;
+            overflow-y: visible !important;
+        }
+
         /* Modern Light Theme Admin Auth */
         .admin-auth-wrapper {
             min-height: 100vh;
@@ -35,7 +50,7 @@
                 radial-gradient(at 50% 50%, #f1f5f9 0px, #e2e8f0 100%);
             padding: 2rem 1rem;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         /* Ambient Floating Light Orbs */
