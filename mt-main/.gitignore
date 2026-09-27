@@ -1,0 +1,25 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Scanner and audit outputs
+scanner/*.json
+output.json
+deep_output.json
+
+# Operating System files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE & Editor configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and scratch files
+*.log
+scratch/

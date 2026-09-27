@@ -1,0 +1,220 @@
+/* ==========================================================================
+   MediTrail - Base & Global Stylesheet
+   Design Philosophy: Clean, modern, trustworthy, restrained healthcare palette.
+   ========================================================================== */
+
+:root {
+    /* Color Palette - Neutrals */
+    --bg-app: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-subtle: #f1f5f9;
+    --border-subtle: #e2e8f0;
+    --border-medium: #cbd5e1;
+
+    /* Typography Colors */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-light: #94a3b8;
+
+    /* Brand / Healthcare Primary & Accents */
+    --primary: #0d9488;          /* Calm medical teal */
+    --primary-dark: #0f766e;
+    --primary-light: #ccfbf1;
+    --primary-subtle: #f0fdfa;
+
+    --navy: #0f2744;             /* Trustworthy deep navy */
+    --navy-light: #1e3a5f;
+
+    /* Medical Event Categorical Colors */
+    --accent-blue: #0284c7;      /* Diagnostics & Reports */
+    --accent-blue-bg: #e0f2fe;
+
+    --accent-rose: #e11d48;      /* Surgeries & Donations */
+    --accent-rose-bg: #ffe4e6;
+
+    --accent-green: #10b981;     /* Vaccinations & Clear Status */
+    --accent-green-bg: #d1fae5;
+
+    --accent-amber: #d97706;     /* Alerts, Acute Conditions */
+    --accent-amber-bg: #fef3c7;
+
+    /* Geometry & Spacing */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+
+    /* Shadows - Soft and restrained */
+    --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+    --shadow-drawer: -4px 0 24px rgba(15, 23, 42, 0.12);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.25s ease;
+}
+
+/* Global Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    /* Lock html to viewport — page scroll handled by inner containers only */
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    line-height: 1.5;
+    /* Fill the viewport exactly — no body-level scrollbar */
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   Custom Scrollbar — only the thumb is visible, no track rail
+   ========================================================================== */
+
+/* Firefox — thumb only, no track */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(13, 148, 136, 0.4) transparent;
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    background: transparent; /* no track gutter color */
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece {
+    background: transparent; /* fully invisible track rail */
+    border: none;
+    box-shadow: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(13, 148, 136, 0.42);
+    border-radius: 99px;
+    /* No border so thumb fills the full 5px width cleanly */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(13, 148, 136, 0.72);
+}
+
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-button {
+    display: none;  /* hide corner piece and scroll arrows */
+    background: transparent;
+}
+
+/* Landing view uses floating dot pagination — hide native scrollbar completely */
+#view-landing {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+#view-landing::-webkit-scrollbar {
+    width: 0px !important;
+    height: 0px !important;
+    display: none !important;
+    background: transparent !important;
+}
+
+#view-landing::-webkit-scrollbar-thumb {
+    display: none !important;
+    background: transparent !important;
+}
+
+
+
+/* Typography Helpers */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+p {
+    color: var(--text-secondary);
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--primary-dark);
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+/* View Container Visibility Control */
+.view-container {
+    display: none;
+}
+
+.view-container.active {
+    display: block;
+    /* Fill the full viewport height so inner scroll containers work correctly */
+    height: 100%;
+}
+
+
+/* Layout Utilities */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ==========================================================================
+   Debug Mode Visual Outlines & Diagnostic Overlays
+   ========================================================================== */
+/* Element outline debug rule removed to prevent visual clutter */
+
+.debug .debug-only {
+    display: block;
+}
+
+.debug-only {
+    display: none;
+}
+

@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTrail - Your Medical Journey, Organized</title>
+    <meta name="description"
+        content="A centralized, chronological medical history management system designed for patients and authorized healthcare providers.">
+
+    <link rel="icon" type="image/png" href="image.png">
+
+    <!-- Dynamic Asset Cache Busting (guarantees latest CSS and JS on page reload) -->
+    <script>
+        const __BUILD_V = Date.now();
+        document.write('<link rel="stylesheet" href="css/style.css?v=' + __BUILD_V + '">');
+        document.write('<link rel="stylesheet" href="css/components.css?v=' + __BUILD_V + '">');
+    </script>
+    <noscript>
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/components.css">
+    </noscript>
+</head>
+
+<body>
+
+    <!-- ================================================================= -->
+    <!-- 1. LANDING PAGE VIEW                                              -->
+    <!-- ================================================================= -->
+    <div id="view-landing" class="view-container active">
+        <!-- Landing Navigation -->
+        <header class="landing-header" id="landing-header">
+            <div class="container nav-container">
+                <a href="javascript:void(0)" class="logo landing-floating-logo" onclick="navigateToView('landing')">
+                    <img src="image.png" alt="MediTrail Logo" class="logo-img">
+                    <span class="logo-text-brand">MediTrail</span>
+                </a>
+                <div class="nav-actions" style="display: flex; gap: 0.75rem; align-items: center;">
+                    <a href="admin.html" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">🏥 Hospital & Doctor Portal</a>
+                    <button class="btn btn-primary landing-floating-cta" onclick="openPatientAuthModal()">Patient Sign In / Register</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Vertical Dot Scrollbar Navigation -->
+        <nav class="landing-dot-nav" id="landing-dot-nav" aria-label="Page section navigation">
+            <button type="button" class="landing-dot-item active" data-section="1" onclick="scrollLandingToSection(1)"
+                aria-label="Go to Hero section">
+                <span class="landing-dot-label">Overview</span>
+                <span class="landing-dot"></span>
+            </button>
+            <button type="button" class="landing-dot-item" data-section="2" onclick="scrollLandingToSection(2)"
+                aria-label="Go to Timeline section">
+                <span class="landing-dot-label">Medical Chronicle</span>
+                <span class="landing-dot"></span>
+            </button>
+            <button type="button" class="landing-dot-item" data-section="3" onclick="scrollLandingToSection(3)"
+                aria-label="Go to Access Control section">
+                <span class="landing-dot-label">Controlled Access</span>
+                <span class="landing-dot"></span>
+            </button>
+            <button type="button" class="landing-dot-item" data-section="4" onclick="scrollLandingToSection(4)"
+                aria-label="Go to Features section">
+                <span class="landing-dot-label">Core Pillars</span>
+                <span class="landing-dot"></span>
+            </button>
+            <button type="button" class="landing-dot-item" data-section="5" onclick="scrollLandingToSection(5)"
+                aria-label="Go to Emergency Pass section">
+                <span class="landing-dot-label">Emergency Pass</span>
+                <span class="landing-dot"></span>
+            </button>
+        </nav>
+
+        <!-- ============================================================= -->
+        <!-- SECTION 1: HERO                                                   -->
+        <!-- ============================================================= -->
+        <section id="landing-sec-hero" class="landing-snap-section hero-section">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <span class="hero-tagline reveal-eyebrow" style="--delay: 100ms;">Centralized Healthcare
+                        Records</span>
+                    <h1 class="reveal-heading" style="--delay: 220ms;">Your medical journey, organized.</h1>
+                    <p class="hero-desc reveal-desc" style="--delay: 360ms;">
+                        MediTrail empowers you to maintain an accurate, chronological record of your lifelong medical
+                        history.
+                        Safely preserve surgical histories, diagnostic lab panels, prescriptions, and immunizations—and
+                        selectively grant time-limited access to authorized physicians.
+                    </p>
+                    <div class="hero-actions reveal-actions" style="--delay: 480ms;">
+                        <button onclick="openPatientAuthModal()" class="btn btn-navy">
+                            <span>Explore Patient Portal</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M5 12h14M12 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                        <button onclick="openPatientAuthModal()" class="btn btn-secondary">
+                            <span>View Medical Timeline</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hero Interactive Concept Preview -->
+                <div class="hero-preview-card reveal-card" style="--delay: 420ms;">
+                    <div class="preview-card-header reveal-item" style="--delay: 560ms;">
+                        <div style="font-weight: 600; font-size: 0.9rem;">Patient Journey Timeline Preview</div>
+                        <span class="badge badge-teal">Live Chronicle</span>
+                    </div>
+                    <div class="preview-card-body">
+                        <div class="mini-timeline-item reveal-node" style="--delay: 680ms;" data-record-id="rec-2026-01"
+                            onclick="openRecordDetail('rec-2026-01')"
+                            onmouseenter="handleHeroItemHover('rec-2026-01', this)"
+                            onmouseleave="cancelHeroItemHover(this)">
+                            <div class="mini-item-content">
+                                <div class="mini-item-date">2026 • Aug 18</div>
+                                <div class="mini-item-title">Annual Preventative Health Assessment</div>
+                                <div class="mini-item-meta">CityCare Hospital • Dr. Ananya Sharma</div>
+                            </div>
+                            <div class="mini-item-progress" aria-hidden="true"></div>
+                        </div>
+                        <div class="mini-timeline-item reveal-node" style="--delay: 820ms;" data-record-id="rec-2026-02"
+                            onclick="openRecordDetail('rec-2026-02')"
+                            onmouseenter="handleHeroItemHover('rec-2026-02', this)"
+                            onmouseleave="cancelHeroItemHover(this)">
+                            <div class="mini-item-content">
+                                <div class="mini-item-date">2026 • Jul 02</div>
+                                <div class="mini-item-title">Diagnostic Blood Panel (CBC & Lipid)</div>
+                                <div class="mini-item-meta">HealthLab Diagnostics • Normal Result</div>
+                            </div>
+                            <div class="mini-item-progress" aria-hidden="true"></div>
+                        </div>
+                        <div class="mini-timeline-item reveal-node" style="--delay: 960ms;" data-record-id="rec-2025-01"
+                            onclick="openRecordDetail('rec-2025-01')"
+                            onmouseenter="handleHeroItemHover('rec-2025-01', this)"
+                            onmouseleave="cancelHeroItemHover(this)">
+                            <div class="mini-item-content">
+                                <div class="mini-item-date">2025 • Dec 14</div>
+                                <div class="mini-item-title">Laparoscopic Appendectomy</div>
+                                <div class="mini-item-meta">CityCare Hospital • Surgical Discharge</div>
+                            </div>
+                            <div class="mini-item-progress" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="snap-scroll-hint reveal-item" style="--delay: 1150ms;" onclick="scrollLandingToSection(2)">
+                <span>Scroll to Medical Timeline</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path>
+                </svg>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- SECTION 2: MEDICAL TIMELINE                                       -->
+        <!-- ============================================================= -->
+        <section id="landing-sec-timeline" class="landing-snap-section concept-section">
+            <div class="container concept-grid">
+                <div>
+                    <span class="badge badge-teal reveal-eyebrow"
+                        style="--delay: 100ms; margin-bottom: 0.75rem;">Timeline Architecture</span>
+                    <h2 class="reveal-heading" style="--delay: 220ms;">A Complete Longitudinal Health Story</h2>
+                    <p class="reveal-desc" style="--delay: 360ms; margin-top: 0.75rem;">
+                        Traditional patient portals lock your data inside one hospital's internal database.
+                        MediTrail unifies multiple touchpoints into an intuitive visual stream.
+                    </p>
+                    <ul class="concept-list">
+                        <li class="concept-item reveal-node" style="--delay: 500ms;">
+                            <div class="concept-dot">1</div>
+                            <div>
+                                <strong style="color: var(--navy);">Multi-Year Grouping & Sticky Headers</strong>
+                                <p style="font-size: 0.875rem;">Instant visual separation across years with sticky
+                                    markers that stay pinned next to filter controls during scroll.</p>
+                            </div>
+                        </li>
+                        <li class="concept-item reveal-node" style="--delay: 640ms;">
+                            <div class="concept-dot">2</div>
+                            <div>
+                                <strong style="color: var(--navy);">Categorical Type Markers</strong>
+                                <p style="font-size: 0.875rem;">Distinct indicators for surgical procedures, routine
+                                    checkups, diagnostic labs, vaccinations, and donations.</p>
+                            </div>
+                        </li>
+                        <li class="concept-item reveal-node" style="--delay: 780ms;">
+                            <div class="concept-dot">3</div>
+                            <div>
+                                <strong style="color: var(--navy);">One-Click Deep Clinical Dives</strong>
+                                <p style="font-size: 0.875rem;">Inspect diagnosis summaries, attending surgeons,
+                                    medication schedules, and attached discharge summaries without clutter.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Section 2 Interactive Timeline Preview Card -->
+                <div class="timeline-preview-card reveal-card" style="--delay: 440ms;">
+                    <div class="timeline-preview-header reveal-item" style="--delay: 560ms;">
+                        <div class="timeline-preview-header-left">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span>Timeline Stream Preview</span>
+                        </div>
+                        <span class="badge badge-teal" style="font-size: 0.72rem; padding: 0.18rem 0.55rem;">Live Feed</span>
+                    </div>
+
+                    <!-- Floating Filter Navigation Bar (matching portal timeline) -->
+                    <div class="timeline-preview-controls reveal-item" style="--delay: 680ms;">
+                        <div class="filter-pills-wrap" id="landing-filter-pills">
+                            <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-right: 0.25rem;">Filter:</span>
+                            <button class="filter-pill active" data-filter="All">All Events</button>
+                            <button class="filter-pill" data-filter="Surgeries">Surgeries</button>
+                            <button class="filter-pill" data-filter="Diseases">Diseases</button>
+                            <button class="filter-pill" data-filter="Treatments">Treatments</button>
+                            <button class="filter-pill" data-filter="Reports">Reports</button>
+                            <button class="filter-pill" data-filter="Vaccinations">Vaccinations</button>
+                            <button class="filter-pill" data-filter="Donations">Donations</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Scrollable Timeline Tree -->
+                    <div class="timeline-preview-body reveal-item" style="--delay: 800ms;" id="landing-timeline-container">
+                        <!-- Populated dynamically by landing.js -->
+                    </div>
+
+                    <!-- Card Action Footer -->
+                    <div class="timeline-preview-footer reveal-item" style="--delay: 940ms;">
+                        <button onclick="openPatientAuthModal()" class="btn btn-secondary" style="width: 100%; justify-content: center; font-size: 0.8rem; padding: 0.55rem 1rem; box-sizing: border-box; cursor: pointer;">
+                            <span>Sign In to Access Full Timeline</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M5 12h14M12 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="snap-scroll-hint reveal-item" style="--delay: 1040ms;" onclick="scrollLandingToSection(3)">
+                <span>Scroll to Core Pillars</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path>
+                </svg>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- SECTION 3: CONTROLLED ACCESS                                      -->
+        <!-- ============================================================= -->
+        <section id="landing-sec-access" class="landing-snap-section controlled-access-section">
+            <div class="container access-grid">
+                <div>
+                    <span class="badge badge-blue reveal-eyebrow"
+                        style="--delay: 100ms; margin-bottom: 0.75rem;">Sovereign Patient Security</span>
+                    <h2 class="reveal-heading" style="--delay: 220ms;">Zero-Trust Controlled Access</h2>
+                    <p class="reveal-desc"
+                        style="--delay: 360ms; margin-top: 0.75rem; color: var(--text-secondary); line-height: 1.65;">
+                        You decide who sees your clinical history. Grant temporary, scoped permissions to consulting
+                        physicians and revoke access anytime with one click.
+                    </p>
+                    <div class="access-feature-list">
+                        <div class="access-feature-item reveal-node" style="--delay: 500ms;">
+                            <div class="access-icon-box">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 14 14"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong>Time-Limited Grants</strong>
+                                <p>Set 24-hour, 7-day, or 30-day viewing windows that automatically expire.</p>
+                            </div>
+                        </div>
+                        <div class="access-feature-item reveal-node" style="--delay: 640ms;">
+                            <div class="access-icon-box">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong>Department Scoping</strong>
+                                <p>Share only cardiology records with your cardiologist, or lab panels with diagnostics.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="access-feature-item reveal-node" style="--delay: 780ms;">
+                            <div class="access-icon-box">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                    <line x1="12" y1="2" x2="12" y2="12"></line>
+                                </svg>
+                            </div>
+                            <div>
+                                <strong>Instant One-Click Revocation</strong>
+                                <p>Terminate access at any moment with real-time audit logging.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Access Management Interactive Card Showcase -->
+                <div class="access-preview-card reveal-card" style="--delay: 420ms;">
+                    <div class="access-card-header reveal-item" style="--delay: 560ms;">
+                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--navy);">Currently Authorized
+                            Physicians</div>
+                        <span class="badge badge-teal">3 Active Grants</span>
+                    </div>
+                    <div class="access-card-body">
+                        <div class="doctor-access-row reveal-item" style="--delay: 680ms;">
+                            <div class="doctor-avatar-circle">AS</div>
+                            <div class="doctor-info-col">
+                                <div class="doctor-name-tag">Dr. Ananya Sharma</div>
+                                <div class="doctor-spec-tag">Internal Medicine • CityCare Hospital</div>
+                            </div>
+                            <span class="badge badge-green" style="font-size: 0.75rem;">Full Access</span>
+                        </div>
+                        <div class="doctor-access-row reveal-item" style="--delay: 800ms;">
+                            <div class="doctor-avatar-circle">RK</div>
+                            <div class="doctor-info-col">
+                                <div class="doctor-name-tag">Dr. Rajesh Kulkarni</div>
+                                <div class="doctor-spec-tag">Pulmonology • Metro Chest Institute</div>
+                            </div>
+                            <span class="badge badge-teal" style="font-size: 0.75rem;">Active (12d)</span>
+                        </div>
+                        <div class="doctor-access-row reveal-item" style="--delay: 920ms;">
+                            <div class="doctor-avatar-circle">SV</div>
+                            <div class="doctor-info-col">
+                                <div class="doctor-name-tag">Dr. Sandeep Varma</div>
+                                <div class="doctor-spec-tag">Pathology • HealthLab Diagnostics</div>
+                            </div>
+                            <span class="badge badge-teal" style="font-size: 0.75rem;">Active (5d)</span>
+                        </div>
+                        <button onclick="openPatientAuthModal()" class="btn btn-secondary reveal-item"
+                            style="--delay: 1040ms; width: 100%; margin-top: 0.75rem; font-size: 0.825rem; text-align: center; display: inline-block; box-sizing: border-box; cursor: pointer;">
+                            Sign In to Manage Permissions &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="snap-scroll-hint reveal-item" style="--delay: 1120ms;" onclick="scrollLandingToSection(4)">
+                <span>Scroll to Core Pillars</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path>
+                </svg>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- SECTION 4: FEATURES / CORE PILLARS                                -->
+        <!-- ============================================================= -->
+        <section id="landing-sec-features" class="landing-snap-section pillars-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="badge badge-teal reveal-eyebrow" style="--delay: 100ms; margin-bottom: 0.75rem;">Core
+                        Capabilities</span>
+                    <h2 class="reveal-heading" style="--delay: 220ms;">Engineered for Clarity and Continuity</h2>
+                    <p class="reveal-desc" style="--delay: 360ms;">Fragmented paper files and lost discharge summaries
+                        cause medical errors. MediTrail bridges
+                        health records into one cohesive journey.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-box reveal-card" style="--delay: 480ms;">
+                        <div class="feature-icon-wrapper"
+                            style="background-color: var(--primary-light); color: var(--primary-dark);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <h3>Chronological History</h3>
+                        <p>Track your health path across different hospitals, diagnostic centers, and clinics arranged
+                            seamlessly in year-by-year chronological order.</p>
+                    </div>
+
+                    <div class="feature-box reveal-card" style="--delay: 620ms;">
+                        <div class="feature-icon-wrapper"
+                            style="background-color: var(--accent-blue-bg); color: var(--accent-blue);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                        </div>
+                        <h3>Granular Access Control</h3>
+                        <p>You remain the sovereign owner of your records. Grant temporary, department-specific read
+                            permissions to consulting physicians whenever you visit.</p>
+                    </div>
+
+                    <div class="feature-box reveal-card" style="--delay: 760ms;">
+                        <div class="feature-icon-wrapper"
+                            style="background-color: var(--accent-rose-bg); color: var(--accent-rose);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3>Emergency Health Pass</h3>
+                        <p>Essential clinical details—blood group, allergy warnings, chronic conditions, and emergency
+                            family contacts—are rapidly accessible when seconds count.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="snap-scroll-hint reveal-item" style="--delay: 920ms;" onclick="scrollLandingToSection(5)">
+                <span>Scroll to Emergency / CTA</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path>
+                </svg>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- SECTION 5: EMERGENCY / CTA                                        -->
+        <!-- ============================================================= -->
+        <section id="landing-sec-emergency" class="landing-snap-section emergency-cta-section">
+            <div class="container emergency-cta-container">
+                <div class="emergency-badge-top reveal-eyebrow" style="--delay: 100ms;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path
+                            d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z">
+                        </path>
+                    </svg>
+                    <span>Emergency Health Pass & Instant QR</span>
+                </div>
+                <h2 class="reveal-heading" style="--delay: 240ms;">When Seconds Count, Information Saves Lives.</h2>
+                <p class="emergency-cta-sub reveal-desc" style="--delay: 380ms;">
+                    Instantly display vital blood group (B+), critical penicillin allergies, chronic asthma notes, and
+                    primary next-of-kin contacts without requiring a login code or unlock pin.
+                </p>
+
+                <div class="emergency-cta-grid">
+                    <div class="emergency-pill-tag reveal-card" style="--delay: 500ms;">
+                        <span class="pill-label">Blood Type</span>
+                        <span class="pill-value" style="color: var(--accent-rose);">B Rh+</span>
+                    </div>
+                    <div class="emergency-pill-tag reveal-card" style="--delay: 620ms;">
+                        <span class="pill-label">Allergies</span>
+                        <span class="pill-value" style="color: var(--accent-amber);">Penicillin, Dust Mites</span>
+                    </div>
+                    <div class="emergency-pill-tag reveal-card" style="--delay: 740ms;">
+                        <span class="pill-label">Chronic Condition</span>
+                        <span class="pill-value">Mild Asthma (controlled)</span>
+                    </div>
+                    <div class="emergency-pill-tag reveal-card" style="--delay: 860ms;">
+                        <span class="pill-label">Next of Kin</span>
+                        <span class="pill-value">+91 98765 43210 (Mother)</span>
+                    </div>
+                </div>
+
+                <div class="emergency-action-btns reveal-actions" style="--delay: 980ms;">
+                    <button onclick="openPatientAuthModal()" class="btn btn-primary btn-lg">
+                        <span>Sign In to Patient Portal</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                    <button class="btn btn-secondary-white btn-lg" onclick="openQrModal()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>View Emergency QR Pass</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- 4. MEDICAL RECORD DETAIL VIEW (SLIDE-OVER DRAWER)                 -->
+    <!-- ================================================================= -->
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+    <div class="detail-drawer" id="record-detail-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+        <div class="drawer-header">
+            <div class="drawer-header-content">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                    <span id="drawer-type-badge" class="badge badge-teal">Surgery</span>
+                    <span id="drawer-date" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">14 Dec
+                        2025</span>
+                </div>
+                <h2 id="drawer-title" style="font-size: 1.25rem; color: var(--navy);">Appendectomy</h2>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button class="btn btn-secondary drawer-btn-hover-trigger" id="drawer-download-btn"
+                    style="padding: 0.4rem 0.85rem; font-size: 0.8rem;" onclick="downloadActiveDrawerRecord()"
+                    onmouseenter="triggerButtonOnHover(this, downloadActiveDrawerRecord)"
+                    onmouseleave="cancelButtonHoverTrigger(this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Download Record</span>
+                    <span class="drawer-btn-progress" aria-hidden="true"></span>
+                </button>
+                <button class="drawer-close-btn drawer-btn-hover-trigger" onclick="closeRecordDetail()"
+                    onmouseenter="triggerButtonOnHover(this, closeRecordDetail)"
+                    onmouseleave="cancelButtonHoverTrigger(this)"
+                    aria-label="Close Record Details">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span class="drawer-btn-progress" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="drawer-body" id="drawer-dynamic-content">
+            <!-- Populated on event click from app.js -->
+        </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- 6. SECURE QR CODE SHARING MODAL POPUP                            -->
+    <!-- ================================================================= -->
+    <div class="modal-backdrop" id="qr-modal-backdrop" onclick="closeQrModal()"></div>
+    <div class="qr-modal" id="qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
+        <div class="qr-modal-header">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="qr-badge-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="5" height="5" x="3" y="3" rx="1"></rect>
+                        <rect width="5" height="5" x="16" y="3" rx="1"></rect>
+                        <rect width="5" height="5" x="3" y="16" rx="1"></rect>
+                        <path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+                        <path d="M21 21v.01"></path>
+                        <path d="M12 7v3a2 2 0 0 1-2 2H7"></path>
+                        <path d="M3 12h.01"></path>
+                        <path d="M12 3h.01"></path>
+                        <path d="M12 16v.01"></path>
+                        <path d="M16 12h1"></path>
+                        <path d="M21 12v.01"></path>
+                        <path d="M12 21v-1"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 id="qr-modal-title"
+                        style="font-size: 1.15rem; font-weight: 700; color: var(--navy); margin: 0;">Scan to Access
+                        Medical Records</h3>
+                    <div style="font-size: 0.775rem; color: var(--text-muted); margin-top: 0.15rem;">Fast
+                        doctor-to-patient encrypted record sharing</div>
+                </div>
+            </div>
+            <button class="drawer-close-btn" onclick="closeQrModal()" aria-label="Close QR Code Viewer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="qr-modal-body">
+            <!-- Rendered QR Code Container -->
+            <div class="qr-code-display-wrap">
+                <div class="qr-code-frame" id="qr-code-container">
+                    <!-- Crisp high-contrast geometric QR SVG -->
+                </div>
+                <div class="qr-scan-badge">
+                    <span class="qr-pulse-dot"></span>
+                    <span>Valid for 15 minutes • Single Session</span>
+                </div>
+            </div>
+
+            <!-- Patient Information Pill -->
+            <div class="qr-patient-meta">
+                <div style="font-size: 0.95rem; font-weight: 700; color: var(--navy);" id="qr-patient-name">Aarnav Mehta
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">ID: <strong
+                        style="color: var(--primary-dark);">MT-10482</strong> • Blood Group: <strong
+                        style="color: var(--accent-rose);">B+</strong></div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4;">
+                    Consulting physician can point camera or hospital scanner to grant verified, read-only electronic
+                    health record access.
+                </div>
+            </div>
+
+            <!-- Actions Footer -->
+            <div class="qr-modal-footer">
+                <button class="btn btn-secondary" style="flex: 1; font-size: 0.825rem;" onclick="copyQrShareLink()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                    </svg>
+                    <span>Copy Doctor Link</span>
+                </button>
+                <button class="btn btn-primary" style="flex: 1; font-size: 0.825rem;" onclick="refreshQrCode()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                        <path d="M21 3v5h-5"></path>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                        <path d="M8 16H3v5"></path>
+                    </svg>
+                    <span>Regenerate QR</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- PATIENT AUTHENTICATION & SIGNUP MODAL                             -->
+    <!-- ================================================================= -->
+    <!-- ================================================================= -->
+    <!-- PATIENT AUTHENTICATION & SIGNUP MODAL                             -->
+    <!-- ================================================================= -->
+    <!-- ================================================================= -->
+    <!-- PATIENT AUTHENTICATION & SIGNUP MODAL                             -->
+    <!-- ================================================================= -->
+    <div id="patient-auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 39, 68, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); align-items: center; justify-content: center; z-index: 99999; opacity: 1; visibility: visible;">
+        <div style="background: #ffffff; width: 90%; max-width: 480px; padding: 2.25rem; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #e2e8f0; position: relative; animation: fadeInModal 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; overflow-y: auto;">
+            <button onclick="closePatientAuthModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; color: #64748b; display: flex; align-items: center; justify-content: center;">✕</button>
+
+            <div style="text-align: center; margin-bottom: 1.25rem;">
+                <img src="image.png" alt="MediTrail Logo" style="height: 40px; margin-bottom: 0.5rem;">
+                <h3 style="font-size: 1.35rem; font-weight: 700; color: #0f2744; margin-bottom: 0.25rem;">Patient Access Gateway</h3>
+                <p style="font-size: 0.85rem; color: #64748b;">Sign in with your registered mobile or create a new health profile.</p>
+            </div>
+
+            <!-- Tab Switcher: Sign In vs Register -->
+            <div style="display: flex; background: #f1f5f9; border-radius: 10px; padding: 4px; margin-bottom: 1.5rem;">
+                <button type="button" id="tab-pt-signin" onclick="switchPatientAuthMode('signin')" style="flex: 1; padding: 0.6rem; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; background: #ffffff; color: #0f2744; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;">
+                    Sign In
+                </button>
+                <button type="button" id="tab-pt-register" onclick="switchPatientAuthMode('register')" style="flex: 1; padding: 0.6rem; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; background: transparent; color: #64748b; cursor: pointer;">
+                    Register New Patient
+                </button>
+            </div>
+
+            <!-- 1. SIGN IN FORM -->
+            <form id="patient-signin-form" onsubmit="handlePatientSignInSubmit(event)">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Registered Mobile Number</label>
+                    <input type="tel" id="pt-auth-mobile" required placeholder="e.g. 9876543210" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Enter 4-Digit OTP Code</label>
+                    <input type="text" id="pt-auth-otp" required maxlength="4" placeholder="1 2 3 4" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1.1rem; letter-spacing: 0.3em; text-align: center; box-sizing: border-box;">
+                </div>
+
+                <button type="submit" style="width: 100%; padding: 0.85rem; background: #0f2744; color: #ffffff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">
+                    Sign In & Unlock History →
+                </button>
+            </form>
+
+            <!-- 2. REGISTER FORM -->
+            <form id="patient-register-form" onsubmit="handlePatientRegisterSubmit(event)" style="display: none;">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Patient Full Name</label>
+                    <input type="text" id="pt-reg-name" required placeholder="e.g. Rahul Sharma" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Mobile Number</label>
+                    <input type="tel" id="pt-reg-mobile" required placeholder="e.g. 9876543210" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Date of Birth</label>
+                        <input type="date" id="pt-reg-dob" required style="width: 100%; padding: 0.65rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Gender</label>
+                        <select id="pt-reg-gender" style="width: 100%; padding: 0.65rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Blood Group</label>
+                    <select id="pt-reg-blood" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+                        <option value="B+">B Rh+</option>
+                        <option value="A+">A Rh+</option>
+                        <option value="O+">O Rh+</option>
+                        <option value="AB+">AB Rh+</option>
+                        <option value="O-">O Rh-</option>
+                        <option value="A-">A Rh-</option>
+                        <option value="B-">B Rh-</option>
+                        <option value="AB-">AB Rh-</option>
+                    </select>
+                </div>
+
+                <button type="submit" style="width: 100%; padding: 0.85rem; background: #0d9488; color: #ffffff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">
+                    Register Patient & Sync with Supabase →
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- debug-config.js is generated by runner.py based on the DEBUG_MODE flag -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/vendor/jspdf.umd.min.js"></script>
+    <script src="js/debug-config.js"></script>
+    <script src="js/data.js"></script>
+    <script>
+        function openPatientAuthModal() {
+            var modal = document.getElementById('patient-auth-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.style.opacity = '1';
+                modal.style.visibility = 'visible';
+            }
+        }
+
+        function closePatientAuthModal() {
+            var modal = document.getElementById('patient-auth-modal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.style.opacity = '0';
+                modal.style.visibility = 'hidden';
+            }
+        }
+
+        function switchPatientAuthMode(mode) {
+            var signinForm = document.getElementById('patient-signin-form');
+            var registerForm = document.getElementById('patient-register-form');
+            var btnSignin = document.getElementById('tab-pt-signin');
+            var btnRegister = document.getElementById('tab-pt-register');
+
+            if (mode === 'register') {
+                if (signinForm) signinForm.style.display = 'none';
+                if (registerForm) registerForm.style.display = 'block';
+                if (btnSignin) {
+                    btnSignin.style.background = 'transparent';
+                    btnSignin.style.color = '#64748b';
+                    btnSignin.style.boxShadow = 'none';
+                }
+                if (btnRegister) {
+                    btnRegister.style.background = '#ffffff';
+                    btnRegister.style.color = '#0f2744';
+                    btnRegister.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                }
+            } else {
+                if (registerForm) registerForm.style.display = 'none';
+                if (signinForm) signinForm.style.display = 'block';
+                if (btnRegister) {
+                    btnRegister.style.background = 'transparent';
+                    btnRegister.style.color = '#64748b';
+                    btnRegister.style.boxShadow = 'none';
+                }
+                if (btnSignin) {
+                    btnSignin.style.background = '#ffffff';
+                    btnSignin.style.color = '#0f2744';
+                    btnSignin.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                }
+            }
+        }
+
+        async function handlePatientSignInSubmit(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            var mobile = (document.getElementById('pt-auth-mobile') || {}).value.trim();
+            var otp = (document.getElementById('pt-auth-otp') || {}).value.trim();
+
+            if (!mobile) return alert('Please enter your mobile number.');
+
+            // Predefined OTP check for everyone
+            if (otp !== '1234') {
+                return alert('Invalid OTP code! Predefined OTP for all users is 1234.');
+            }
+
+            if (window.supabase) {
+                try {
+                    var sb = window.supabase.createClient(
+                        'https://zxcqicubcrqsxubnnmpp.supabase.co',
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Y3FpY3ViY3Jxc3h1Ym5ubXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0ODQ4MjYsImV4cCI6MjEwNjA2MDgyNn0.NrFhY5HUGmxCGFegyNNIvb_jSMJZ7_R7qDcl4mO4vok'
+                    );
+                    var res = await sb.from('patients').select('*').eq('phone', mobile).maybeSingle();
+                    if (res && res.data) {
+                        sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(res.data));
+                        sessionStorage.setItem('MEDITRAIL_PATIENT_LOGGED_IN', 'true');
+                        closePatientAuthModal();
+                        window.location.href = 'portal.html';
+                        return;
+                    }
+                } catch (err) {
+                    console.warn('Supabase patient query:', err);
+                }
+            }
+
+            if (mobile === '9876543210' || mobile.includes('98765')) {
+                var demoPatient = {
+                    name: "Aarnav Mehta",
+                    patient_code: "MT-10482",
+                    age: 24,
+                    dob: "2002-04-15",
+                    gender: "Male",
+                    blood_group: "B+",
+                    phone: "9876543210"
+                };
+                sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(demoPatient));
+                sessionStorage.setItem('MEDITRAIL_PATIENT_LOGGED_IN', 'true');
+                closePatientAuthModal();
+                window.location.href = 'portal.html';
+            } else {
+                alert('Mobile number (' + mobile + ') not registered in database. Switching to Registration mode!');
+                switchPatientAuthMode('register');
+                var regMobile = document.getElementById('pt-reg-mobile');
+                if (regMobile) regMobile.value = mobile;
+            }
+        }
+
+        async function handlePatientRegisterSubmit(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            var name = (document.getElementById('pt-reg-name') || {}).value.trim();
+            var mobile = (document.getElementById('pt-reg-mobile') || {}).value.trim();
+            var dob = (document.getElementById('pt-reg-dob') || {}).value;
+            var gender = (document.getElementById('pt-reg-gender') || {}).value;
+            var blood = (document.getElementById('pt-reg-blood') || {}).value;
+
+            if (!name || !mobile || !dob) return alert('Please fill in all required fields.');
+
+            var dobYear = new Date(dob).getFullYear();
+            var age = new Date().getFullYear() - dobYear;
+            var patientCode = 'MT-' + Math.floor(10000 + Math.random() * 90000);
+
+            var newPatient = {
+                name: name,
+                patient_code: patientCode,
+                age: age || 24,
+                dob: dob,
+                gender: gender,
+                blood_group: blood,
+                phone: mobile,
+                allergies: ['Penicillin'],
+                chronic_conditions: ['None'],
+                insurance_provider: 'Star Health Premier',
+                policy_number: 'SHP-' + Math.floor(100000 + Math.random() * 900000)
+            };
+
+            if (window.supabase) {
+                try {
+                    var sb = window.supabase.createClient(
+                        'https://zxcqicubcrqsxubnnmpp.supabase.co',
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Y3FpY3ViY3Jxc3h1Ym5ubXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0ODQ4MjYsImV4cCI6MjEwNjA2MDgyNn0.NrFhY5HUGmxCGFegyNNIvb_jSMJZ7_R7qDcl4mO4vok'
+                    );
+                    var insertRes = await sb.from('patients').insert([newPatient]).select();
+                    if (insertRes && insertRes.error) {
+                        alert('Supabase Database Error: ' + insertRes.error.message);
+                    } else {
+                        console.log('✅ Supabase Patient Registered Successfully:', insertRes ? insertRes.data : newPatient);
+                    }
+                } catch (err) {
+                    console.warn('Supabase patient register error:', err);
+                }
+            }
+
+            // Save to local session as backup
+            sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(newPatient));
+
+            // Switch to Sign In tab and pre-fill mobile number as requested!
+            alert('Registration Successful for ' + name + ' (' + patientCode + ')!\n\nPlease now Sign In with your registered mobile number (' + mobile + ').');
+            switchPatientAuthMode('signin');
+            var authMobile = document.getElementById('pt-auth-mobile');
+            if (authMobile) authMobile.value = mobile;
+            var authOtp = document.getElementById('pt-auth-otp');
+            if (authOtp) authOtp.value = '1234';
+        }
+
+        window.openPatientAuthModal = openPatientAuthModal;
+        window.closePatientAuthModal = closePatientAuthModal;
+        window.switchPatientAuthMode = switchPatientAuthMode;
+        window.handlePatientSignInSubmit = handlePatientSignInSubmit;
+        window.handlePatientRegisterSubmit = handlePatientRegisterSubmit;
+
+        if (window.location.search.includes('auth=required')) {
+            window.addEventListener('load', function() {
+                openPatientAuthModal();
+            });
+        }
+    </script>
+    <script type="module">
+        import(`./js/main.js?v=${Date.now()}`);
+    </script>
+</body>
+
+
+</html>

@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTrail - Clinical Patient Portal</title>
+    <meta name="description"
+        content="A centralized, chronological medical history management system designed for patients and authorized healthcare providers.">
+
+    <link rel="icon" type="image/png" href="image.png">
+
+    <!-- Dynamic Asset Cache Busting (guarantees latest CSS and JS on page reload) -->
+    <script>
+        // Auth Guard: Redirect unauthenticated users back to landing page login modal
+        if (sessionStorage.getItem('MEDITRAIL_PATIENT_LOGGED_IN') !== 'true') {
+            window.location.href = 'index.html?auth=required';
+        }
+        function handlePatientSignOut() {
+            sessionStorage.removeItem('MEDITRAIL_PATIENT_LOGGED_IN');
+            sessionStorage.removeItem('MEDITRAIL_CURRENT_PATIENT');
+            window.location.href = 'index.html';
+        }
+        window.handlePatientSignOut = handlePatientSignOut;
+        const __BUILD_V = Date.now();
+        document.write('<link rel="stylesheet" href="css/style.css?v=' + __BUILD_V + '">');
+        document.write('<link rel="stylesheet" href="css/components.css?v=' + __BUILD_V + '">');
+    </script>
+    <noscript>
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/components.css">
+    </noscript>
+</head>
+
+<body>
+
+    <!-- 2. APP SHELL (Patient Portal: Dashboard & Medical Timeline)       -->
+    <!-- ================================================================= -->
+    <div id="view-app-shell" class="view-container active">
+        <div class="app-layout">
+            <!-- Mobile Sidebar Backdrop Overlay -->
+            <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleMobileSidebar(false)"></div>
+
+            <!-- Sidebar Navigation -->
+            <aside class="app-sidebar" id="app-sidebar">
+                <div class="sidebar-header">
+                    <a href="index.html" class="logo" onclick="navigateToView('landing')">
+                        <img src="image.png" alt="MediTrail Logo" class="logo-img">
+                        <span class="logo-text">MediTrail</span>
+                    </a>
+                    <button class="sidebar-close-btn" onclick="toggleMobileSidebar(false)"
+                        aria-label="Close Navigation Menu">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="javascript:void(0)" class="nav-link active" data-tab="dashboard"
+                        onclick="selectTab('dashboard')" title="Dashboard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                    <a href="javascript:void(0)" class="nav-link" data-tab="timeline" onclick="selectTab('timeline')"
+                        title="Medical Timeline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span class="nav-label">Medical Timeline</span>
+                    </a>
+                    <a href="javascript:void(0)" class="nav-link" data-tab="medications"
+                        onclick="selectTab('medications')" title="Medications">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path>
+                            <path d="m8.5 8.5 7 7"></path>
+                        </svg>
+                        <span class="nav-label">Medications</span>
+                    </a>
+                    <a href="javascript:void(0)" class="nav-link" data-tab="shared-access"
+                        onclick="selectTab('shared-access')" title="Shared Access">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span class="nav-label">Shared Access</span>
+                    </a>
+                    <a href="javascript:void(0)" class="nav-link" data-tab="emergency-info"
+                        onclick="selectTab('emergency-info')" title="Emergency Info">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                            </path>
+                            <path d="M14.05 2a9 9 0 0 1 8 7.94"></path>
+                            <path d="M14.05 6A5 5 0 0 1 18 10"></path>
+                        </svg>
+                        <span class="nav-label">Emergency Info</span>
+                    </a>
+                    <a href="javascript:void(0)" class="nav-link" onclick="handlePatientSignOut()"
+                        title="Sign Out of Patient Session" style="color: #ef4444;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        <span class="nav-label">Sign Out</span>
+                    </a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="user-snippet" onclick="openProfileModal()" role="button" tabindex="0"
+                        title="View Aarnav Mehta's Profile" style="cursor: pointer;">
+                        <div class="user-avatar" title="Aarnav Mehta (MT-10482)">AM</div>
+                        <div class="user-snippet-details">
+                            <div class="user-meta-name">Aarnav Mehta</div>
+                            <div class="user-meta-id">MT-10482</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Workspace -->
+            <main class="app-main">
+                <header class="app-topbar">
+                    <div class="topbar-left">
+                        <button type="button" class="mobile-menu-toggle" id="mobile-menu-toggle-btn"
+                            aria-label="Toggle navigation menu"
+                            onclick="toggleMobileSidebar(true); event.stopPropagation();">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                        </button>
+                        <a href="index.html" class="mobile-brand-link" onclick="navigateToView('landing')">
+                            <img src="image.png" alt="MediTrail" class="mobile-brand-logo">
+                        </a>
+                        <h1 class="page-title" id="app-page-title">Dashboard</h1>
+                    </div>
+                    <div class="topbar-right">
+                        <button type="button" class="btn" onclick="handlePatientSignOut()" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;" title="Sign out of Patient Session">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            <span>Sign Out</span>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="app-content">
+                    <!-- ----------------------------------------------------- -->
+                    <!-- SCREEN 2: PATIENT DASHBOARD SECTION                   -->
+                    <!-- ----------------------------------------------------- -->
+                    <section id="section-dashboard">
+                        <!-- Patient Banner — click avatar/name area to open full profile modal -->
+                        <div class="patient-banner-card">
+                            <!-- Left: clickable patient identity area -->
+                            <button class="patient-info-header patient-profile-trigger" onclick="openProfileModal()"
+                                title="View full patient profile" aria-label="Open patient profile">
+                                <div class="patient-avatar-large" id="dash-patient-avatar">AM</div>
+                                <div class="patient-details">
+                                    <div class="patient-name-row">
+                                        <h2 id="dash-patient-name">Aarnav Mehta</h2>
+                                        <span class="banner-age-tag" id="dash-patient-age">24 yrs</span>
+                                    </div>
+                                    <div class="banner-patient-id" id="dash-patient-id">MT-10482</div>
+                                </div>
+                                <!-- Hidden data containers for JS population -->
+                                <span id="dash-patient-gender" style="display:none">Male</span>
+                                <span id="dash-patient-dob" style="display:none">15 Apr 2002</span>
+                                <div id="dash-patient-allergies" style="display:none"></div>
+                                <div id="dash-patient-conditions" style="display:none"></div>
+                            </button>
+
+                            <div class="patient-banner-right">
+                                <!-- Interactive Single Stat Carousel Card -->
+                                <div class="stat-carousel-card" id="stat-carousel-card"
+                                    title="Scroll mouse wheel to rotate • Click to open section"
+                                    style="cursor: pointer;">
+                                    <button class="stat-nav-btn prev" onclick="prevStatCard(event)"
+                                        aria-label="Previous Stat" title="Previous Stat">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                    </button>
+                                    <div class="stat-carousel-content" id="stat-carousel-content">
+                                        <div class="stat-carousel-icon-box" id="stat-carousel-icon">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
+                                                </path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+                                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-carousel-details">
+                                            <div class="stat-carousel-label" id="stat-carousel-label">TOTAL RECORDS
+                                            </div>
+                                            <div class="stat-carousel-val-row">
+                                                <span class="stat-carousel-value" id="stat-carousel-val">10</span>
+                                                <span class="stat-carousel-sub" id="stat-carousel-sub">Logged across 4
+                                                    yrs</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="stat-nav-btn next" onclick="nextStatCard(event)"
+                                        aria-label="Next Stat" title="Next Stat">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </button>
+                                    <div class="stat-carousel-dots" id="stat-carousel-dots">
+                                        <span class="stat-dot active" onclick="goToStatCard(0)"></span>
+                                        <span class="stat-dot" onclick="goToStatCard(1)"></span>
+                                        <span class="stat-dot" onclick="goToStatCard(2)"></span>
+                                        <span class="stat-dot" onclick="goToStatCard(3)"></span>
+                                    </div>
+                                </div>
+
+                                <div class="patient-blood-badge">
+                                    <span class="blood-label">Blood Group</span>
+                                    <span class="blood-type" id="dash-patient-blood">B+</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dashboard Split Layout -->
+                        <div class="dashboard-grid">
+                            <!-- Left Column: Activity & Reports side-by-side + Horizontal Timeline Strip -->
+                            <div class="dashboard-left-col">
+                                <div class="activity-reports-row">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <div class="card-title">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="9" cy="7" r="4"></circle>
+                                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                                </svg>
+                                                Doctors with Access
+                                            </div>
+                                            <a href="javascript:void(0)" onclick="selectTab('shared-access')"
+                                                class="card-action-link">Manage Access</a>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="activity-list" id="dash-shared-access">
+                                                <!-- Dynamically populated from data.js -->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <div class="card-title">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2">
+                                                    <path
+                                                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
+                                                    </path>
+                                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                                </svg>
+                                                Diagnostic Lab Reports
+                                            </div>
+                                            <a href="javascript:void(0)"
+                                                onclick="selectTab('timeline'); setTimelineFilter('Reports');"
+                                                class="card-action-link">View All</a>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="activity-list" id="dash-reports-list">
+                                                <!-- Dynamically populated from data.js -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Horizontal Quick Timeline Strip -->
+                                <div class="card dash-timeline-card">
+                                    <div class="card-header">
+                                        <div class="card-title">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polyline points="12 6 12 12 16 14"></polyline>
+                                            </svg>
+                                            Quick Medical Timeline
+                                        </div>
+                                        <div class="dash-timeline-actions">
+                                            <a href="javascript:void(0)" onclick="selectTab('timeline')"
+                                                class="card-action-link">Interactive Timeline</a>
+                                        </div>
+                                    </div>
+                                    <div class="card-body dash-timeline-body" id="dash-timeline-body-wrap">
+                                        <div class="horizontal-timeline-track" id="dash-horizontal-timeline">
+                                            <!-- Dynamically populated from data.js -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Active Medications & Emergency Pass -->
+                            <div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="card-title">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path
+                                                    d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z">
+                                                </path>
+                                                <path d="m8.5 8.5 7 7"></path>
+                                            </svg>
+                                            Active Medications
+                                        </div>
+                                        <a href="javascript:void(0)" onclick="selectTab('medications')"
+                                            class="card-action-link">View All</a>
+                                    </div>
+                                    <div class="card-body" id="dash-medications-list">
+                                        <!-- Dynamically populated from data.js -->
+                                    </div>
+                                </div>
+
+                                <div class="card emergency-contact-card">
+                                    <div class="card-header">
+                                        <div class="card-title">
+                                            <div class="emergency-icon-pill">
+                                                <!-- Emergency Contact Icon (Lucide phone-call) -->
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <path
+                                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                                    </path>
+                                                    <path d="M14.05 2a9 9 0 0 1 8 7.94"></path>
+                                                    <path d="M14.05 6A5 5 0 0 1 18 10"></path>
+                                                </svg>
+                                            </div>
+                                            <span>Emergency Contact</span>
+                                        </div>
+                                        <span class="badge badge-rose">Primary</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="emergency-contact-info">
+                                            <div class="emergency-person-meta">
+                                                <div class="emergency-person-name">Sunita Mehta</div>
+                                                <div class="emergency-person-relation">Mother</div>
+                                            </div>
+                                            <a href="tel:+919876543210" class="emergency-phone-link"
+                                                title="Call Emergency Contact">
+                                                <!-- Lucide phone-call icon -->
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <path
+                                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                                    </path>
+                                                    <path d="M14.05 2a9 9 0 0 1 8 7.94"></path>
+                                                    <path d="M14.05 6A5 5 0 0 1 18 10"></path>
+                                                </svg>
+                                                <span>+91 98765 43210</span>
+                                            </a>
+                                        </div>
+                                        <div class="emergency-insurance-row">
+                                            <div class="emergency-insurance-details">
+                                                <div class="insurance-name">Star Health Premier</div>
+                                                <div class="insurance-num">No: SHP-8849201-B</div>
+                                            </div>
+                                            <button class="btn-download-sm" onclick="viewPolicyDocument()"
+                                                title="View Star Health Insurance Policy PDF">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2.5">
+                                                    <path
+                                                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
+                                                    </path>
+                                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                                </svg>
+                                                <span>View Policy</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ----------------------------------------------------- -->
+                    <!-- SCREEN 3: MEDICAL TIMELINE SECTION (Core Concept)     -->
+                    <!-- ----------------------------------------------------- -->
+                    <section id="section-timeline" class="hidden">
+                        <!-- Filters & Quick Search Bar with top blur backdrop wrapper -->
+                        <div class="timeline-sticky-wrapper">
+                            <div class="timeline-controls">
+                                <div class="flex-between" style="flex-wrap: wrap; gap: 1rem;">
+                                    <div class="filter-pills-wrap">
+                                        <span
+                                            style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-right: 0.25rem;">Filter:</span>
+                                        <button class="filter-pill active" data-filter="All"
+                                            onclick="setTimelineFilter('All')">All Events</button>
+                                        <button class="filter-pill" data-filter="Surgeries"
+                                            onclick="setTimelineFilter('Surgeries')">Surgeries</button>
+                                        <button class="filter-pill" data-filter="Diseases"
+                                            onclick="setTimelineFilter('Diseases')">Diseases</button>
+                                        <button class="filter-pill" data-filter="Treatments"
+                                            onclick="setTimelineFilter('Treatments')">Treatments</button>
+                                        <button class="filter-pill" data-filter="Reports"
+                                            onclick="setTimelineFilter('Reports')">Reports</button>
+                                        <button class="filter-pill" data-filter="Vaccinations"
+                                            onclick="setTimelineFilter('Vaccinations')">Vaccinations</button>
+                                        <button class="filter-pill" data-filter="Donations"
+                                            onclick="setTimelineFilter('Donations')">Donations</button>
+                                    </div>
+
+                                    <div class="timeline-search-box">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                        </svg>
+                                        <input type="text" id="timeline-search-input"
+                                            placeholder="Search hospital, doctor, diagnosis..."
+                                            oninput="handleTimelineSearch(this.value)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chronological Timeline Display Tree -->
+                        <div class="timeline-container" id="timeline-records-container">
+                            <!-- Populated dynamically by app.js -->
+                        </div>
+                    </section>
+
+                    <!-- ----------------------------------------------------- -->
+                    <!-- SCREEN 4: MEDICATIONS & PRESCRIPTIONS SECTION         -->
+                    <!-- ----------------------------------------------------- -->
+                    <section id="section-medications" class="hidden">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z">
+                                        </path>
+                                        <path d="m8.5 8.5 7 7"></path>
+                                    </svg>
+                                    Active Prescriptions & Regimens
+                                </div>
+                                <span class="badge badge-teal" id="medications-badge-count">Active Regimens</span>
+                            </div>
+                            <div class="card-body">
+                                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                                    Current medications prescribed by authorized attending physicians for chronic
+                                    maintenance and symptom relief.
+                                </p>
+                                <div id="medications-full-list"
+                                    style="display: flex; flex-direction: column; gap: 1rem;">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ----------------------------------------------------- -->
+                    <!-- SCREEN 5: SHARED ACCESS DOCTORS SECTION               -->
+                    <!-- ----------------------------------------------------- -->
+                    <section id="section-shared-access" class="hidden">
+                        <!-- Floating sticky header bar with top blur overlay -->
+                        <div class="shared-access-sticky-wrapper">
+                            <div class="shared-access-controls">
+                                <div class="shared-access-header-inner">
+                                    <div class="card-title">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="9" cy="7" r="4"></circle>
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                        </svg>
+                                        Authorized Healthcare Providers
+                                    </div>
+                                    <div class="shared-access-header-right">
+                                        <span class="badge badge-teal" id="shared-access-badge-count">10 Active Authorizations</span>
+                                        <button class="btn btn-primary btn-sm-share" onclick="openQrModal()" id="btn-share-qr" title="Share Access via QR Code">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect width="5" height="5" x="3" y="3" rx="1"></rect>
+                                                <rect width="5" height="5" x="16" y="3" rx="1"></rect>
+                                                <rect width="5" height="5" x="3" y="16" rx="1"></rect>
+                                                <path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+                                                <path d="M21 21v.01"></path>
+                                                <path d="M12 7v3a2 2 0 0 1-2 2H7"></path>
+                                                <path d="M3 12h.01"></path>
+                                                <path d="M12 3h.01"></path>
+                                                <path d="M12 16v.01"></path>
+                                                <path d="M16 12h1"></path>
+                                                <path d="M21 12v.01"></path>
+                                                <path d="M12 21v-1"></path>
+                                            </svg>
+                                            <span>Share via QR</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card containing physician records -->
+                        <div class="card shared-access-card">
+                            <div class="card-body">
+                                <p class="shared-access-subtitle">
+                                    As the record owner, you have granted selective, time-limited viewing permissions to the following consulting medical professionals.
+                                </p>
+                                <div id="shared-access-list" class="shared-access-grid">
+                                    <!-- Rendered dynamically by js/views/shared-access.js -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ----------------------------------------------------- -->
+                    <!-- SCREEN 5: EMERGENCY INFORMATION SECTION               -->
+                    <!-- ----------------------------------------------------- -->
+                    <section id="section-emergency-info" class="hidden">
+                        <!-- Emergency Pass Master Banner -->
+                        <div class="patient-banner-card emergency-banner-card">
+                            <div class="patient-info-header">
+                                <div class="patient-avatar-large emergency-avatar-symbol">
+                                    <!-- Emergency Pass Pulse Icon -->
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path
+                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                        </path>
+                                        <path d="M14.05 2a9 9 0 0 1 8 7.94"></path>
+                                        <path d="M14.05 6A5 5 0 0 1 18 10"></path>
+                                    </svg>
+                                </div>
+                                <div class="patient-details">
+                                    <div class="patient-name-row">
+                                        <h2 id="emg-display-name">Aarnav Mehta</h2>
+                                        <span class="badge badge-rose">Emergency Pass</span>
+                                        <span class="banner-age-tag" id="emg-display-age">24 yrs</span>
+                                    </div>
+                                    <div class="banner-patient-id" id="emg-display-meta">MT-10482 • DOB: 15 Apr 2002</div>
+                                </div>
+                            </div>
+                            <div class="patient-banner-right emergency-banner-actions">
+                                <div class="patient-blood-badge">
+                                    <span class="blood-label">Emergency Blood</span>
+                                    <span class="blood-type" id="emg-display-blood">B+</span>
+                                </div>
+                                <button class="btn btn-secondary emg-edit-header-btn" onclick="openEditEmergencyModal()"
+                                    title="Edit emergency contact and clinical flags">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                    <span>Edit Info</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-grid">
+                            <!-- Left: Critical Medical Alerts -->
+                            <div class="card emergency-alerts-card">
+                                <div class="card-header">
+                                    <div class="card-title">
+                                        <div class="emergency-icon-pill">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2.5">
+                                                <path
+                                                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                                                </path>
+                                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                            </svg>
+                                        </div>
+                                        <span>Critical Medical Flags</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <span class="badge badge-rose">Urgent Attention</span>
+                                        <button class="card-action-link" onclick="openEditEmergencyModal('flags')" title="Edit Medical Flags">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="emergency-flag-block">
+                                        <div class="emergency-flag-title">Severe Drug & Environmental Allergies</div>
+                                        <div class="emergency-pills-row" id="emg-allergies-container">
+                                            <span class="condition-pill allergy-pill">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2.5">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                                </svg>
+                                                Penicillin (Anaphylaxis Risk)
+                                            </span>
+                                            <span class="condition-pill allergy-pill">
+                                                Dust Mites (Moderate)
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="emergency-flag-block" style="margin-top: 1rem;">
+                                        <div class="emergency-flag-title">Pre-existing Chronic Conditions</div>
+                                        <div id="emg-conditions-container" class="emergency-conditions-list">
+                                            <!-- Rendered dynamically by js/views/emergency.js -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Primary Emergency Contact & Insurance -->
+                            <div class="card emergency-contact-card">
+                                <div class="card-header">
+                                    <div class="card-title">
+                                        <div class="emergency-icon-pill">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2.5">
+                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="9" cy="7" r="4"></circle>
+                                            </svg>
+                                        </div>
+                                        <span>Primary Contact</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <span class="badge badge-teal">Verified</span>
+                                        <button class="card-action-link" onclick="openEditEmergencyModal('contact')" title="Edit Primary Contact">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="emergency-contact-info">
+                                        <div class="emergency-person-meta">
+                                            <div class="emergency-person-name" id="emg-contact-name">Sunita Mehta</div>
+                                            <div class="emergency-person-relation" id="emg-contact-relation">Relationship: Mother</div>
+                                        </div>
+                                        <a href="tel:+919876543210" class="emergency-phone-link" id="emg-contact-phone-link"
+                                            title="Call Emergency Contact">
+                                            <!-- Lucide phone-call icon -->
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <path
+                                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                                </path>
+                                                <path d="M14.05 2a9 9 0 0 1 8 7.94"></path>
+                                                <path d="M14.05 6A5 5 0 0 1 18 10"></path>
+                                            </svg>
+                                            <span id="emg-contact-phone-text">+91 98765 43210</span>
+                                        </a>
+                                    </div>
+
+                                    <div class="emergency-insurance-row">
+                                        <div class="emergency-insurance-details">
+                                            <div class="insurance-name" id="emg-insurance-name">Star Health Premier</div>
+                                            <div class="insurance-num" id="emg-insurance-num">No: SHP-8849201-B • Valid 2027</div>
+                                        </div>
+                                        <button class="btn-download-sm" onclick="viewPolicyDocument()"
+                                            title="View Star Health Insurance Policy PDF">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2.5">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
+                                                </path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+                                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                            </svg>
+                                            <span>View Policy</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- 4. MEDICAL RECORD DETAIL VIEW (SLIDE-OVER DRAWER)                 -->
+    <!-- ================================================================= -->
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+    <div class="detail-drawer" id="record-detail-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+        <div class="drawer-header">
+            <div class="drawer-header-content">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                    <span id="drawer-type-badge" class="badge badge-teal">Surgery</span>
+                    <span id="drawer-date" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">14 Dec
+                        2025</span>
+                </div>
+                <h2 id="drawer-title" style="font-size: 1.25rem; color: var(--navy);">Appendectomy</h2>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button class="btn btn-secondary drawer-btn-hover-trigger" id="drawer-download-btn"
+                    style="padding: 0.4rem 0.85rem; font-size: 0.8rem;" onclick="downloadActiveDrawerRecord()"
+                    onmouseenter="triggerButtonOnHover(this, downloadActiveDrawerRecord)"
+                    onmouseleave="cancelButtonHoverTrigger(this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Download Record</span>
+                    <span class="drawer-btn-progress" aria-hidden="true"></span>
+                </button>
+                <button class="drawer-close-btn drawer-btn-hover-trigger" onclick="closeRecordDetail()"
+                    onmouseenter="triggerButtonOnHover(this, closeRecordDetail)"
+                    onmouseleave="cancelButtonHoverTrigger(this)"
+                    aria-label="Close Record Details">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span class="drawer-btn-progress" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="drawer-body" id="drawer-dynamic-content">
+            <!-- Populated on event click from app.js -->
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- 5. HEALTH INSURANCE POLICY DOCUMENT MODAL / VIEWER               -->
+    <!-- ================================================================= -->
+    <div class="modal-backdrop" id="policy-modal-backdrop" onclick="closePolicyModal()"></div>
+    <div class="policy-modal" id="policy-modal" role="dialog" aria-modal="true" aria-labelledby="policy-modal-title">
+        <div class="policy-modal-header">
+            <div class="policy-header-brand">
+                <div class="policy-badge-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 id="policy-modal-title" class="policy-modal-title">Official Insurance Policy Document</h3>
+                    <div class="policy-modal-subtitle">E-Insurance Account & Hospital Cashless Card</div>
+                </div>
+            </div>
+            <div class="policy-modal-actions">
+                <button class="btn btn-primary" onclick="downloadPolicyDocument()" title="Download Policy PDF">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Download PDF</span>
+                </button>
+                <button class="drawer-close-btn" onclick="closePolicyModal()" aria-label="Close Policy Viewer">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="policy-modal-body" id="policy-modal-content">
+            <!-- Populated dynamically by app.js viewPolicyDocument() -->
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- 6. SECURE QR CODE SHARING MODAL POPUP                            -->
+    <!-- ================================================================= -->
+    <div class="modal-backdrop" id="qr-modal-backdrop" onclick="closeQrModal()"></div>
+    <div class="qr-modal" id="qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
+        <div class="qr-modal-header">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="qr-badge-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="5" height="5" x="3" y="3" rx="1"></rect>
+                        <rect width="5" height="5" x="16" y="3" rx="1"></rect>
+                        <rect width="5" height="5" x="3" y="16" rx="1"></rect>
+                        <path d="M21 16h-3a2 2 0 0 0-2 2v3"></path>
+                        <path d="M21 21v.01"></path>
+                        <path d="M12 7v3a2 2 0 0 1-2 2H7"></path>
+                        <path d="M3 12h.01"></path>
+                        <path d="M12 3h.01"></path>
+                        <path d="M12 16v.01"></path>
+                        <path d="M16 12h1"></path>
+                        <path d="M21 12v.01"></path>
+                        <path d="M12 21v-1"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 id="qr-modal-title"
+                        style="font-size: 1.15rem; font-weight: 700; color: var(--navy); margin: 0;">Scan to Access
+                        Medical Records</h3>
+                    <div style="font-size: 0.775rem; color: var(--text-muted); margin-top: 0.15rem;">Fast
+                        doctor-to-patient encrypted record sharing</div>
+                </div>
+            </div>
+            <button class="drawer-close-btn" onclick="closeQrModal()" aria-label="Close QR Code Viewer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="qr-modal-body">
+            <!-- Rendered QR Code Container -->
+            <div class="qr-code-display-wrap">
+                <div class="qr-code-frame" id="qr-code-container">
+                    <!-- Crisp high-contrast geometric QR SVG -->
+                </div>
+                <div class="qr-scan-badge">
+                    <span class="qr-pulse-dot"></span>
+                    <span>Valid for 15 minutes • Single Session</span>
+                </div>
+            </div>
+
+            <!-- Patient Information Pill -->
+            <div class="qr-patient-meta">
+                <div style="font-size: 0.95rem; font-weight: 700; color: var(--navy);" id="qr-patient-name">Aarnav Mehta
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">ID: <strong
+                        style="color: var(--primary-dark);">MT-10482</strong> • Blood Group: <strong
+                        style="color: var(--accent-rose);">B+</strong></div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4;">
+                    Consulting physician can point camera or hospital scanner to grant verified, read-only electronic
+                    health record access.
+                </div>
+            </div>
+
+            <!-- Actions Footer -->
+            <div class="qr-modal-footer">
+                <button class="btn btn-secondary" style="flex: 1; font-size: 0.825rem;" onclick="copyQrShareLink()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                    </svg>
+                    <span>Copy Doctor Link</span>
+                </button>
+                <button class="btn btn-primary" style="flex: 1; font-size: 0.825rem;" onclick="refreshQrCode()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                        <path d="M21 3v5h-5"></path>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                        <path d="M8 16H3v5"></path>
+                    </svg>
+                    <span>Regenerate QR</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- PATIENT PROFILE MODAL                                              -->
+    <!-- ================================================================= -->
+    <div id="profile-modal-overlay" class="profile-modal-overlay" onclick="closeProfileModal(event)" aria-modal="true"
+        role="dialog" aria-label="Patient Profile" hidden>
+        <div class="profile-modal">
+            <!-- Modal Header -->
+            <div class="profile-modal-header">
+                <div class="profile-modal-avatar" id="prof-modal-avatar">AM</div>
+                <div class="profile-modal-identity">
+                    <h2 id="prof-modal-name">Aarnav Mehta</h2>
+                    <span class="banner-age-tag" id="prof-modal-age">24 yrs</span>
+                    <span class="profile-modal-id" id="prof-modal-id">MT-10482</span>
+                </div>
+                <button class="profile-modal-close" onclick="closeProfileModal()" aria-label="Close profile">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body: 4 sections -->
+            <div class="profile-modal-body">
+                <!-- Section 1: Personal Info -->
+                <div class="profile-modal-section">
+                    <div class="profile-modal-section-title">Personal Information</div>
+                    <div class="profile-modal-rows">
+                        <div class="profile-modal-row">
+                            <span class="profile-detail-label">Date of Birth</span>
+                            <span class="profile-detail-value" id="prof-modal-dob">15 Apr 2002</span>
+                        </div>
+                        <div class="profile-modal-row">
+                            <span class="profile-detail-label">Gender</span>
+                            <span class="profile-detail-value" id="prof-modal-gender">Male</span>
+                        </div>
+                        <div class="profile-modal-row">
+                            <span class="profile-detail-label">Blood Group</span>
+                            <span class="blood-group-tag" id="prof-modal-blood">B+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Medical Flags -->
+                <div class="profile-modal-section">
+                    <div class="profile-modal-section-title">Medical Flags</div>
+                    <div class="profile-modal-rows">
+                        <div class="profile-modal-row profile-modal-row--stack">
+                            <span class="profile-detail-label">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path
+                                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                    <line x1="12" y1="9" x2="12" y2="13" />
+                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                </svg>
+                                Allergies
+                            </span>
+                            <div class="profile-pill-row" id="prof-modal-allergies"></div>
+                        </div>
+                        <div class="profile-modal-row profile-modal-row--stack">
+                            <span class="profile-detail-label">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+                                    <path d="m8.5 8.5 7 7" />
+                                </svg>
+                                Chronic Conditions
+                            </span>
+                            <div class="profile-pill-row" id="prof-modal-conditions"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Insurance -->
+                <div class="profile-modal-section">
+                    <div class="profile-modal-section-title">Insurance</div>
+                    <div class="profile-modal-rows">
+                        <div class="profile-modal-row">
+                            <span class="profile-detail-label">Provider</span>
+                            <span class="profile-detail-value" id="prof-modal-ins-provider">Star Health Premier</span>
+                        </div>
+                        <div class="profile-modal-row">
+                            <span class="profile-detail-label">Policy No.</span>
+                            <span class="profile-detail-value profile-id-value"
+                                id="prof-modal-ins-policy">SHP-8849201-B</span>
+                        </div>
+                        <div class="profile-modal-row">
+                            <span class="profile-detail-label">Valid Until</span>
+                            <span class="profile-detail-value" id="prof-modal-ins-valid">31 Mar 2027</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Emergency Contact -->
+                <div class="profile-modal-section">
+                    <div class="profile-modal-section-title">Emergency Contact</div>
+                    <div class="profile-modal-rows">
+                        <div class="profile-modal-row">
+                            <span class="profile-detail-label">Name</span>
+                            <span class="profile-detail-value" id="prof-modal-emg-name">Sunita Mehta</span>
+                        </div>
+                        <div class="profile-modal-row">
+                            <span class="profile-detail-label">Relation</span>
+                            <span class="profile-detail-value" id="prof-modal-emg-relation">Mother</span>
+                        </div>
+                        <div class="profile-modal-row">
+                            <span class="profile-detail-label">Phone</span>
+                            <span class="profile-detail-value profile-phone-value" id="prof-modal-emg-phone">+91 98765
+                                43210</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- EDIT EMERGENCY INFORMATION MODAL                                  -->
+    <!-- ================================================================= -->
+    <div id="edit-emergency-modal-overlay" class="profile-modal-overlay" onclick="closeEditEmergencyModal(event)" aria-modal="true"
+        role="dialog" aria-label="Edit Emergency Information" hidden>
+        <div class="profile-modal emg-edit-modal" style="width: 1200px; max-width: 95vw; height: 520px; max-height: 88vh; display: flex; flex-direction: column;">
+            <!-- Modal Header -->
+            <div class="profile-modal-header emg-edit-modal-header">
+                <div class="emg-modal-badge-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </div>
+                <div class="profile-modal-identity">
+                    <h2>Edit Emergency Profile</h2>
+                    <span class="banner-age-tag">Immediate Care Data</span>
+                </div>
+                <button class="profile-modal-close" onclick="closeEditEmergencyModal()" aria-label="Close modal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Form Body (Fixed-Size 2-Column Layout with Pinned Bottom Actions) -->
+            <form id="edit-emergency-form" class="emg-edit-form" onsubmit="saveEmergencyChanges(event)">
+                <div class="emg-modal-body-scrollable">
+                    <div class="emg-modal-grid-2x2">
+                        <!-- Cell 1: Row 1 Left: Primary Emergency Contact -->
+                        <div class="profile-modal-section emg-grid-cell-left">
+                            <div class="profile-modal-section-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                </svg>
+                                <span>Primary Emergency Contact <span class="emg-required-star">*</span></span>
+                            </div>
+                            <div class="emg-form-grid-3">
+                                <div class="emg-input-field">
+                                    <label for="edit-emg-contact-name">Full Name <span class="emg-required-star">*</span></label>
+                                    <input type="text" id="edit-emg-contact-name" class="emg-text-input" required
+                                        placeholder="e.g. Sunita Mehta" />
+                                </div>
+                                <div class="emg-input-field">
+                                    <label for="edit-emg-contact-relation">Relationship <span class="emg-required-star">*</span></label>
+                                    <input type="text" id="edit-emg-contact-relation" class="emg-text-input" required
+                                        placeholder="e.g. Mother / Spouse" />
+                                </div>
+                                <div class="emg-input-field">
+                                    <label for="edit-emg-contact-phone">Phone Number <span class="emg-required-star">*</span></label>
+                                    <input type="tel" id="edit-emg-contact-phone" class="emg-text-input" required
+                                        placeholder="+91 98765 43210" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cell 2: Row 1 Right: Critical Flags & Blood Group -->
+                        <div class="profile-modal-section">
+                            <div class="profile-modal-section-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                </svg>
+                                <span>Critical Flags & Blood Group</span>
+                            </div>
+                            <div class="emg-critical-row-grid">
+                                <div class="emg-input-field emg-blood-field">
+                                    <label for="edit-emg-blood-group">Blood Group <span class="emg-required-star">*</span></label>
+                                    <select id="edit-emg-blood-group" class="emg-select-input" required>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+
+                                <!-- YouTube-style Tag Input for Severe Allergies -->
+                                <div class="emg-input-field emg-allergies-field">
+                                    <label for="edit-emg-tag-input">Severe Allergies <span class="emg-tag-hint">(press Enter or comma)</span></label>
+                                    <div class="emg-tags-wrapper" id="emg-tags-wrapper" onclick="focusTagInput()">
+                                        <div class="emg-tag-chips-list" id="emg-tag-chips-list">
+                                            <!-- Rendered dynamically as interactive chips -->
+                                        </div>
+                                        <input type="text" id="edit-emg-tag-input" class="emg-tag-inline-input"
+                                            placeholder="Add allergy tag..."
+                                            onkeydown="handleTagInputKeydown(event)" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cell 3: Row 2 Left: Health Insurance Policy Document -->
+                        <div class="profile-modal-section emg-grid-cell-left">
+                            <div class="profile-modal-section-title">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                    </svg>
+                                    <span>Health Insurance Policy Document</span>
+                                </div>
+                                <button type="button" class="emg-add-condition-btn" onclick="addNewPolicyRow()">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    <span>Add Policy</span>
+                                </button>
+                            </div>
+                            <div class="emg-policies-edit-list" id="emg-policies-edit-list">
+                                <!-- Rendered dynamically by js/views/emergency.js -->
+                            </div>
+                        </div>
+
+                        <!-- Cell 4: Row 2 Right: Pre-existing Chronic Conditions -->
+                        <div class="profile-modal-section">
+                            <div class="profile-modal-section-title">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                    </svg>
+                                    <span>Pre-existing Chronic Conditions</span>
+                                </div>
+                                <button type="button" class="emg-add-condition-btn" onclick="addNewConditionRow()">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    <span>Add Condition</span>
+                                </button>
+                            </div>
+                            <div class="emg-conditions-edit-list" id="emg-conditions-edit-list">
+                                <!-- Rendered dynamically with condition name, treatment note & remove button -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer Actions (Fixed at bottom) -->
+                <div class="emg-modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditEmergencyModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary emg-save-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>Save Emergency Details</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- MediTrail Application Core (ES Module Entry with dynamic cache busting) -->
+    <!-- debug-config.js is generated by runner.py based on the DEBUG_MODE flag -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/vendor/jspdf.umd.min.js"></script>
+    <script src="js/debug-config.js"></script>
+    <script src="js/data.js"></script>
+    <script type="module">
+        import(`./js/main.js?v=${Date.now()}`);
+    </script>
+</body>
+
+
+</html>
