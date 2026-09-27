@@ -5,7 +5,7 @@ import os
 import sys
 
 PORT = 8000
-DIRECTORY = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend')
+DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'frontend'))
 
 # ── Debug toggle ──────────────────────────────────────────────────────────────
 # Set to True to enable diagnostic logging in the browser console.
