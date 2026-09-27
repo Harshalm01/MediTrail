@@ -404,6 +404,116 @@
 
         .status-pill.active { background: #dcfce7; color: #166534; }
         .status-pill.suspended { background: #fee2e2; color: #991b1b; }
+
+        /* Mobile Responsive Controls for Admin Dashboard */
+        @media (max-width: 768px) {
+            .admin-nav {
+                padding: 0.75rem 0.85rem;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.65rem;
+            }
+
+            .admin-nav-brand {
+                font-size: 1rem;
+                width: 100%;
+                justify-content: flex-start;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+                padding-bottom: 0.5rem;
+            }
+
+            #hospital-brand-name {
+                font-size: 0.925rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: calc(100vw - 3.5rem);
+                display: inline-block;
+            }
+
+            .admin-nav-user {
+                width: 100%;
+                justify-content: space-between;
+                gap: 0.75rem;
+            }
+
+            .user-tag {
+                text-align: left;
+            }
+
+            .user-name {
+                font-size: 0.85rem;
+            }
+
+            .user-role {
+                font-size: 0.7rem;
+            }
+
+            .admin-content {
+                padding: 1rem 0.75rem;
+            }
+
+            .rbac-grid {
+                grid-template-columns: 1fr;
+                gap: 0.85rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .metric-card-admin {
+                padding: 1rem 1.15rem;
+            }
+
+            .metric-card-admin .val {
+                font-size: 1.65rem;
+            }
+
+            .admin-tabs-rail {
+                display: flex;
+                gap: 0.5rem;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-bottom: 2px solid #e2e8f0;
+                margin-bottom: 1.25rem;
+                padding-bottom: 0.35rem;
+                scrollbar-width: none;
+            }
+
+            .admin-tab-btn {
+                white-space: nowrap !important;
+                padding: 0.55rem 0.85rem !important;
+                font-size: 0.8rem !important;
+                flex-shrink: 0 !important;
+            }
+
+            .table-responsive-wrapper {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 12px;
+                border: 1px solid #e2e8f0;
+                margin-bottom: 1rem;
+                background: #ffffff;
+            }
+
+            .admin-table {
+                min-width: 680px;
+                border: none;
+            }
+
+            .admin-table th, .admin-table td {
+                padding: 0.75rem 0.85rem;
+                font-size: 0.8rem;
+            }
+
+            .admin-search-row {
+                flex-direction: column !important;
+                gap: 0.65rem !important;
+            }
+
+            .admin-search-row input, .admin-search-row button {
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 
@@ -510,28 +620,32 @@
             </div>
 
             <!-- View Switcher Tabs for Admin vs Doctor -->
-            <div style="display: flex; gap: 1rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                <button id="tab-btn-hospitals" class="btn" onclick="switchAdminTab('hospitals')"
-                    style="padding: 0.75rem 1.25rem; font-weight: 600; border-bottom: 3px solid #0d9488; background: none; border-top: none; border-left: none; border-right: none; color: #0f2744; cursor: pointer;">
-                    🏥 Empanelled Hospitals (Super Admin)
+            <div class="admin-tabs-rail">
+                <button id="tab-btn-hospitals" class="btn admin-tab-btn" onclick="switchAdminTab('hospitals')"
+                    style="border-bottom: 3px solid #0d9488; background: none; border-top: none; border-left: none; border-right: none; color: #0f2744; cursor: pointer; font-weight: 600;">
+                    <span class="btn-text-full">🏥 Empanelled Hospitals (Super Admin)</span>
+                    <span class="btn-text-mobile">🏥 Hospitals</span>
                 </button>
-                <button id="tab-btn-doctors" class="btn" onclick="switchAdminTab('doctors')"
-                    style="padding: 0.75rem 1.25rem; font-weight: 600; border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer;">
-                    👨‍⚕️ Manage Staff & Doctors
+                <button id="tab-btn-doctors" class="btn admin-tab-btn" onclick="switchAdminTab('doctors')"
+                    style="border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer; font-weight: 600;">
+                    <span class="btn-text-full">👨‍⚕️ Manage Staff & Doctors</span>
+                    <span class="btn-text-mobile">👨‍⚕️ Staff & Doctors</span>
                 </button>
-                <button id="tab-btn-consult" class="btn" onclick="switchAdminTab('consult')"
-                    style="padding: 0.75rem 1.25rem; font-weight: 600; border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer;">
-                    📋 Doctor Patient Consultation Portal
+                <button id="tab-btn-consult" class="btn admin-tab-btn" onclick="switchAdminTab('consult')"
+                    style="border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer; font-weight: 600;">
+                    <span class="btn-text-full">📋 Doctor Patient Consultation Portal</span>
+                    <span class="btn-text-mobile">📋 Consultations</span>
                 </button>
-                <button id="tab-btn-audit" class="btn" onclick="switchAdminTab('audit')"
-                    style="padding: 0.75rem 1.25rem; font-weight: 600; border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer;">
-                    🔒 Security Audit Logs
+                <button id="tab-btn-audit" class="btn admin-tab-btn" onclick="switchAdminTab('audit')"
+                    style="border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer; font-weight: 600;">
+                    <span class="btn-text-full">🔒 Security Audit Logs</span>
+                    <span class="btn-text-mobile">🔒 Audit Logs</span>
                 </button>
             </div>
 
             <!-- Section 0: Super Admin - Manage Hospitals -->
             <div id="admin-view-hospitals">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <h2 style="font-size: 1.2rem; color: #0f2744;">Empanelled Network Hospitals</h2>
                     <button id="btn-open-add-hospital" class="btn btn-primary" onclick="openAddHospitalModal();"
                         style="padding: 0.6rem 1.2rem; background: #0d9488; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
@@ -539,28 +653,30 @@
                     </button>
                 </div>
 
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Hospital Name</th>
-                            <th>Hospital Code</th>
-                            <th>City / Location</th>
-                            <th>Associated Doctors / Staff</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="hospitals-table-body">
-                        <!-- Populated dynamically by admin.js -->
-                    </tbody>
-                </table>
+                <div class="table-responsive-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Hospital Name</th>
+                                <th>Hospital Code</th>
+                                <th>City / Location</th>
+                                <th>Associated Doctors / Staff</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hospitals-table-body">
+                            <!-- Populated dynamically by admin.js -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Section 1: Super Admin - Manage Doctors -->
             <div id="admin-view-doctors" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <h2 style="font-size: 1.2rem; color: #0f2744;">Registered Hospital Staff & Doctors</h2>
-                    <div style="display: flex; gap: 0.5rem;">
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         <button id="btn-open-add-super-admin" class="btn" onclick="openAddSuperAdminModal();"
                             style="display: none; padding: 0.6rem 1.2rem; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
                             ⚡ + Create Super Admin
@@ -572,46 +688,48 @@
                     </div>
                 </div>
 
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Staff / Doctor Name</th>
-                            <th>Role</th>
-                            <th>Hospital</th>
-                            <th>License ID</th>
-                            <th>Department / Specialty</th>
-                            <th>Email Address</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="doctors-table-body">
-                        <!-- Populated dynamically by admin.js -->
-                    </tbody>
-                </table>
+                <div class="table-responsive-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Staff / Doctor Name</th>
+                                <th>Role</th>
+                                <th>Hospital</th>
+                                <th>License ID</th>
+                                <th>Department / Specialty</th>
+                                <th>Email Address</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="doctors-table-body">
+                            <!-- Populated dynamically by admin.js -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Section 2: Doctor Patient Consultation & Record Addition -->
             <div id="admin-view-consult" style="display: none;">
-                <div style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
+                <div style="background: #ffffff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
                     <h3 style="font-size: 1.1rem; color: #0f2744; margin-bottom: 1rem;">🔍 Doctor Patient Search & Record Access</h3>
-                    <div style="display: flex; gap: 1rem;">
+                    <div class="admin-search-row" style="display: flex; gap: 0.75rem;">
                         <input type="text" id="doctor-patient-search" placeholder="Enter Patient ID (e.g. MT-10482) or Mobile Number (9876543210)"
                             onkeypress="if(event.key === 'Enter') doctorSearchPatient()"
                             style="flex: 1; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
                         <button class="btn btn-primary" onclick="doctorSearchPatient()"
-                            style="padding: 0.75rem 1.5rem; background: #0f2744; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            style="padding: 0.75rem 1.5rem; background: #0f2744; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap;">
                             Access Patient Records
                         </button>
                     </div>
                 </div>
 
                 <!-- Patient Active Clinical Workspace (Hidden until patient ID or mobile is searched) -->
-                <div id="doctor-patient-card" style="display: none; background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                <div id="doctor-patient-card" style="display: none; background: #ffffff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                         <div>
                             <span class="status-pill active">ACTIVE PATIENT ACCESS GRANTED</span>
-                            <h2 style="font-size: 1.5rem; color: #0f2744; margin-top: 0.5rem;" id="doc-pt-name">Patient Details</h2>
+                            <h2 style="font-size: 1.35rem; color: #0f2744; margin-top: 0.5rem;" id="doc-pt-name">Patient Details</h2>
                             <p style="font-size: 0.85rem; color: #64748b;" id="doc-pt-info">ID: -- • Age: -- • Blood Group: -- • Phone: --</p>
                         </div>
                         <button class="btn btn-primary" onclick="openAddRecordModal()"
@@ -633,20 +751,22 @@
             <!-- Section 3: Audit Logs -->
             <div id="admin-view-audit" style="display: none;">
                 <h2 style="font-size: 1.2rem; color: #0f2744; margin-bottom: 1rem;">Real-time Access Audit Trail</h2>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>Doctor / Physician</th>
-                            <th>Patient ID</th>
-                            <th>Action Performed</th>
-                            <th>IP Address</th>
-                        </tr>
-                    </thead>
-                    <tbody id="audit-table-body">
-                        <!-- Populated dynamically -->
-                    </tbody>
-                </table>
+                <div class="table-responsive-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Doctor / Physician</th>
+                                <th>Patient ID</th>
+                                <th>Action Performed</th>
+                                <th>IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-table-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Admin Portal Footer -->
