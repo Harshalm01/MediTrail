@@ -4,18 +4,20 @@ import webbrowser
 import os
 import sys
 
-PORT = 8000
+PORT = int(os.environ.get('PORT', 8000))
 DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'frontend'))
 
 # ── Debug toggle ──────────────────────────────────────────────────────────────
 # Set to True to enable diagnostic logging in the browser console.
 # Set to False (default) for a clean console with no application output.
-DEBUG_MODE = True   
+DEBUG_MODE = os.environ.get('DEBUG_MODE', 'True').lower() == 'true'
 # ─────────────────────────────────────────────────────────────────────────────
 
 def get_debug_mode():
-    """Dynamically reads the DEBUG_MODE flag from runner.py so changes apply immediately."""
+    """Dynamically reads the DEBUG_MODE flag from runner.py or environment so changes apply immediately."""
     try:
+        if 'DEBUG_MODE' in os.environ:
+            return os.environ.get('DEBUG_MODE', 'True').lower() == 'true'
         with open(os.path.abspath(__file__), 'r', encoding='utf-8') as f:
             for line in f:
                 stripped = line.strip()
@@ -72,15 +74,17 @@ class ThreadingServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
 def run():
     try:
         with ThreadingServer(('', PORT), Handler) as httpd:
-            url = f'http://localhost:{PORT}/'
+            url = f'http://0.0.0.0:{PORT}/'
             debug_status = 'ON' if DEBUG_MODE else 'OFF'
             print('=' * 60)
-            print(f'MediTrail Local Server running at: {url}')
+            print(f'MediTrail Server running at: {url}')
             print(f'Serving files from: {DIRECTORY}')
-            print(f'Debug logging: {debug_status}  (change DEBUG_MODE in runner.py)')
-            print('Press Ctrl+C to stop.')
+            print(f'Debug logging: {debug_status}')
             print('=' * 60)
-            webbrowser.open(url)
+            try:
+                webbrowser.open(f'http://localhost:{PORT}/')
+            except Exception:
+                pass
             httpd.serve_forever()
     except OSError as e:
         if e.winerror == 10048 or 'address already in use' in str(e).lower():
