@@ -51,43 +51,61 @@ export function initLandingScrollExperience() {
     const header = document.getElementById('landing-header');
     if (!landingContainer) return;
 
-    // Header transformation on scroll
-    landingContainer.addEventListener('scroll', () => {
+    const handleScroll = () => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop || landingContainer.scrollTop || 0;
         if (header) {
-            if (landingContainer.scrollTop > 30) {
+            if (scrollTop > 30) {
                 header.classList.add('scrolled');
             } else {
                 header.classList.remove('scrolled');
             }
         }
-    }, { passive: true });
+        if (scrollTop < 80) {
+            updateActiveLandingDot(1);
+        }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    landingContainer.addEventListener('scroll', handleScroll, { passive: true });
 
     // IntersectionObserver to activate snap sections and update dot navigation
-    const snapSections = landingContainer.querySelectorAll('.landing-snap-section');
+    const snapSections = document.querySelectorAll('.landing-snap-section');
     if ('IntersectionObserver' in window && snapSections.length > 0) {
         const sectionMap = {
             'landing-sec-hero': 1,
             'landing-sec-timeline': 2,
-            'landing-sec-features': 3,
-            'landing-sec-access': 4,
+            'landing-sec-access': 3,
+            'landing-sec-features': 4,
             'landing-sec-emergency': 5
         };
 
         const sectionObserver = new IntersectionObserver((entries) => {
+            let maxRatio = 0;
+            let bestSecNum = null;
+
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
-                    const secNum = sectionMap[entry.target.id];
-                    if (secNum) {
-                        updateActiveLandingDot(secNum);
-                    }
                 } else {
                     entry.target.classList.remove('active');
                 }
+
+                const secNum = sectionMap[entry.target.id];
+                if (entry.isIntersecting && secNum && entry.intersectionRatio > maxRatio) {
+                    maxRatio = entry.intersectionRatio;
+                    bestSecNum = secNum;
+                }
             });
+
+            const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+            if (currentScroll < 80) {
+                updateActiveLandingDot(1);
+            } else if (bestSecNum) {
+                updateActiveLandingDot(bestSecNum);
+            }
         }, {
-            root: landingContainer,
-            threshold: 0.45
+            root: null,
+            threshold: [0.15, 0.4, 0.7]
         });
 
         snapSections.forEach(section => sectionObserver.observe(section));
