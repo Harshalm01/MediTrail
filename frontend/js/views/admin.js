@@ -150,10 +150,12 @@ function showAdminDashboard() {
 
     // Configure Register Button & Tab Access based on Role
     const addDoctorBtn = document.getElementById('btn-open-add-doctor');
+    const addSuperAdminBtn = document.getElementById('btn-open-add-super-admin');
     const tabHospitalsBtn = document.getElementById('tab-btn-hospitals');
     const tabDoctorsBtn = document.getElementById('tab-btn-doctors');
 
     if (currentAdminUser.role === 'super_admin') {
+        if (addSuperAdminBtn) addSuperAdminBtn.style.display = 'inline-block';
         if (addDoctorBtn) {
             addDoctorBtn.style.display = 'inline-block';
             addDoctorBtn.textContent = '+ Register New Staff / Admin';
@@ -162,6 +164,7 @@ function showAdminDashboard() {
         if (tabDoctorsBtn) tabDoctorsBtn.style.display = 'inline-block';
         switchAdminTab('hospitals');
     } else if (currentAdminUser.role === 'hospital_admin' || currentAdminUser.role === 'admin') {
+        if (addSuperAdminBtn) addSuperAdminBtn.style.display = 'none';
         if (addDoctorBtn) {
             addDoctorBtn.style.display = 'inline-block';
             addDoctorBtn.textContent = '+ Register New Doctor';
@@ -170,6 +173,7 @@ function showAdminDashboard() {
         if (tabDoctorsBtn) tabDoctorsBtn.style.display = 'inline-block';
         switchAdminTab('doctors');
     } else {
+        if (addSuperAdminBtn) addSuperAdminBtn.style.display = 'none';
         if (addDoctorBtn) addDoctorBtn.style.display = 'none';
         if (tabHospitalsBtn) tabHospitalsBtn.style.display = 'none';
         if (tabDoctorsBtn) tabDoctorsBtn.style.display = 'none';
@@ -368,6 +372,120 @@ window.closeAddHospitalModal = function() {
         modal.style.opacity = '0';
         modal.style.visibility = 'hidden';
     }
+};
+
+window.openAddSuperAdminModal = function() {
+    if (!currentAdminUser || currentAdminUser.role !== 'super_admin') {
+        alert('Only Super Admins can create new Platform Super Admin accounts.');
+        return;
+    }
+    const modal = document.getElementById('modal-add-super-admin');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        modal.style.zIndex = '999999';
+    }
+};
+
+window.closeAddSuperAdminModal = function() {
+    const modal = document.getElementById('modal-add-super-admin');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+    }
+};
+
+window.saveNewSuperAdmin = async function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    const nameInput = document.getElementById('new-super-name');
+    const emailInput = document.getElementById('new-super-email');
+    const passwordInput = document.getElementById('new-super-password');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+    const password = passwordInput ? passwordInput.value : '';
+
+    if (!name || !email || !password) {
+        alert('Full Name, Email and Password are required to create a Super Admin.');
+        return;
+    }
+
+    // Hash password using bcrypt if available
+    const bcryptLib = window.bcrypt || (typeof bcrypt !== 'undefined' ? bcrypt : null);
+    let passwordHash = null;
+    if (bcryptLib) {
+        const salt = await bcryptLib.genSalt(10);
+        passwordHash = await bcryptLib.hash(password, salt);
+    }
+
+    const newSuperUser = {
+        id: `usr-admin-${Date.now()}`,
+        name: name,
+        email: email,
+        role: 'super_admin',
+        hospitalId: 'hosp-1',
+        hospitalName: 'MediTrail Platform',
+        password: password,
+        password_hash: passwordHash
+    };
+
+    const docEntry = {
+        id: newSuperUser.id,
+        name: name,
+        email: email,
+        licenseId: 'MCI-00100-IN',
+        department: 'Platform Operations',
+        role: 'super_admin',
+        hospitalName: 'MediTrail Platform',
+        status: 'Active'
+    };
+
+    // 1. Save locally
+    if (!window.MEDITRAIL_DATA) window.MEDITRAIL_DATA = {};
+    if (!window.MEDITRAIL_DATA.rbacUsers) window.MEDITRAIL_DATA.rbacUsers = [];
+    if (!window.MEDITRAIL_DATA.doctorsList) window.MEDITRAIL_DATA.doctorsList = [];
+
+    window.MEDITRAIL_DATA.rbacUsers.unshift(newSuperUser);
+    window.MEDITRAIL_DATA.doctorsList.unshift(docEntry);
+
+    localStorage.setItem('MEDITRAIL_RBAC_USERS', JSON.stringify(window.MEDITRAIL_DATA.rbacUsers));
+    localStorage.setItem('MEDITRAIL_DOCTORS', JSON.stringify(window.MEDITRAIL_DATA.doctorsList));
+
+    // 2. Insert to Supabase DB (staff_profiles)
+    if (window.supabase) {
+        try {
+            const sb = window.supabase.createClient(
+                'https://zxcqicubcrqsxubnnmpp.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Y3FpY3ViY3Jxc3h1Ym5ubXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0ODQ4MjYsImV4cCI6MjEwNjA2MDgyNn0.NrFhY5HUGmxCGFegyNNIvb_jSMJZ7_R7qDcl4mO4vok'
+            );
+
+            await sb.from('staff_profiles').insert([{
+                name: name,
+                email: email,
+                role: 'super_admin',
+                department: 'Platform Operations',
+                license_id: 'MCI-00100-IN',
+                status: 'Active',
+                hospital_name: 'MediTrail Platform',
+                password_hash: passwordHash
+            }]);
+
+            console.log(`Super Admin (${email}) created and synced to Supabase!`);
+        } catch (err) {
+            console.warn('Supabase insert super admin error:', err);
+        }
+    }
+
+    if (nameInput) nameInput.value = '';
+    if (emailInput) emailInput.value = '';
+    if (passwordInput) passwordInput.value = '';
+
+    await renderDoctorsTable();
+    closeAddSuperAdminModal();
+    alert(`Platform Super Admin account "${name}" (${email}) created successfully!`);
 };
 
 window.saveNewHospital = async function(e) {
