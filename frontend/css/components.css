@@ -3342,10 +3342,10 @@ body.drawer-open #view-landing .concept-grid {
 }
 
 /* Activity Items & Scrollable Card Lists */
-/* max-height is set dynamically by JS (snapListHeight) after render
-   so it always fits an exact integer number of items with no clipping */
-/* Horizontal carousel rail — matches the medical timeline track style */
-.activity-list,
+/* Horizontal carousel rail for the three dashboard panels —
+   scoped to specific IDs only so other uses of .activity-list are unaffected */
+#dash-shared-access,
+#dash-reports-list,
 #dash-medications-list {
     display: flex;
     flex-direction: row;
@@ -3357,50 +3357,59 @@ body.drawer-open #view-landing .concept-grid {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
     transition: scrollbar-color 0.25s ease;
-    /* Height matches the activity-item card height + padding */
     min-height: 86px;
     max-height: 100px;
     align-items: center;
 }
 
-.card:hover .activity-list,
+.card:hover #dash-shared-access,
+.card:hover #dash-reports-list,
 .card:hover #dash-medications-list,
-.activity-list:hover,
+#dash-shared-access:hover,
+#dash-reports-list:hover,
 #dash-medications-list:hover {
     scrollbar-color: rgba(13, 148, 136, 0.42) transparent;
 }
 
-.activity-list::-webkit-scrollbar,
+#dash-shared-access::-webkit-scrollbar,
+#dash-reports-list::-webkit-scrollbar,
 #dash-medications-list::-webkit-scrollbar {
     height: 5px;
     background: transparent;
 }
 
-.activity-list::-webkit-scrollbar-track,
-.activity-list::-webkit-scrollbar-track-piece,
+#dash-shared-access::-webkit-scrollbar-track,
+#dash-shared-access::-webkit-scrollbar-track-piece,
+#dash-reports-list::-webkit-scrollbar-track,
+#dash-reports-list::-webkit-scrollbar-track-piece,
 #dash-medications-list::-webkit-scrollbar-track,
 #dash-medications-list::-webkit-scrollbar-track-piece {
     background: transparent;
     border: none;
 }
 
-.activity-list::-webkit-scrollbar-thumb,
+#dash-shared-access::-webkit-scrollbar-thumb,
+#dash-reports-list::-webkit-scrollbar-thumb,
 #dash-medications-list::-webkit-scrollbar-thumb {
     background: transparent;
     border-radius: 99px;
     transition: background 0.25s ease;
 }
 
-.card:hover .activity-list::-webkit-scrollbar-thumb,
+.card:hover #dash-shared-access::-webkit-scrollbar-thumb,
+.card:hover #dash-reports-list::-webkit-scrollbar-thumb,
 .card:hover #dash-medications-list::-webkit-scrollbar-thumb,
-.activity-list:hover::-webkit-scrollbar-thumb,
+#dash-shared-access:hover::-webkit-scrollbar-thumb,
+#dash-reports-list:hover::-webkit-scrollbar-thumb,
 #dash-medications-list:hover::-webkit-scrollbar-thumb {
     background: rgba(13, 148, 136, 0.42);
 }
 
-.card:hover .activity-list::-webkit-scrollbar-thumb:hover,
+.card:hover #dash-shared-access::-webkit-scrollbar-thumb:hover,
+.card:hover #dash-reports-list::-webkit-scrollbar-thumb:hover,
 .card:hover #dash-medications-list::-webkit-scrollbar-thumb:hover,
-.activity-list::-webkit-scrollbar-thumb:hover,
+#dash-shared-access::-webkit-scrollbar-thumb:hover,
+#dash-reports-list::-webkit-scrollbar-thumb:hover,
 #dash-medications-list::-webkit-scrollbar-thumb:hover {
     background: rgba(13, 148, 136, 0.75);
 }
