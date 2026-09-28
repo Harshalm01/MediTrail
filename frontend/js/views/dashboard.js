@@ -508,8 +508,9 @@ export function renderDashboard() {
 export function snapListHeight(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    // Clear any inline max-height; CSS controls overflow
+
     container.style.maxHeight = '';
+    container.style.overflowY = 'auto';
     debugLog(`[MediTrail Sizing] #${containerId} active | clientHeight=${container.clientHeight}px`);
 }
 
@@ -517,8 +518,9 @@ export function snapListHeight(containerId) {
  * Calls snapListHeight for each dashboard scrollable list.
  */
 export function snapListHeights() {
-    // dash-shared-access and dash-reports-list are horizontal carousels
+    snapListHeight('dash-shared-access');
     snapListHeight('dash-recent-activity');
+    snapListHeight('dash-reports-list');
 }
 
 /**
@@ -631,9 +633,6 @@ export function initMedicationsCarousel(itemCount) {
     const track = document.getElementById('dash-medications-list');
     if (!track) return;
 
-    // Activate horizontal carousel mode
-    track.classList.add('dash-horiz-carousel');
-
     if (medAutoScrollAnimId) {
         cancelAnimationFrame(medAutoScrollAnimId);
         medAutoScrollAnimId = null;
@@ -645,31 +644,39 @@ export function initMedicationsCarousel(itemCount) {
     isMedHovered = false;
     isMedPausingAtEnd = false;
 
-    track.onmouseenter = () => { isMedHovered = true; };
-    track.onmouseleave = () => { isMedHovered = false; };
+    track.onmouseenter = () => {
+        isMedHovered = true;
+    };
 
-    let exactScrollLeft = track.scrollLeft;
+    track.onmouseleave = () => {
+        isMedHovered = false;
+    };
 
-    function stepMedScroll() {
-        if (!isMedHovered && !isMedPausingAtEnd && track.scrollWidth > track.clientWidth) {
-            exactScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
-            track.scrollLeft = exactScrollLeft;
-            const maxLeft = track.scrollWidth - track.clientWidth;
-            if (track.scrollLeft >= maxLeft - 1) {
+    let exactMedScrollTop = track.scrollTop;
+
+    function stepAutoScroll() {
+        if (!isMedHovered && !isMedPausingAtEnd && track.scrollHeight > track.clientHeight) {
+            exactMedScrollTop += 0.2;
+            track.scrollTop = exactMedScrollTop;
+
+            const maxScrollTop = track.scrollHeight - track.clientHeight;
+            if (track.scrollTop >= maxScrollTop - 1) {
                 isMedPausingAtEnd = true;
                 medPauseTimeout = setTimeout(() => {
                     if (track) {
-                        track.scrollTo({ left: 0, behavior: 'smooth' });
-                        exactScrollLeft = 0;
+                        track.scrollTo({ top: 0, behavior: 'smooth' });
+                        exactMedScrollTop = 0;
                     }
-                    setTimeout(() => { isMedPausingAtEnd = false; }, 650);
+                    setTimeout(() => {
+                        isMedPausingAtEnd = false;
+                    }, 650);
                 }, 2000);
             }
         }
-        medAutoScrollAnimId = requestAnimationFrame(stepMedScroll);
+        medAutoScrollAnimId = requestAnimationFrame(stepAutoScroll);
     }
 
-    medAutoScrollAnimId = requestAnimationFrame(stepMedScroll);
+    medAutoScrollAnimId = requestAnimationFrame(stepAutoScroll);
 }
 
 let docsAutoScrollAnimId = null;
@@ -680,9 +687,6 @@ let isDocsPausingAtEnd = false;
 export function initSharedDocsCarousel(itemCount) {
     const track = document.getElementById('dash-shared-access');
     if (!track) return;
-
-    // Activate horizontal carousel mode
-    track.classList.add('dash-horiz-carousel');
 
     if (docsAutoScrollAnimId) {
         cancelAnimationFrame(docsAutoScrollAnimId);
@@ -695,31 +699,39 @@ export function initSharedDocsCarousel(itemCount) {
     isDocsHovered = false;
     isDocsPausingAtEnd = false;
 
-    track.onmouseenter = () => { isDocsHovered = true; };
-    track.onmouseleave = () => { isDocsHovered = false; };
+    track.onmouseenter = () => {
+        isDocsHovered = true;
+    };
 
-    let exactScrollLeft = track.scrollLeft;
+    track.onmouseleave = () => {
+        isDocsHovered = false;
+    };
 
-    function stepDocsScroll() {
-        if (!isDocsHovered && !isDocsPausingAtEnd && track.scrollWidth > track.clientWidth) {
-            exactScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
-            track.scrollLeft = exactScrollLeft;
-            const maxLeft = track.scrollWidth - track.clientWidth;
-            if (track.scrollLeft >= maxLeft - 1) {
+    let exactDocsScrollTop = track.scrollTop;
+
+    function stepAutoScrollDocs() {
+        if (!isDocsHovered && !isDocsPausingAtEnd && track.scrollHeight > track.clientHeight) {
+            exactDocsScrollTop += 0.2;
+            track.scrollTop = exactDocsScrollTop;
+
+            const maxScrollTop = track.scrollHeight - track.clientHeight;
+            if (track.scrollTop >= maxScrollTop - 1) {
                 isDocsPausingAtEnd = true;
                 docsPauseTimeout = setTimeout(() => {
                     if (track) {
-                        track.scrollTo({ left: 0, behavior: 'smooth' });
-                        exactScrollLeft = 0;
+                        track.scrollTo({ top: 0, behavior: 'smooth' });
+                        exactDocsScrollTop = 0;
                     }
-                    setTimeout(() => { isDocsPausingAtEnd = false; }, 650);
+                    setTimeout(() => {
+                        isDocsPausingAtEnd = false;
+                    }, 650);
                 }, 2000);
             }
         }
-        docsAutoScrollAnimId = requestAnimationFrame(stepDocsScroll);
+        docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
     }
 
-    docsAutoScrollAnimId = requestAnimationFrame(stepDocsScroll);
+    docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
 }
 
 let reportsAutoScrollAnimId = null;
@@ -730,9 +742,6 @@ let isReportsPausingAtEnd = false;
 export function initReportsCarousel(itemCount) {
     const track = document.getElementById('dash-reports-list');
     if (!track) return;
-
-    // Activate horizontal carousel mode
-    track.classList.add('dash-horiz-carousel');
 
     if (reportsAutoScrollAnimId) {
         cancelAnimationFrame(reportsAutoScrollAnimId);
@@ -748,28 +757,29 @@ export function initReportsCarousel(itemCount) {
     track.onmouseenter = () => { isReportsHovered = true; };
     track.onmouseleave = () => { isReportsHovered = false; };
 
-    let exactScrollLeft = track.scrollLeft;
+    let exactReportsScrollTop = track.scrollTop;
 
-    function stepReportsScroll() {
-        if (!isReportsHovered && !isReportsPausingAtEnd && track.scrollWidth > track.clientWidth) {
-            exactScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
-            track.scrollLeft = exactScrollLeft;
-            const maxLeft = track.scrollWidth - track.clientWidth;
-            if (track.scrollLeft >= maxLeft - 1) {
+    function stepAutoScrollReports() {
+        if (!isReportsHovered && !isReportsPausingAtEnd && track.scrollHeight > track.clientHeight) {
+            exactReportsScrollTop += 0.2;
+            track.scrollTop = exactReportsScrollTop;
+
+            const maxScrollTop = track.scrollHeight - track.clientHeight;
+            if (track.scrollTop >= maxScrollTop - 1) {
                 isReportsPausingAtEnd = true;
                 reportsPauseTimeout = setTimeout(() => {
                     if (track) {
-                        track.scrollTo({ left: 0, behavior: 'smooth' });
-                        exactScrollLeft = 0;
+                        track.scrollTo({ top: 0, behavior: 'smooth' });
+                        exactReportsScrollTop = 0;
                     }
                     setTimeout(() => { isReportsPausingAtEnd = false; }, 650);
                 }, 2000);
             }
         }
-        reportsAutoScrollAnimId = requestAnimationFrame(stepReportsScroll);
+        reportsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollReports);
     }
 
-    reportsAutoScrollAnimId = requestAnimationFrame(stepReportsScroll);
+    reportsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollReports);
 }
 
 // Global DevTools helper
