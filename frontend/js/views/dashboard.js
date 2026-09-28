@@ -341,12 +341,6 @@ export function renderDashboard() {
             sharedAccessContainer.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-style: italic;">No doctors authorized yet.</div>`;
         } else {
             let docsToRender = sharedDocs;
-            if (docsToRender.length > 0 && docsToRender.length < 15) {
-                while(docsToRender.length < 15) {
-                    docsToRender = [...docsToRender, ...sharedDocs];
-                }
-                docsToRender = docsToRender.slice(0, 15);
-            }
             
             docsToRender.forEach(doc => {
                 const item = document.createElement('div');
@@ -371,8 +365,6 @@ export function renderDashboard() {
                 `;
                 sharedAccessContainer.appendChild(item);
             });
-            
-            initSharedDocsCarousel(docsToRender.length);
         }
     }
 
@@ -384,13 +376,6 @@ export function renderDashboard() {
             medicationsContainer.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-style: italic;">No active prescriptions prescribed yet.</div>`;
         } else {
             let medsToRender = medications;
-            if (medsToRender.length > 0 && medsToRender.length < 15) {
-                // Duplicate medications so it triggers auto-scroll even on large screens
-                while(medsToRender.length < 15) {
-                    medsToRender = [...medsToRender, ...medications];
-                }
-                medsToRender = medsToRender.slice(0, 15);
-            }
             
             medsToRender.forEach(med => {
                 const card = document.createElement('div');
@@ -407,9 +392,6 @@ export function renderDashboard() {
                 `;
                 medicationsContainer.appendChild(card);
             });
-            
-            // Add vertical auto-scroll for active medications
-            initMedicationsCarousel(medsToRender.length);
         }
     }
 
@@ -421,12 +403,6 @@ export function renderDashboard() {
             reportsContainer.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-style: italic;">No lab diagnostic reports uploaded.</div>`;
         } else {
             let reportsToRender = reports;
-            if (reportsToRender.length > 0 && reportsToRender.length < 15) {
-                while(reportsToRender.length < 15) {
-                    reportsToRender = [...reportsToRender, ...reports];
-                }
-                reportsToRender = reportsToRender.slice(0, 15);
-            }
 
             reportsToRender.forEach(rep => {
                 const repItem = document.createElement('div');
@@ -454,7 +430,6 @@ export function renderDashboard() {
                 `;
                 reportsContainer.appendChild(repItem);
             });
-            initReportsCarousel(reportsToRender.length);
         }
     }
 
