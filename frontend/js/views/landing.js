@@ -60,60 +60,46 @@ export function initLandingScrollExperience() {
                 header.classList.remove('scrolled');
             }
         }
-        if (scrollTop < 80) {
-            updateActiveLandingDot(1);
+        
+        // Calculate which section is active based on scroll position
+        const triggerPoint = scrollTop + (window.innerHeight * 0.4);
+        let activeSecNum = 1;
+        
+        const sections = [
+            { id: 'landing-sec-hero', num: 1 },
+            { id: 'landing-sec-timeline', num: 2 },
+            { id: 'landing-sec-access', num: 3 },
+            { id: 'landing-sec-features', num: 4 },
+            { id: 'landing-sec-emergency', num: 5 }
+        ];
+        
+        for (const sec of sections) {
+            const el = document.getElementById(sec.id);
+            if (el && el.offsetTop <= triggerPoint) {
+                activeSecNum = sec.num;
+            }
         }
+        
+        updateActiveLandingDot(activeSecNum);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     landingContainer.addEventListener('scroll', handleScroll, { passive: true });
 
-    // IntersectionObserver to activate snap sections and update dot navigation
+    // IntersectionObserver to activate snap sections (CSS reveal animations)
     const snapSections = document.querySelectorAll('.landing-snap-section');
     if ('IntersectionObserver' in window && snapSections.length > 0) {
-        const sectionMap = {
-            'landing-sec-hero': 1,
-            'landing-sec-timeline': 2,
-            'landing-sec-access': 3,
-            'landing-sec-features': 4,
-            'landing-sec-emergency': 5
-        };
-
-        // Persistent map so we always have the latest ratio for EVERY section,
-        // not just the ones that happened to fire in the current callback batch.
-        const ratioMap = new Map();
-        snapSections.forEach(s => ratioMap.set(s.id, 0));
-
         const sectionObserver = new IntersectionObserver((entries) => {
-            // Update the ratio for each section that fired this batch
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
                 } else {
                     entry.target.classList.remove('active');
                 }
-                ratioMap.set(entry.target.id, entry.intersectionRatio);
             });
-
-            // Pick the most-visible section from the FULL map
-            let bestId = null;
-            let bestRatio = 0;
-            ratioMap.forEach((ratio, id) => {
-                if (ratio > bestRatio) {
-                    bestRatio = ratio;
-                    bestId = id;
-                }
-            });
-
-            const currentScroll = window.scrollY || document.documentElement.scrollTop || (landingContainer ? landingContainer.scrollTop : 0);
-            if (currentScroll < 80) {
-                updateActiveLandingDot(1);
-            } else if (bestId && sectionMap[bestId]) {
-                updateActiveLandingDot(sectionMap[bestId]);
-            }
         }, {
             root: null,
-            threshold: [0, 0.15, 0.4, 0.7, 0.9, 1.0]
+            threshold: [0.15]
         });
 
         snapSections.forEach(section => sectionObserver.observe(section));
