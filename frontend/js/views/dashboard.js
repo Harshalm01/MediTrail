@@ -642,44 +642,7 @@ export function initMedicationsCarousel(itemCount) {
         clearTimeout(medPauseTimeout);
         medPauseTimeout = null;
     }
-    isMedHovered = false;
-    isMedPausingAtEnd = false;
-
-    track.onmouseenter = () => {
-        isMedHovered = true;
-    };
-
-    track.onmouseleave = () => {
-        isMedHovered = false;
-    };
-
-    let exactMedScrollTop = track.scrollTop;
-    // Disable snap so the continuous 0.4px increments aren't snapped back
-    track.style.scrollSnapType = 'none';
-
-    function stepAutoScroll() {
-        if (!isMedHovered && !isMedPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactMedScrollTop += VERTICAL_AUTO_SCROLL_SPEED;
-            track.scrollTop = exactMedScrollTop;
-
-            const maxScrollTop = track.scrollHeight - track.clientHeight;
-            if (track.scrollTop >= maxScrollTop - 1) {
-                isMedPausingAtEnd = true;
-                medPauseTimeout = setTimeout(() => {
-                    if (track) {
-                        track.scrollTo({ top: 0, behavior: 'smooth' });
-                        exactMedScrollTop = 0;
-                    }
-                    setTimeout(() => {
-                        isMedPausingAtEnd = false;
-                    }, 650);
-                }, 2000);
-            }
-        }
-        medAutoScrollAnimId = requestAnimationFrame(stepAutoScroll);
-    }
-
-    medAutoScrollAnimId = requestAnimationFrame(stepAutoScroll);
+    track.style.scrollSnapType = '';
 }
 
 let docsAutoScrollAnimId = null;
@@ -699,44 +662,7 @@ export function initSharedDocsCarousel(itemCount) {
         clearTimeout(docsPauseTimeout);
         docsPauseTimeout = null;
     }
-    isDocsHovered = false;
-    isDocsPausingAtEnd = false;
-
-    track.onmouseenter = () => {
-        isDocsHovered = true;
-    };
-
-    track.onmouseleave = () => {
-        isDocsHovered = false;
-    };
-
-    let exactDocsScrollTop = track.scrollTop;
-    // Disable snap so the continuous 0.4px increments aren't snapped back
-    track.style.scrollSnapType = 'none';
-
-    function stepAutoScrollDocs() {
-        if (!isDocsHovered && !isDocsPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactDocsScrollTop += VERTICAL_AUTO_SCROLL_SPEED;
-            track.scrollTop = exactDocsScrollTop;
-
-            const maxScrollTop = track.scrollHeight - track.clientHeight;
-            if (track.scrollTop >= maxScrollTop - 1) {
-                isDocsPausingAtEnd = true;
-                docsPauseTimeout = setTimeout(() => {
-                    if (track) {
-                        track.scrollTo({ top: 0, behavior: 'smooth' });
-                        exactDocsScrollTop = 0;
-                    }
-                    setTimeout(() => {
-                        isDocsPausingAtEnd = false;
-                    }, 650);
-                }, 2000);
-            }
-        }
-        docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
-    }
-
-    docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
+    track.style.scrollSnapType = '';
 }
 
 let reportsAutoScrollAnimId = null;
@@ -756,37 +682,7 @@ export function initReportsCarousel(itemCount) {
         clearTimeout(reportsPauseTimeout);
         reportsPauseTimeout = null;
     }
-    isReportsHovered = false;
-    isReportsPausingAtEnd = false;
-
-    track.onmouseenter = () => { isReportsHovered = true; };
-    track.onmouseleave = () => { isReportsHovered = false; };
-
-    let exactReportsScrollTop = track.scrollTop;
-    // Disable snap so the continuous 0.4px increments aren't snapped back
-    track.style.scrollSnapType = 'none';
-
-    function stepAutoScrollReports() {
-        if (!isReportsHovered && !isReportsPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactReportsScrollTop += VERTICAL_AUTO_SCROLL_SPEED;
-            track.scrollTop = exactReportsScrollTop;
-
-            const maxScrollTop = track.scrollHeight - track.clientHeight;
-            if (track.scrollTop >= maxScrollTop - 1) {
-                isReportsPausingAtEnd = true;
-                reportsPauseTimeout = setTimeout(() => {
-                    if (track) {
-                        track.scrollTo({ top: 0, behavior: 'smooth' });
-                        exactReportsScrollTop = 0;
-                    }
-                    setTimeout(() => { isReportsPausingAtEnd = false; }, 650);
-                }, 2000);
-            }
-        }
-        reportsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollReports);
-    }
-
-    reportsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollReports);
+    track.style.scrollSnapType = '';
 }
 
 // Global DevTools helper
