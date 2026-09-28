@@ -3344,50 +3344,23 @@ body.drawer-open #view-landing .concept-grid {
 /* Activity Items & Scrollable Card Lists */
 /* max-height is set dynamically by JS (snapListHeight) after render
    so it always fits an exact integer number of items with no clipping */
-.activity-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
-    overflow-y: auto;
-    padding-right: 0.35rem;
-    scroll-snap-type: y mandatory;
-    scroll-padding-top: 0px;
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-    transition: scrollbar-color 0.25s ease;
-    /* Exactly 3 items fit in standard viewports without any partial cuts */
-    max-height: 206px;
-}
-
-@media (min-height: 900px) and (min-width: 1300px) {
-    .activity-list {
-        max-height: 275px;
-        /* 4 items on taller screens */
-    }
-}
-
-@media (min-height: 1000px) and (min-width: 1500px) {
-    .activity-list {
-        max-height: 345px;
-        /* 5 items on extra tall displays */
-    }
-}
-
+/* Horizontal carousel rail — matches the medical timeline track style */
+.activity-list,
 #dash-medications-list {
     display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
-    /* Fixed height — generous enough to always show 2 full medication cards
-       even when card text wraps to multiple lines. JS measurement is skipped
-       for this list since scrollbar reflow makes dynamic sizing unreliable. */
-    max-height: 200px;
-    overflow-y: auto;
-    padding-right: 0.35rem;
-    scroll-snap-type: y mandatory;
-    scroll-padding-top: 0px;
+    flex-direction: row;
+    gap: 0.75rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.65rem 0.5rem 0.8rem 0.25rem;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
     transition: scrollbar-color 0.25s ease;
+    /* Height matches the activity-item card height + padding */
+    min-height: 86px;
+    max-height: 100px;
+    align-items: center;
 }
 
 .card:hover .activity-list,
@@ -3399,7 +3372,7 @@ body.drawer-open #view-landing .concept-grid {
 
 .activity-list::-webkit-scrollbar,
 #dash-medications-list::-webkit-scrollbar {
-    width: 5px;
+    height: 5px;
     background: transparent;
 }
 
@@ -3434,16 +3407,17 @@ body.drawer-open #view-landing .concept-grid {
 
 .activity-item {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 62px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    min-width: 200px;
+    max-width: 240px;
+    height: 72px;
     box-sizing: border-box;
-    padding: 0.55rem 0.85rem;
+    padding: 0.6rem 0.9rem;
     border-radius: var(--radius-md);
     background-color: var(--bg-app);
     border: 1px solid var(--border-subtle);
-    scroll-snap-align: start;
-    scroll-snap-stop: normal;
     flex-shrink: 0;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
@@ -3452,7 +3426,7 @@ body.drawer-open #view-landing .concept-grid {
 .activity-item:hover {
     background-color: #ffffff;
     border-color: var(--primary);
-    transform: translateX(4px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-sm);
 }
 
@@ -3521,24 +3495,26 @@ body.drawer-open #view-landing .concept-grid {
 /* Medication items */
 .medication-card {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    padding: 0.65rem 0.85rem;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.15rem;
+    min-width: 210px;
+    max-width: 250px;
+    height: 72px;
+    padding: 0.6rem 0.9rem;
     border-radius: var(--radius-md);
     background-color: var(--bg-app);
     border: 1px solid var(--border-subtle);
-    /* gap on the parent handles spacing — no margin needed */
-    scroll-snap-align: start;
-    scroll-snap-stop: normal;
     flex-shrink: 0;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
+    overflow: hidden;
 }
 
 .medication-card:hover {
     background-color: #ffffff;
     border-color: var(--primary);
-    transform: translateX(4px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-sm);
 }
 

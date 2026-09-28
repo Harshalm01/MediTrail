@@ -644,39 +644,32 @@ export function initMedicationsCarousel(itemCount) {
     isMedHovered = false;
     isMedPausingAtEnd = false;
 
-    track.onmouseenter = () => {
-        isMedHovered = true;
-    };
+    track.onmouseenter = () => { isMedHovered = true; };
+    track.onmouseleave = () => { isMedHovered = false; };
 
-    track.onmouseleave = () => {
-        isMedHovered = false;
-    };
+    let exactMedScrollLeft = track.scrollLeft;
 
-    let exactMedScrollTop = track.scrollTop;
+    function stepMedScroll() {
+        if (!isMedHovered && !isMedPausingAtEnd && track.scrollWidth > track.clientWidth) {
+            exactMedScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
+            track.scrollLeft = exactMedScrollLeft;
 
-    function stepAutoScroll() {
-        if (!isMedHovered && !isMedPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactMedScrollTop += 0.2;
-            track.scrollTop = exactMedScrollTop;
-
-            const maxScrollTop = track.scrollHeight - track.clientHeight;
-            if (track.scrollTop >= maxScrollTop - 1) {
+            const maxScrollLeft = track.scrollWidth - track.clientWidth;
+            if (track.scrollLeft >= maxScrollLeft - 1) {
                 isMedPausingAtEnd = true;
                 medPauseTimeout = setTimeout(() => {
                     if (track) {
-                        track.scrollTo({ top: 0, behavior: 'smooth' });
-                        exactMedScrollTop = 0;
+                        track.scrollTo({ left: 0, behavior: 'smooth' });
+                        exactMedScrollLeft = 0;
                     }
-                    setTimeout(() => {
-                        isMedPausingAtEnd = false;
-                    }, 650);
+                    setTimeout(() => { isMedPausingAtEnd = false; }, 650);
                 }, 2000);
             }
         }
-        medAutoScrollAnimId = requestAnimationFrame(stepAutoScroll);
+        medAutoScrollAnimId = requestAnimationFrame(stepMedScroll);
     }
 
-    medAutoScrollAnimId = requestAnimationFrame(stepAutoScroll);
+    medAutoScrollAnimId = requestAnimationFrame(stepMedScroll);
 }
 
 let docsAutoScrollAnimId = null;
@@ -699,39 +692,32 @@ export function initSharedDocsCarousel(itemCount) {
     isDocsHovered = false;
     isDocsPausingAtEnd = false;
 
-    track.onmouseenter = () => {
-        isDocsHovered = true;
-    };
+    track.onmouseenter = () => { isDocsHovered = true; };
+    track.onmouseleave = () => { isDocsHovered = false; };
 
-    track.onmouseleave = () => {
-        isDocsHovered = false;
-    };
+    let exactDocsScrollLeft = track.scrollLeft;
 
-    let exactDocsScrollTop = track.scrollTop;
+    function stepDocsScroll() {
+        if (!isDocsHovered && !isDocsPausingAtEnd && track.scrollWidth > track.clientWidth) {
+            exactDocsScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
+            track.scrollLeft = exactDocsScrollLeft;
 
-    function stepAutoScrollDocs() {
-        if (!isDocsHovered && !isDocsPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactDocsScrollTop += 0.2;
-            track.scrollTop = exactDocsScrollTop;
-
-            const maxScrollTop = track.scrollHeight - track.clientHeight;
-            if (track.scrollTop >= maxScrollTop - 1) {
+            const maxScrollLeft = track.scrollWidth - track.clientWidth;
+            if (track.scrollLeft >= maxScrollLeft - 1) {
                 isDocsPausingAtEnd = true;
                 docsPauseTimeout = setTimeout(() => {
                     if (track) {
-                        track.scrollTo({ top: 0, behavior: 'smooth' });
-                        exactDocsScrollTop = 0;
+                        track.scrollTo({ left: 0, behavior: 'smooth' });
+                        exactDocsScrollLeft = 0;
                     }
-                    setTimeout(() => {
-                        isDocsPausingAtEnd = false;
-                    }, 650);
+                    setTimeout(() => { isDocsPausingAtEnd = false; }, 650);
                 }, 2000);
             }
         }
-        docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
+        docsAutoScrollAnimId = requestAnimationFrame(stepDocsScroll);
     }
 
-    docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
+    docsAutoScrollAnimId = requestAnimationFrame(stepDocsScroll);
 }
 
 let reportsAutoScrollAnimId = null;
@@ -757,29 +743,29 @@ export function initReportsCarousel(itemCount) {
     track.onmouseenter = () => { isReportsHovered = true; };
     track.onmouseleave = () => { isReportsHovered = false; };
 
-    let exactReportsScrollTop = track.scrollTop;
+    let exactReportsScrollLeft = track.scrollLeft;
 
-    function stepAutoScrollReports() {
-        if (!isReportsHovered && !isReportsPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactReportsScrollTop += 0.2;
-            track.scrollTop = exactReportsScrollTop;
+    function stepReportsScroll() {
+        if (!isReportsHovered && !isReportsPausingAtEnd && track.scrollWidth > track.clientWidth) {
+            exactReportsScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
+            track.scrollLeft = exactReportsScrollLeft;
 
-            const maxScrollTop = track.scrollHeight - track.clientHeight;
-            if (track.scrollTop >= maxScrollTop - 1) {
+            const maxScrollLeft = track.scrollWidth - track.clientWidth;
+            if (track.scrollLeft >= maxScrollLeft - 1) {
                 isReportsPausingAtEnd = true;
                 reportsPauseTimeout = setTimeout(() => {
                     if (track) {
-                        track.scrollTo({ top: 0, behavior: 'smooth' });
-                        exactReportsScrollTop = 0;
+                        track.scrollTo({ left: 0, behavior: 'smooth' });
+                        exactReportsScrollLeft = 0;
                     }
                     setTimeout(() => { isReportsPausingAtEnd = false; }, 650);
                 }, 2000);
             }
         }
-        reportsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollReports);
+        reportsAutoScrollAnimId = requestAnimationFrame(stepReportsScroll);
     }
 
-    reportsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollReports);
+    reportsAutoScrollAnimId = requestAnimationFrame(stepReportsScroll);
 }
 
 // Global DevTools helper
