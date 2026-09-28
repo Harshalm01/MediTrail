@@ -79,33 +79,41 @@ export function initLandingScrollExperience() {
             'landing-sec-emergency': 5
         };
 
-        const sectionObserver = new IntersectionObserver((entries) => {
-            let maxRatio = 0;
-            let bestSecNum = null;
+        // Persistent map so we always have the latest ratio for EVERY section,
+        // not just the ones that happened to fire in the current callback batch.
+        const ratioMap = new Map();
+        snapSections.forEach(s => ratioMap.set(s.id, 0));
 
+        const sectionObserver = new IntersectionObserver((entries) => {
+            // Update the ratio for each section that fired this batch
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
                 } else {
                     entry.target.classList.remove('active');
                 }
+                ratioMap.set(entry.target.id, entry.intersectionRatio);
+            });
 
-                const secNum = sectionMap[entry.target.id];
-                if (entry.isIntersecting && secNum && entry.intersectionRatio > maxRatio) {
-                    maxRatio = entry.intersectionRatio;
-                    bestSecNum = secNum;
+            // Pick the most-visible section from the FULL map
+            let bestId = null;
+            let bestRatio = 0;
+            ratioMap.forEach((ratio, id) => {
+                if (ratio > bestRatio) {
+                    bestRatio = ratio;
+                    bestId = id;
                 }
             });
 
             const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
             if (currentScroll < 80) {
                 updateActiveLandingDot(1);
-            } else if (bestSecNum) {
-                updateActiveLandingDot(bestSecNum);
+            } else if (bestId && sectionMap[bestId]) {
+                updateActiveLandingDot(sectionMap[bestId]);
             }
         }, {
             root: null,
-            threshold: [0.15, 0.4, 0.7]
+            threshold: [0, 0.15, 0.4, 0.7, 0.9, 1.0]
         });
 
         snapSections.forEach(section => sectionObserver.observe(section));
@@ -120,6 +128,7 @@ export function initLandingScrollExperience() {
         // Fallback: immediately activate all sections if IntersectionObserver is not supported
         snapSections.forEach(section => section.classList.add('active'));
     }
+
 }
 
 // ==========================================================================
