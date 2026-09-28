@@ -119,12 +119,12 @@
                 </nav>
 
                 <div class="sidebar-footer">
-                    <div class="user-snippet" onclick="openProfileModal()" role="button" tabindex="0"
-                        title="View Aarnav Mehta's Profile" style="cursor: pointer;">
-                        <div class="user-avatar" title="Aarnav Mehta (MT-10482)">AM</div>
+                    <div class="user-snippet" id="sidebar-user-snippet" onclick="openProfileModal()" role="button" tabindex="0"
+                        title="View Profile" style="cursor: pointer;">
+                        <div class="user-avatar" id="sidebar-user-avatar" title="Patient">AM</div>
                         <div class="user-snippet-details">
-                            <div class="user-meta-name">Aarnav Mehta</div>
-                            <div class="user-meta-id">MT-10482</div>
+                            <div class="user-meta-name" id="sidebar-user-name">Loading...</div>
+                            <div class="user-meta-id" id="sidebar-user-id">Loading...</div>
                         </div>
                     </div>
                 </div>
@@ -366,8 +366,8 @@
                                     <div class="card-body">
                                         <div class="emergency-contact-info">
                                             <div class="emergency-person-meta">
-                                                <div class="emergency-person-name">Sunita Mehta</div>
-                                                <div class="emergency-person-relation">Mother</div>
+                                                <div class="emergency-person-name" id="prof-emergency-name">Sunita Mehta</div>
+                                                <div class="emergency-person-relation" id="prof-emergency-relation">Mother</div>
                                             </div>
                                             <a href="tel:+919876543210" class="emergency-phone-link"
                                                 title="Call Emergency Contact">
@@ -381,7 +381,7 @@
                                                     <path d="M14.05 2a9 9 0 0 1 8 7.94"></path>
                                                     <path d="M14.05 6A5 5 0 0 1 18 10"></path>
                                                 </svg>
-                                                <span>+91 98765 43210</span>
+                                                <span id="prof-emergency-phone">+91 98765 43210</span>
                                             </a>
                                         </div>
                                         <div class="emergency-insurance-row">

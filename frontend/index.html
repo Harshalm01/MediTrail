@@ -37,7 +37,7 @@
                 </a>
                 <div class="nav-actions">
                     <a href="admin.html" class="btn btn-secondary nav-hosp-btn" title="Hospital & Doctor Portal">
-                        <span class="nav-hosp-icon">🏥</span>
+                        <span class="nav-hosp-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4M10 9h4M12 7v4"></path></svg></span>
                         <span class="btn-text-full">Hospital & Doctor Portal</span>
                         <span class="btn-text-mobile">Hospital Portal</span>
                         <span class="btn-text-xs">Portal</span>
@@ -103,7 +103,7 @@
                                 <path d="M5 12h14M12 5l7 7-7 7"></path>
                             </svg>
                         </button>
-                        <button onclick="openPatientAuthModal()" class="btn btn-secondary">
+                        <button onclick="scrollLandingToSection(2)" class="btn btn-secondary">
                             <span>View Medical Timeline</span>
                         </button>
                     </div>
@@ -633,88 +633,249 @@
     <!-- ================================================================= -->
     <!-- PATIENT AUTHENTICATION & SIGNUP MODAL                             -->
     <!-- ================================================================= -->
-    <div id="patient-auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 39, 68, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); align-items: center; justify-content: center; z-index: 99999; opacity: 1; visibility: visible;">
-        <div style="background: #ffffff; width: 90%; max-width: 480px; padding: 2.25rem; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #e2e8f0; position: relative; animation: fadeInModal 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; overflow-y: auto;">
-            <button onclick="closePatientAuthModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; color: #64748b; display: flex; align-items: center; justify-content: center;">✕</button>
+    <style>
+        .patient-auth-wrapper {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #f8fafc; z-index: 99999; opacity: 0; visibility: hidden;
+            flex-direction: row; font-family: 'Inter', sans-serif;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
 
-            <div style="text-align: center; margin-bottom: 1.25rem;">
-                <img src="image.png" alt="MediTrail Logo" style="height: 40px; margin-bottom: 0.5rem;">
-                <h3 style="font-size: 1.35rem; font-weight: 700; color: #0f2744; margin-bottom: 0.25rem;">Patient Access Gateway</h3>
-                <p style="font-size: 0.85rem; color: #64748b;">Sign in with your registered mobile or create a new health profile.</p>
-            </div>
+        .patient-branding-panel {
+            display: none; flex: 0 0 35%;
+            background: linear-gradient(145deg, #0F766E, #0D9488);
+            color: white; padding: 3.5rem; position: relative; overflow: hidden;
+            flex-direction: column; justify-content: center;
+            opacity: 0; animation: ptPaneFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
-            <!-- Tab Switcher: Sign In vs Register -->
-            <div style="display: flex; background: #f1f5f9; border-radius: 10px; padding: 4px; margin-bottom: 1.5rem;">
-                <button type="button" id="tab-pt-signin" onclick="switchPatientAuthMode('signin')" style="flex: 1; padding: 0.6rem; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; background: #ffffff; color: #0f2744; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;">
-                    Sign In
-                </button>
-                <button type="button" id="tab-pt-register" onclick="switchPatientAuthMode('register')" style="flex: 1; padding: 0.6rem; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; background: transparent; color: #64748b; cursor: pointer;">
-                    Register New Patient
-                </button>
-            </div>
+        @media (min-width: 992px) { .patient-branding-panel { display: flex; } }
 
-            <!-- 1. SIGN IN FORM -->
-            <form id="patient-signin-form" onsubmit="handlePatientSignInSubmit(event)">
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Registered Mobile Number</label>
-                    <input type="tel" id="pt-auth-mobile" required placeholder="e.g. 9876543210" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;">
-                </div>
+        .patient-branding-panel::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px; z-index: 1;
+        }
 
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Enter 4-Digit OTP Code</label>
-                    <input type="text" id="pt-auth-otp" required maxlength="4" placeholder="1 2 3 4" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1.1rem; letter-spacing: 0.3em; text-align: center; box-sizing: border-box;">
-                </div>
+        .patient-branding-panel::after {
+            content: ''; position: absolute; bottom: -15%; right: -15%;
+            width: 500px; height: 500px; background: radial-gradient(circle, rgba(20, 184, 166, 0.25) 0%, transparent 70%); border-radius: 50%; z-index: 0;
+        }
+        
+        .patient-branding-orb {
+            position: absolute; top: -10%; left: -10%;
+            width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%); border-radius: 50%; z-index: 0;
+        }
 
-                <button type="submit" style="width: 100%; padding: 0.85rem; background: #0f2744; color: #ffffff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">
-                    Sign In & Unlock History →
-                </button>
-            </form>
+        .pt-branding-content { position: relative; z-index: 10; max-width: 440px; margin: 0 auto; }
+        .pt-branding-logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2.5rem; }
+        .pt-branding-logo img { height: 64px; border-radius: 8px; background: #ffffff; padding: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .pt-branding-logo-text { display: flex; flex-direction: column; }
+        .pt-branding-logo-name { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+        .pt-branding-logo-sub { font-size: 1rem; font-weight: 500; opacity: 0.8; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        .pt-branding-title { font-size: 48px; line-height: 1.15; font-weight: 700; margin-bottom: 3.5rem; letter-spacing: -0.02em; max-width: 500px; opacity: 0; animation: ptSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards; }
+        .pt-branding-title-highlight { color: #ccfbf1; }
+        
+        .pt-branding-features { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.5rem; }
+        .pt-branding-features li { display: flex; align-items: flex-start; gap: 1rem; transition: transform 0.2s ease; opacity: 0; animation: ptSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .pt-branding-features li:nth-child(1) { animation-delay: 0.2s; }
+        .pt-branding-features li:nth-child(2) { animation-delay: 0.3s; }
+        .pt-branding-features li:nth-child(3) { animation-delay: 0.4s; }
+        .pt-branding-features li:hover { transform: translateX(6px); }
+        .pt-feature-icon { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 50%; margin-top: 0.15rem; flex-shrink: 0; transition: background 0.2s ease; }
+        .pt-branding-features li:hover .pt-feature-icon { background: rgba(255,255,255,0.25); }
+        .pt-feature-text { display: flex; flex-direction: column; }
+        .pt-feature-title { font-size: 1.05rem; font-weight: 600; color: #ffffff; }
+        .pt-feature-desc { font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-top: 0.2rem; }
+        
+        .pt-branding-trust { margin-top: 4rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.6); font-weight: 500; opacity: 0; animation: ptSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards; }
 
-            <!-- 2. REGISTER FORM -->
-            <form id="patient-register-form" onsubmit="handlePatientRegisterSubmit(event)" style="display: none;">
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Patient Full Name</label>
-                    <input type="text" id="pt-reg-name" required placeholder="e.g. Rahul Sharma" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
+        @keyframes ptPaneFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Mobile Number</label>
-                    <input type="tel" id="pt-reg-mobile" required placeholder="e.g. 9876543210" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
+        @keyframes ptSlideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-                <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
-                    <div style="flex: 1;">
-                        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Date of Birth</label>
-                        <input type="date" id="pt-reg-dob" required style="width: 100%; padding: 0.65rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+        @keyframes formFadeSlide {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .pt-form-animate {
+            animation: formFadeSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .patient-login-container {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            padding: 2rem; position: relative; background: #ffffff; overflow-y: auto;
+        }
+
+        .patient-login-card {
+            width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; position: relative; z-index: 10;
+        }
+    </style>
+
+    <div id="patient-auth-modal" class="patient-auth-wrapper">
+        <div class="patient-branding-panel">
+            <div class="patient-branding-orb"></div>
+            <div class="pt-branding-content">
+                <div class="pt-branding-logo">
+                    <img src="image.png" alt="MediTrail Logo" onerror="this.style.display='none'">
+                    <div class="pt-branding-logo-text">
+                        <span class="pt-branding-logo-name">MediTrail</span>
+                        <span class="pt-branding-logo-sub">Patient Health Portal</span>
                     </div>
-                    <div style="flex: 1;">
-                        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Gender</label>
-                        <select id="pt-reg-gender" style="width: 100%; padding: 0.65rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
+                </div>
+                <h2 class="pt-branding-title">Your complete medical history, <span class="pt-branding-title-highlight">simplified</span>.</h2>
+                <ul class="pt-branding-features">
+                    <li>
+                        <span class="pt-feature-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                        <div class="pt-feature-text">
+                            <span class="pt-feature-title">Universal access</span>
+                            <span class="pt-feature-desc">View your records across all healthcare providers</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="pt-feature-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                        <div class="pt-feature-text">
+                            <span class="pt-feature-title">Complete privacy</span>
+                            <span class="pt-feature-desc">You control who can view your medical data</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="pt-feature-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                        <div class="pt-feature-text">
+                            <span class="pt-feature-title">Seamless sharing</span>
+                            <span class="pt-feature-desc">Share with any doctor in one tap</span>
+                        </div>
+                    </li>
+                </ul>
+                <div class="pt-branding-trust">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    Bank-grade encryption & HIPAA compliant
+                </div>
+            </div>
+        </div>
+
+        <div class="patient-login-container">
+            <button onclick="closePatientAuthModal()" style="position: absolute; top: 2rem; right: 2rem; background: #ffffff; border: 1px solid #e2e8f0; width: 44px; height: 44px; border-radius: 50%; font-size: 1.25rem; cursor: pointer; color: #64748b; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.2s ease; z-index: 20;">✕</button>
+            <div class="patient-login-card">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <img src="image.png" alt="MediTrail Logo" style="height: 64px; margin-bottom: 1.25rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <h3 style="font-size: 34px; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; letter-spacing: -0.01em;">Patient Access Gateway</h3>
+                    <p style="font-size: 1.1rem; color: #64748b; line-height: 1.5;">Sign in with your registered mobile or create a new health profile.</p>
+                </div>
+
+                <!-- Tab Switcher: Sign In vs Register -->
+                <div style="position: relative; display: flex; background: #f1f5f9; border-radius: 12px; padding: 6px; margin-bottom: 2rem;">
+                    <div id="tab-pt-slider" style="position: absolute; top: 6px; left: 6px; width: calc(50% - 6px); height: calc(100% - 12px); background: #ffffff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+                    <button type="button" id="tab-pt-signin" onclick="switchPatientAuthMode('signin')" style="position: relative; z-index: 1; flex: 1; padding: 0.85rem; border: none; background: transparent; font-weight: 600; font-size: 1.05rem; color: #0f172a; cursor: pointer; transition: color 0.3s ease;">
+                        Sign In
+                    </button>
+                    <button type="button" id="tab-pt-register" onclick="switchPatientAuthMode('register')" style="position: relative; z-index: 1; flex: 1; padding: 0.85rem; border: none; background: transparent; font-weight: 600; font-size: 1.05rem; color: #64748b; cursor: pointer; transition: color 0.3s ease;">
+                        Register New Patient
+                    </button>
+                </div>
+
+                <!-- 1. SIGN IN FORM -->
+                <form id="patient-signin-form" class="pt-form-animate" onsubmit="handlePatientSignInSubmit(event)">
+                    <div style="margin-bottom: 1.25rem;">
+                        <label style="display: block; font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">Registered Mobile Number</label>
+                        <input type="tel" id="pt-auth-mobile" required placeholder="e.g. 9876543210" style="width: 100%; padding: 0.85rem 1rem; border: 1px solid #DCE3EA; border-radius: 11px; font-size: 1.1rem; color: #0f172a; box-sizing: border-box; transition: border-color 0.2s ease;">
+                    </div>
+
+                    <div style="margin-bottom: 1.75rem;">
+                        <label style="display: block; font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">Enter 4-Digit OTP Code</label>
+                        <input type="text" id="pt-auth-otp" required maxlength="4" placeholder="1 2 3 4" style="width: 100%; padding: 0.85rem 1rem; border: 1px solid #DCE3EA; border-radius: 11px; font-size: 1.25rem; letter-spacing: 0.3em; text-align: center; color: #0f172a; box-sizing: border-box; transition: border-color 0.2s ease;">
+                    </div>
+
+                    <button type="submit" style="width: 100%; padding: 1rem; background: #0f172a; color: #ffffff; border: none; border-radius: 11px; font-size: 1.15rem; font-weight: 600; cursor: pointer; transition: background 0.2s ease;">
+                        Sign In & Unlock History →
+                    </button>
+                </form>
+
+                <!-- 2. REGISTER FORM -->
+                <form id="patient-register-form" class="pt-form-animate" onsubmit="handlePatientRegisterSubmit(event)" style="display: none;">
+                    <div style="margin-bottom: 1.25rem;">
+                        <label style="display: block; font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">Patient Full Name</label>
+                        <input type="text" id="pt-reg-name" required placeholder="e.g. Rahul Sharma" style="width: 100%; padding: 0.85rem 1rem; border: 1px solid #DCE3EA; border-radius: 11px; font-size: 1.05rem; color: #0f172a; box-sizing: border-box;">
+                    </div>
+
+                    <div style="margin-bottom: 1.25rem;">
+                        <label style="display: block; font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">Mobile Number</label>
+                        <input type="tel" id="pt-reg-mobile" required placeholder="e.g. 9876543210" style="width: 100%; padding: 0.85rem 1rem; border: 1px solid #DCE3EA; border-radius: 11px; font-size: 1.05rem; color: #0f172a; box-sizing: border-box;">
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem; margin-bottom: 1.25rem;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">Date of Birth</label>
+                            <input type="date" id="pt-reg-dob" required style="width: 100%; padding: 0.85rem 1rem; border: 1px solid #DCE3EA; border-radius: 11px; font-size: 1.05rem; color: #0f172a; box-sizing: border-box;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">Gender</label>
+                            <select id="pt-reg-gender" style="width: 100%; padding: 0.85rem 1rem; border: 1px solid #DCE3EA; border-radius: 11px; font-size: 1.05rem; color: #0f172a; box-sizing: border-box;">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1.75rem;">
+                        <label style="display: block; font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">Blood Group</label>
+                        <select id="pt-reg-blood" style="width: 100%; padding: 0.85rem 1rem; border: 1px solid #DCE3EA; border-radius: 11px; font-size: 1.05rem; color: #0f172a; box-sizing: border-box;">
+                            <option value="B+">B Rh+</option>
+                            <option value="A+">A Rh+</option>
+                            <option value="O+">O Rh+</option>
+                            <option value="AB+">AB Rh+</option>
+                            <option value="O-">O Rh-</option>
+                            <option value="A-">A Rh-</option>
+                            <option value="B-">B Rh-</option>
+                            <option value="AB-">AB Rh-</option>
                         </select>
                     </div>
-                </div>
 
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.35rem;">Blood Group</label>
-                    <select id="pt-reg-blood" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
-                        <option value="B+">B Rh+</option>
-                        <option value="A+">A Rh+</option>
-                        <option value="O+">O Rh+</option>
-                        <option value="AB+">AB Rh+</option>
-                        <option value="O-">O Rh-</option>
-                        <option value="A-">A Rh-</option>
-                        <option value="B-">B Rh-</option>
-                        <option value="AB-">AB Rh-</option>
-                    </select>
-                </div>
+                    <button type="submit" style="width: 100%; padding: 1rem; background: #0f172a; color: #ffffff; border: none; border-radius: 11px; font-size: 1.15rem; font-weight: 600; cursor: pointer; transition: background 0.2s ease;">
+                        Register Patient & Sync with Supabase →
+                    </button>
+                </form>
+            </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-                <button type="submit" style="width: 100%; padding: 0.85rem; background: #0d9488; color: #ffffff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer;">
-                    Register Patient & Sync with Supabase →
-                </button>
-            </form>
+    <!-- CUSTOM ALERT MODAL -->
+    <style>
+        @keyframes toastFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes toastPopUp {
+            0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+            60% { transform: scale(1.05) translateY(-5px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes iconBounce {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        @keyframes drawCheck {
+            0% { stroke-dasharray: 50; stroke-dashoffset: 50; }
+            100% { stroke-dasharray: 50; stroke-dashoffset: 0; }
+        }
+    </style>
+    <div id="custom-alert-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); z-index: 100000; align-items: center; justify-content: center; opacity: 0;">
+        <div id="custom-alert-card" style="background: white; border-radius: 24px; padding: 3rem 2.5rem; text-align: center; max-width: 440px; width: 90%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); transform: scale(0.9); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease;">
+            <div id="custom-alert-icon" style="width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <!-- Icon injected by JS -->
+            </div>
+            <h3 id="custom-alert-title" style="font-size: 1.75rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; letter-spacing: -0.02em;"></h3>
+            <p id="custom-alert-message" style="font-size: 1.05rem; color: #64748b; margin-bottom: 2rem; line-height: 1.5; white-space: pre-wrap;"></p>
+            <button id="custom-alert-btn" style="width: 100%; padding: 1rem; background: #0f172a; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background 0.2s ease;">Continue</button>
         </div>
     </div>
     <!-- debug-config.js is generated by runner.py based on the DEBUG_MODE flag -->
@@ -723,10 +884,60 @@
     <script src="js/debug-config.js"></script>
     <script src="js/data.js"></script>
     <script>
+        function showCustomAlert(title, message, isSuccess, callback) {
+            var modal = document.getElementById('custom-alert-modal');
+            var titleEl = document.getElementById('custom-alert-title');
+            var msgEl = document.getElementById('custom-alert-message');
+            var iconEl = document.getElementById('custom-alert-icon');
+            var btnEl = document.getElementById('custom-alert-btn');
+            
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+            
+            if (isSuccess) {
+                iconEl.style.background = '#ccfbf1';
+                iconEl.style.color = '#0d9488';
+                iconEl.innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="animation: drawCheck 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; stroke-dasharray: 50; stroke-dashoffset: 50;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            } else {
+                iconEl.style.background = '#fee2e2';
+                iconEl.style.color = '#ef4444';
+                iconEl.innerHTML = '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line><circle cx="12" cy="12" r="10"></circle></svg>';
+            }
+            
+            modal.style.display = 'flex';
+            void modal.offsetWidth; // Trigger reflow
+            
+            modal.style.animation = 'toastFadeIn 0.3s ease forwards';
+            modal.children[0].style.animation = 'toastPopUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+            iconEl.style.animation = 'iconBounce 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards';
+            iconEl.style.opacity = '0';
+            
+            btnEl.onclick = function() {
+                modal.children[0].style.animation = 'none';
+                modal.style.animation = 'none';
+                modal.style.opacity = '1';
+                modal.children[0].style.transform = 'scale(1)';
+                
+                // Add closing transition class or style
+                setTimeout(() => {
+                    modal.style.transition = 'opacity 0.3s ease';
+                    modal.children[0].style.transition = 'transform 0.3s ease';
+                    modal.style.opacity = '0';
+                    modal.children[0].style.transform = 'scale(0.9)';
+                    setTimeout(() => { 
+                        modal.style.display = 'none'; 
+                        if(callback) callback(); 
+                    }, 300);
+                }, 10);
+            };
+        }
+
         function openPatientAuthModal() {
             var modal = document.getElementById('patient-auth-modal');
             if (modal) {
                 modal.style.display = 'flex';
+                // Trigger reflow for animation
+                void modal.offsetWidth;
                 modal.style.opacity = '1';
                 modal.style.visibility = 'visible';
             }
@@ -735,9 +946,11 @@
         function closePatientAuthModal() {
             var modal = document.getElementById('patient-auth-modal');
             if (modal) {
-                modal.style.display = 'none';
                 modal.style.opacity = '0';
                 modal.style.visibility = 'hidden';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300); // Wait for transition
             }
         }
 
@@ -746,33 +959,20 @@
             var registerForm = document.getElementById('patient-register-form');
             var btnSignin = document.getElementById('tab-pt-signin');
             var btnRegister = document.getElementById('tab-pt-register');
+            var slider = document.getElementById('tab-pt-slider');
 
             if (mode === 'register') {
                 if (signinForm) signinForm.style.display = 'none';
                 if (registerForm) registerForm.style.display = 'block';
-                if (btnSignin) {
-                    btnSignin.style.background = 'transparent';
-                    btnSignin.style.color = '#64748b';
-                    btnSignin.style.boxShadow = 'none';
-                }
-                if (btnRegister) {
-                    btnRegister.style.background = '#ffffff';
-                    btnRegister.style.color = '#0f2744';
-                    btnRegister.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-                }
+                if (btnSignin) btnSignin.style.color = '#64748b';
+                if (btnRegister) btnRegister.style.color = '#0f172a';
+                if (slider) slider.style.transform = 'translateX(100%)';
             } else {
                 if (registerForm) registerForm.style.display = 'none';
                 if (signinForm) signinForm.style.display = 'block';
-                if (btnRegister) {
-                    btnRegister.style.background = 'transparent';
-                    btnRegister.style.color = '#64748b';
-                    btnRegister.style.boxShadow = 'none';
-                }
-                if (btnSignin) {
-                    btnSignin.style.background = '#ffffff';
-                    btnSignin.style.color = '#0f2744';
-                    btnSignin.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-                }
+                if (btnRegister) btnRegister.style.color = '#64748b';
+                if (btnSignin) btnSignin.style.color = '#0f172a';
+                if (slider) slider.style.transform = 'translateX(0)';
             }
         }
 
@@ -781,11 +981,32 @@
             var mobile = (document.getElementById('pt-auth-mobile') || {}).value.trim();
             var otp = (document.getElementById('pt-auth-otp') || {}).value.trim();
 
-            if (!mobile) return alert('Please enter your mobile number.');
+            if (!mobile) return showCustomAlert('Error', 'Please enter your mobile number.', false);
 
             // Predefined OTP check for everyone
             if (otp !== '1234') {
-                return alert('Invalid OTP code! Predefined OTP for all users is 1234.');
+                return showCustomAlert('Error', 'Invalid OTP code! Predefined OTP for all users is 1234.', false);
+            }
+
+            if (mobile === '9876543210' || mobile.includes('98765') || mobile === '9324476116') {
+                var isHarshal = mobile === '9324476116';
+                var demoPatient = {
+                    name: isHarshal ? "Harshal Mehta" : "Aarnav Mehta",
+                    patient_code: isHarshal ? "MT-50298" : "MT-10482",
+                    age: isHarshal ? 19 : 24,
+                    dob: isHarshal ? "2007-04-15" : "2002-04-15",
+                    gender: "Male",
+                    blood_group: "B+",
+                    phone: mobile
+                };
+                
+                sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(demoPatient));
+                sessionStorage.setItem('MEDITRAIL_PATIENT_LOGGED_IN', 'true');
+                closePatientAuthModal();
+                showCustomAlert('Congratulations!', 'Login successful. Proceeding to your portal...', true, () => {
+                    window.location.href = 'portal.html';
+                });
+                return;
             }
 
             if (window.supabase) {
@@ -799,7 +1020,9 @@
                         sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(res.data));
                         sessionStorage.setItem('MEDITRAIL_PATIENT_LOGGED_IN', 'true');
                         closePatientAuthModal();
-                        window.location.href = 'portal.html';
+                        showCustomAlert('Congratulations!', 'Login successful. Proceeding to your portal...', true, () => {
+                            window.location.href = 'portal.html';
+                        });
                         return;
                     }
                 } catch (err) {
@@ -807,26 +1030,11 @@
                 }
             }
 
-            if (mobile === '9876543210' || mobile.includes('98765')) {
-                var demoPatient = {
-                    name: "Aarnav Mehta",
-                    patient_code: "MT-10482",
-                    age: 24,
-                    dob: "2002-04-15",
-                    gender: "Male",
-                    blood_group: "B+",
-                    phone: "9876543210"
-                };
-                sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(demoPatient));
-                sessionStorage.setItem('MEDITRAIL_PATIENT_LOGGED_IN', 'true');
-                closePatientAuthModal();
-                window.location.href = 'portal.html';
-            } else {
-                alert('Mobile number (' + mobile + ') not registered in database. Switching to Registration mode!');
+            showCustomAlert('Notice', 'Mobile number (' + mobile + ') not registered in database. Switching to Registration mode.', false, () => {
                 switchPatientAuthMode('register');
                 var regMobile = document.getElementById('pt-reg-mobile');
                 if (regMobile) regMobile.value = mobile;
-            }
+            });
         }
 
         async function handlePatientRegisterSubmit(e) {
@@ -837,7 +1045,7 @@
             var gender = (document.getElementById('pt-reg-gender') || {}).value;
             var blood = (document.getElementById('pt-reg-blood') || {}).value;
 
-            if (!name || !mobile || !dob) return alert('Please fill in all required fields.');
+            if (!name || !mobile || !dob) return showCustomAlert('Error', 'Please fill in all required fields.', false);
 
             var dobYear = new Date(dob).getFullYear();
             var age = new Date().getFullYear() - dobYear;
@@ -865,7 +1073,7 @@
                     );
                     var insertRes = await sb.from('patients').insert([newPatient]).select();
                     if (insertRes && insertRes.error) {
-                        alert('Supabase Database Error: ' + insertRes.error.message);
+                        showCustomAlert('Error', 'Database Error: ' + insertRes.error.message, false);
                     } else {
                         console.log('✅ Supabase Patient Registered Successfully:', insertRes ? insertRes.data : newPatient);
                     }
@@ -878,12 +1086,13 @@
             sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(newPatient));
 
             // Switch to Sign In tab and pre-fill mobile number as requested!
-            alert('Registration Successful for ' + name + ' (' + patientCode + ')!\n\nPlease now Sign In with your registered mobile number (' + mobile + ').');
-            switchPatientAuthMode('signin');
-            var authMobile = document.getElementById('pt-auth-mobile');
-            if (authMobile) authMobile.value = mobile;
-            var authOtp = document.getElementById('pt-auth-otp');
-            if (authOtp) authOtp.value = '1234';
+            showCustomAlert('Congratulations!', 'Registration Successful for ' + name + ' (' + patientCode + ')!\n\nPlease now Sign In with your registered mobile number.', true, () => {
+                switchPatientAuthMode('signin');
+                var authMobile = document.getElementById('pt-auth-mobile');
+                if (authMobile) authMobile.value = mobile;
+                var authOtp = document.getElementById('pt-auth-otp');
+                if (authOtp) authOtp.value = '1234';
+            });
         }
 
         window.openPatientAuthModal = openPatientAuthModal;

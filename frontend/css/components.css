@@ -103,7 +103,7 @@
 
 /* Landing page is the single scroll container when active — smooth 1-scroll presentation */
 #view-landing {
-    height: 100%;
+    height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
     scroll-snap-type: y mandatory;
@@ -876,7 +876,8 @@ body.drawer-open #view-landing .concept-grid {
    Landing Page Snap Sections (5 Distinct Visual Stages)
    -------------------------------------------------------------------------- */
 .landing-snap-section {
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     width: 100%;
     scroll-snap-align: start;
     scroll-snap-stop: always;
@@ -1450,13 +1451,17 @@ body.drawer-open #view-landing .concept-grid {
 .app-layout {
     display: flex;
     /* Lock app shell to viewport height to prevent body scrolling */
-    height: 100%;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
     overflow: hidden;
 }
 
 /* Sidebar - Desktop Layout (Auto-collapses when idle, smoothly expands to 260px on hover) */
 .app-sidebar {
-    width: 72px;
+    width: 96px;
     background-color: #ffffff;
     border-right: 1px solid var(--border-subtle);
     display: flex;
@@ -1472,7 +1477,7 @@ body.drawer-open #view-landing .concept-grid {
 }
 
 .app-sidebar:hover {
-    width: 260px;
+    width: 280px;
     box-shadow: 4px 0 20px rgba(15, 23, 42, 0.08);
 }
 
@@ -1480,7 +1485,7 @@ body.drawer-open #view-landing .concept-grid {
     height: 4.25rem;
     min-height: 4.25rem;
     max-height: 4.25rem;
-    padding: 0 1.15rem;
+    padding: 0 1.4rem;
     border-bottom: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
@@ -1498,15 +1503,15 @@ body.drawer-open #view-landing .concept-grid {
 }
 
 .sidebar-header .logo-img {
-    height: 2.25rem;
-    width: 2.25rem;
+    height: 3.2rem;
+    width: 3.2rem;
     object-fit: contain;
     flex-shrink: 0;
 }
 
 .sidebar-header .logo-text {
-    font-size: 1.2rem;
-    font-weight: 700;
+    font-size: 1.45rem;
+    font-weight: 800;
     color: var(--navy);
     opacity: 0;
     transform: translateX(-8px);
@@ -1555,7 +1560,7 @@ body.drawer-open #view-landing .concept-grid {
 }
 
 .sidebar-nav {
-    padding: 1.25rem 0.75rem;
+    padding: 1.25rem 1.5rem;
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
@@ -1630,7 +1635,7 @@ body.drawer-open #view-landing .concept-grid {
 }
 
 .sidebar-footer {
-    padding: 0.85rem 0.9rem;
+    padding: 0.85rem 1.9rem;
     border-top: 1px solid var(--border-subtle);
     background-color: var(--bg-app);
     overflow: hidden;

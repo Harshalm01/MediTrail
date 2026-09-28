@@ -70,14 +70,14 @@ function initApp() {
         if (appShell) appShell.classList.add('active');
 
         // Apply dynamic logged in patient profile & record isolation
-        import('./services/data.js').then(async (dataMod) => {
+        import(`./services/data.js?v=${Date.now()}`).then(async (dataMod) => {
             if (dataMod.updateUiPatientProfile) dataMod.updateUiPatientProfile();
 
             const ptSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
             const pt = ptSession ? JSON.parse(ptSession) : null;
             const ptCode = pt ? (pt.patient_code || pt.id) : null;
 
-            if (ptCode && ptCode !== 'MT-10482') {
+            if (ptCode && ptCode !== 'MT-10482' && ptCode !== 'MT-50298') {
                 // Clear pre-filled mock records for new/other patients
                 window.MEDITRAIL_DATA.timelineRecords = [];
                 window.MEDITRAIL_DATA.activeMedications = [];
@@ -99,9 +99,9 @@ function initApp() {
             }
 
             // Sync live records from Supabase DB
-            if (window.supabase && ptCode) {
+            if (window.supabase && ptCode && ptCode !== 'MT-10482' && ptCode !== 'MT-50298') {
                 try {
-                    const sbMod = await import('./services/supabase.js');
+                    const sbMod = await import(`./services/supabase.js?v=${Date.now()}`);
                     const liveRecords = await sbMod.fetchMedicalRecordsSupabase(ptCode);
                     if (liveRecords && liveRecords.length > 0) {
                         window.MEDITRAIL_DATA.timelineRecords = liveRecords;

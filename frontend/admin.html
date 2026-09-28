@@ -37,268 +37,482 @@
             overflow-y: visible !important;
         }
 
-        /* Modern Light Theme Admin Auth */
+        /* Modern Healthcare SaaS Auth Layout */
         .admin-auth-wrapper {
             min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
             background: #f8fafc;
-            background-image: 
-                radial-gradient(at 15% 15%, rgba(204, 251, 241, 0.75) 0px, transparent 55%),
-                radial-gradient(at 85% 85%, rgba(224, 242, 254, 0.85) 0px, transparent 60%),
-                radial-gradient(at 50% 50%, #f1f5f9 0px, #e2e8f0 100%);
-            padding: 2rem 1rem;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             position: relative;
-            overflow-y: auto;
         }
 
-        /* Ambient Floating Light Orbs */
-        .ambient-orb {
+        /* Branding Panel */
+        .auth-branding-panel {
+            display: none;
+            flex: 0 0 40%;
+            background: linear-gradient(145deg, #0F766E, #0D9488);
+            color: white;
+            padding: 3.5rem;
+            position: relative;
+            overflow: hidden;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            animation: paneFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @media (min-width: 992px) {
+            .auth-branding-panel {
+                display: flex;
+            }
+        }
+
+        @keyframes paneFadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Subtle grid background pattern */
+        .auth-branding-panel::before {
+            content: '';
             position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 1;
+        }
+
+        /* Large blurred decorative circles */
+        .auth-branding-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -15%;
+            right: -15%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.25) 0%, transparent 70%);
             border-radius: 50%;
-            filter: blur(70px);
-            pointer-events: none;
-            opacity: 0.65;
+            z-index: 0;
+        }
+        
+        .auth-branding-orb {
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%);
+            border-radius: 50%;
+            z-index: 0;
         }
 
-        .orb-1 {
-            width: 480px;
-            height: 480px;
-            background: radial-gradient(circle, rgba(13, 148, 136, 0.18) 0%, rgba(204, 251, 241, 0.05) 70%);
-            top: -120px;
-            right: -100px;
-            animation: floatOrb1 14s ease-in-out infinite alternate;
-        }
-
-        .orb-2 {
-            width: 420px;
-            height: 420px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(224, 242, 254, 0.05) 70%);
-            bottom: -100px;
-            left: -80px;
-            animation: floatOrb2 18s ease-in-out infinite alternate;
-        }
-
-        .orb-3 {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(45, 212, 191, 0.15) 0%, transparent 70%);
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation: pulseOrb 8s ease-in-out infinite alternate;
-        }
-
-        @keyframes floatOrb1 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(-60px, 80px) scale(1.15); }
-        }
-
-        @keyframes floatOrb2 {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(70px, -60px) scale(1.1); }
-        }
-
-        @keyframes pulseOrb {
-            0% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.9); }
-            100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
-        }
-
-        /* Glassmorphic Light Card */
-        .admin-card {
-            width: 100%;
-            max-width: 460px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 2.75rem 2.5rem;
-            color: #0f2744;
-            box-shadow: 
-                0 25px 50px -12px rgba(15, 39, 68, 0.12),
-                0 0 30px rgba(13, 148, 136, 0.06),
-                inset 0 1px 0 rgba(255, 255, 255, 1);
-            animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        .branding-content {
             position: relative;
             z-index: 10;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 440px;
+            margin: 0 auto;
         }
 
-        .admin-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(13, 148, 136, 0.3);
-            box-shadow: 
-                0 30px 60px -15px rgba(15, 39, 68, 0.18),
-                0 0 40px rgba(13, 148, 136, 0.12);
+        .branding-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .branding-logo img {
+            height: 64px;
+            border-radius: 8px;
+            background: #ffffff;
+            padding: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: translateY(20px) scale(0.96); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        .branding-logo-text {
+            display: flex;
+            flex-direction: column;
         }
 
-        .admin-header {
+        .branding-logo-name {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+        
+        .branding-logo-sub {
+            font-size: 1rem;
+            font-weight: 500;
+            opacity: 0.8;
+            margin-top: 0.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .branding-title {
+            font-size: 48px;
+            line-height: 1.15;
+            font-weight: 700;
+            margin-bottom: 3.5rem;
+            letter-spacing: -0.02em;
+            max-width: 500px;
+        }
+        
+        .branding-title-highlight {
+            color: #ccfbf1;
+        }
+
+        .branding-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .branding-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .branding-features li:hover {
+            transform: translateX(4px);
+        }
+
+        .feature-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            margin-top: 0.15rem;
+            flex-shrink: 0;
+        }
+        
+        .feature-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .feature-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .feature-desc {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.75);
+            margin-top: 0.2rem;
+        }
+        
+        .branding-trust {
+            margin-top: 4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+
+        /* Login Container */
+        .auth-login-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            background: #F8FAFC;
+        }
+        
+        .auth-login-container::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(13,148,136,0.03) 0%, transparent 70%);
+        }
+        
+        .auth-login-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(15,118,110,0.02) 0%, transparent 70%);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 460px;
+            background: #ffffff;
+            border: 1px solid #E2E8F0;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.02);
+            padding: 40px;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes cardFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
             text-align: center;
             margin-bottom: 2.25rem;
         }
 
-        .admin-logo-wrapper {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 64px;
-            height: 64px;
-            background: #f0fdfa;
-            border: 1px solid rgba(13, 148, 136, 0.25);
-            border-radius: 16px;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.1);
-            animation: logoPulse 4s ease-in-out infinite alternate;
+        .login-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        @keyframes logoPulse {
-            0% { box-shadow: 0 4px 12px rgba(13, 148, 136, 0.1); }
-            100% { box-shadow: 0 6px 20px rgba(13, 148, 136, 0.25); }
-        }
-
-        .admin-logo-wrapper img {
-            height: 38px;
-            width: auto;
-        }
-
-        .admin-header h1 {
-            font-size: 1.6rem;
+        .login-header h1 {
+            font-size: 34px;
+            color: #0f172a;
             font-weight: 700;
-            color: #0f2744;
-            margin-bottom: 0.35rem;
-            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
         }
 
-        .admin-header p {
-            font-size: 0.875rem;
+        .login-header p {
             color: #64748b;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
         }
 
-        .admin-role-badge {
+        .security-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            background: rgba(13, 148, 136, 0.1);
             color: #0d9488;
-            border: 1px solid rgba(13, 148, 136, 0.25);
-            padding: 0.3rem 0.85rem;
+            background: #f0fdfa;
+            padding: 0.4rem 0.85rem;
             border-radius: 9999px;
-            font-size: 0.725rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            margin-top: 0.75rem;
+            border: 1px solid rgba(13,148,136,0.15);
         }
 
-        /* Light Theme Field Controls */
-        .auth-field-group {
-            margin-bottom: 1.35rem;
+        .form-group {
+            margin-bottom: 1.25rem;
         }
 
-        .auth-label {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.825rem;
+        .form-label {
+            display: block;
+            color: #0f172a;
+            font-size: 1rem;
             font-weight: 600;
-            color: #334155;
             margin-bottom: 0.5rem;
         }
 
-        .auth-input-wrapper {
+        .input-wrapper {
             position: relative;
-            display: flex;
-            align-items: center;
         }
 
-        .auth-input {
+        .form-input {
             width: 100%;
-            padding: 0.85rem 1rem;
-            border-radius: 10px;
-            border: 1px solid #cbd5e1;
+            height: 56px;
+            padding: 0 1rem 0 2.75rem;
             background: #ffffff;
-            color: #0f2744;
-            font-size: 0.925rem;
-            outline: none;
-            transition: all 0.3s ease;
+            border: 1px solid #DCE3EA;
+            border-radius: 11px;
+            font-size: 1.1rem;
+            color: #0f172a;
+            transition: all 0.25s ease;
             box-sizing: border-box;
         }
+        
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            transition: color 0.25s ease;
+            pointer-events: none;
+        }
 
-        .auth-input::placeholder {
+        .form-input:hover {
+            border-color: #cbd5e1;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0D9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.10);
+        }
+        
+        .form-input:focus + .input-icon, 
+        .input-wrapper:focus-within .input-icon {
+            color: #0D9488;
+        }
+
+        .form-input::placeholder {
             color: #94a3b8;
         }
 
-        .auth-input:focus {
-            border-color: #0d9488;
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.12);
-        }
-
-        /* Light Theme Submit Button */
-        .btn-auth-submit {
-            width: 100%;
-            padding: 0.95rem;
-            font-size: 0.95rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
-            border: none;
-            border-radius: 10px;
-            color: #ffffff;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.25);
-            margin-top: 0.5rem;
-        }
-
-        .btn-auth-submit::before {
-            content: '';
+        .password-toggle {
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 60%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.6s ease;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, color 0.2s ease;
         }
 
-        .btn-auth-submit:hover {
-            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(13, 148, 136, 0.35);
+        .password-toggle:hover {
+            color: #0f172a;
+        }
+        
+        .password-toggle.animating {
+            transform: translateY(-50%) scale(1.1);
         }
 
-        .btn-auth-submit:hover::before {
-            left: 140%;
+        .btn-submit {
+            width: 100%;
+            height: 56px;
+            background: #0d9488;
+            color: #ffffff;
+            border: none;
+            border-radius: 11px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 1.75rem;
+            box-shadow: 0 2px 5px rgba(13,148,136,0.15);
+            position: relative;
         }
 
-        .btn-auth-submit:active {
+        .btn-submit:hover {
+            background: #0f766e;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(13,148,136,0.25);
+        }
+        
+        .btn-arrow {
+            transition: transform 0.2s ease;
+        }
+        
+        .btn-submit:hover .btn-arrow {
+            transform: translateX(4px);
+        }
+
+        .btn-submit:active {
             transform: translateY(0);
-            box-shadow: 0 3px 10px rgba(13, 148, 136, 0.2);
+            box-shadow: 0 2px 4px rgba(13,148,136,0.15);
         }
 
-        .portal-back-link {
+        .btn-submit:disabled {
+            background: #0f766e;
+            opacity: 0.8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .security-footer {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .security-footer-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 0 auto 1.5rem auto;
+            width: 80%;
+        }
+
+        .security-footer-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            color: #0f172a;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .security-footer p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .back-link {
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.35rem;
             color: #64748b;
-            font-size: 0.85rem;
+            font-size: 1rem;
+            font-weight: 500;
             text-decoration: none;
-            transition: color 0.2s ease, transform 0.2s ease;
+            transition: all 0.2s ease;
+            margin-top: 1.25rem;
+        }
+        
+        .back-link .back-arrow {
+            transition: transform 0.2s ease;
         }
 
-        .portal-back-link:hover {
+        .back-link:hover {
             color: #0d9488;
+        }
+        
+        .back-link:hover .back-arrow {
             transform: translateX(-3px);
+        }
+
+        .inline-error {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 0.4rem;
+            display: none;
         }
 
         /* Dashboard View */
@@ -370,6 +584,13 @@
             border-radius: 12px;
             border: 1px solid #e2e8f0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .metric-card-admin:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(13, 148, 136, 0.15), 0 8px 10px -6px rgba(13, 148, 136, 0.1);
+            border-color: #ccfbf1;
         }
 
         .metric-card-admin h3 {
@@ -538,51 +759,107 @@
     <!-- 1. HOSPITAL & DOCTOR ADMIN AUTHENTICATION SCREEN                  -->
     <!-- ================================================================= -->
     <div id="admin-auth-screen" class="admin-auth-wrapper">
-        <!-- Ambient Glowing Orbs -->
-        <div class="ambient-orb orb-1"></div>
-        <div class="ambient-orb orb-2"></div>
-        <div class="ambient-orb orb-3"></div>
-
-        <div class="admin-card" id="admin-login-card">
-            <div class="admin-header">
-                <div class="admin-logo-wrapper">
-                    <img src="image.png" alt="MediTrail Logo">
+        <div class="auth-branding-panel">
+            <div class="auth-branding-orb"></div>
+            <div class="branding-content">
+                <div class="branding-logo">
+                    <img src="image.png" alt="MediTrail Logo" onerror="this.style.display='none'">
+                    <div class="branding-logo-text">
+                        <span class="branding-logo-name">MediTrail</span>
+                        <span class="branding-logo-sub">Healthcare Management Platform</span>
+                    </div>
                 </div>
-                <h1>MediTrail Staff Portal</h1>
-                <p>Role-Based Access Control (RBAC) System</p>
-                <span class="admin-role-badge">🔒 Encrypted Hospital Login</span>
+                <h2 class="branding-title">One secure place for <span class="branding-title-highlight">smarter</span> healthcare management.</h2>
+                <ul class="branding-features">
+                    <li>
+                        <span class="feature-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </span>
+                        <div class="feature-text">
+                            <span class="feature-title">Centralized patient records</span>
+                            <span class="feature-desc">Access organized patient information</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="feature-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </span>
+                        <div class="feature-text">
+                            <span class="feature-title">Secure hospital access</span>
+                            <span class="feature-desc">Protected staff authentication</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="feature-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </span>
+                        <div class="feature-text">
+                            <span class="feature-title">Connected healthcare management</span>
+                            <span class="feature-desc">Streamline hospital workflows</span>
+                        </div>
+                    </li>
+                </ul>
+                
+                <div class="branding-trust">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    Designed for modern healthcare teams
+                </div>
             </div>
+        </div>
 
-            <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
-                <div class="auth-field-group">
-                    <label class="auth-label" for="admin-email">
-                        <span>✉️ Hospital Email Address</span>
-                    </label>
-                    <div class="auth-input-wrapper">
-                        <input type="email" id="admin-email" class="auth-input" required 
-                            placeholder="doctor@hospital.org or admin@hospital.org" autocomplete="email">
+        <div class="auth-login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <img src="image.png" alt="MediTrail Logo" class="login-logo" onerror="this.style.display='none'">
+                    <h1>Hospital Staff Portal</h1>
+                    <p>Secure access to patient healthcare records</p>
+                    <div class="security-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        Secure staff authentication
                     </div>
                 </div>
 
-                <div class="auth-field-group" style="margin-bottom: 1.75rem;">
-                    <label class="auth-label" for="admin-password">
-                        <span>🔑 Staff Password</span>
-                    </label>
-                    <div class="auth-input-wrapper">
-                        <input type="password" id="admin-password" class="auth-input" required 
-                            placeholder="••••••••" autocomplete="current-password">
+                <form id="admin-login-form" onsubmit="handleEnhancedLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="admin-email">Hospital Email Address</label>
+                        <div class="input-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            <input type="email" id="admin-email" class="form-input" placeholder="doctor@hospital.org" autocomplete="email">
+                        </div>
+                        <div class="inline-error" id="error-email">Please enter a valid hospital email.</div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="admin-password">Staff Password</label>
+                        <div class="input-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                            <input type="password" id="admin-password" class="form-input" placeholder="Enter your password" autocomplete="current-password">
+                            <button type="button" class="password-toggle" id="toggle-password" aria-label="Toggle password visibility">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                        <div class="inline-error" id="error-password">Password is required.</div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btn-login">
+                        <span class="btn-text">Sign in to MediTrail</span>
+                        <span class="btn-arrow">→</span>
+                        <span class="loading-spinner" id="btn-spinner"></span>
+                    </button>
+                </form>
+
+                <div class="security-footer">
+                    <div class="security-footer-divider"></div>
+                    <div class="security-footer-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        Protected healthcare environment
+                    </div>
+                    <p>Your staff credentials are securely handled and access<br>is restricted to authorized personnel.</p>
+                    
+                    <a href="index.html" class="back-link">
+                        <span class="back-arrow">←</span> Return to Patient Main Portal
+                    </a>
                 </div>
-
-                <button type="submit" class="btn-auth-submit">
-                    Authenticate Staff Session →
-                </button>
-            </form>
-
-            <div style="margin-top: 1.75rem; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 1.25rem;">
-                <a href="index.html" class="portal-back-link">
-                    ← Return to Patient Main Portal
-                </a>
             </div>
         </div>
     </div>
@@ -617,20 +894,20 @@
             <!-- Super Admin Metrics Overview -->
             <div class="rbac-grid">
                 <div class="metric-card-admin">
-                    <h3>Empanelled Physicians</h3>
-                    <div class="val" id="metric-docs-count">12</div>
+                    <h3 id="metric-title-1">Empanelled Physicians</h3>
+                    <div class="val" id="metric-val-1">12</div>
                 </div>
                 <div class="metric-card-admin">
-                    <h3>Active Patient Access Grants</h3>
-                    <div class="val">142</div>
+                    <h3 id="metric-title-2">Active Patient Access Grants</h3>
+                    <div class="val" id="metric-val-2">142</div>
                 </div>
                 <div class="metric-card-admin">
-                    <h3>Today's Consultations</h3>
-                    <div class="val">28</div>
+                    <h3 id="metric-title-3">Today's Consultations</h3>
+                    <div class="val" id="metric-val-3">28</div>
                 </div>
                 <div class="metric-card-admin">
-                    <h3>Security Audit Status</h3>
-                    <div class="val" style="color: #0d9488; font-size: 1.25rem;">100% Encrypted</div>
+                    <h3 id="metric-title-4">Security Audit Status</h3>
+                    <div class="val" id="metric-val-4" style="color: #0d9488; font-size: 1.25rem;">100% Encrypted</div>
                 </div>
             </div>
 
@@ -638,23 +915,23 @@
             <div class="admin-tabs-rail">
                 <button id="tab-btn-hospitals" class="btn admin-tab-btn" onclick="switchAdminTab('hospitals')"
                     style="border-bottom: 3px solid #0d9488; background: none; border-top: none; border-left: none; border-right: none; color: #0f2744; cursor: pointer; font-weight: 600;">
-                    <span class="btn-text-full">🏥 Empanelled Hospitals (Super Admin)</span>
-                    <span class="btn-text-mobile">🏥 Hospitals</span>
+                    <span class="btn-text-full"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem; vertical-align: text-bottom;"><path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4M10 9h4M12 7v4"></path></svg> Empanelled Hospitals (Super Admin)</span>
+                    <span class="btn-text-mobile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.15rem; vertical-align: text-bottom;"><path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4M10 9h4M12 7v4"></path></svg> Hospitals</span>
                 </button>
                 <button id="tab-btn-doctors" class="btn admin-tab-btn" onclick="switchAdminTab('doctors')"
                     style="border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer; font-weight: 600;">
-                    <span class="btn-text-full">👨‍⚕️ Manage Staff & Doctors</span>
-                    <span class="btn-text-mobile">👨‍⚕️ Staff & Doctors</span>
+                    <span class="btn-text-full"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem; vertical-align: text-bottom;"><path d="M16 21v-2a4 4 0 0 0-4-4H5c-2.2 0-4 1.8-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg> Manage Staff & Doctors</span>
+                    <span class="btn-text-mobile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.15rem; vertical-align: text-bottom;"><path d="M16 21v-2a4 4 0 0 0-4-4H5c-2.2 0-4 1.8-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg> Staff & Doctors</span>
                 </button>
                 <button id="tab-btn-consult" class="btn admin-tab-btn" onclick="switchAdminTab('consult')"
                     style="border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer; font-weight: 600;">
-                    <span class="btn-text-full">📋 Doctor Patient Consultation Portal</span>
-                    <span class="btn-text-mobile">📋 Consultations</span>
+                    <span class="btn-text-full"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem; vertical-align: text-bottom;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Doctor Patient Consultation Portal</span>
+                    <span class="btn-text-mobile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.15rem; vertical-align: text-bottom;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Consultations</span>
                 </button>
                 <button id="tab-btn-audit" class="btn admin-tab-btn" onclick="switchAdminTab('audit')"
                     style="border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer; font-weight: 600;">
-                    <span class="btn-text-full">🔒 Security Audit Logs</span>
-                    <span class="btn-text-mobile">🔒 Audit Logs</span>
+                    <span class="btn-text-full"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem; vertical-align: text-bottom;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Security Audit Logs</span>
+                    <span class="btn-text-mobile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.15rem; vertical-align: text-bottom;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Audit Logs</span>
                 </button>
             </div>
 
@@ -662,10 +939,16 @@
             <div id="admin-view-hospitals">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <h2 style="font-size: 1.2rem; color: #0f2744;">Empanelled Network Hospitals</h2>
-                    <button id="btn-open-add-hospital" class="btn btn-primary" onclick="openAddHospitalModal();"
-                        style="padding: 0.6rem 1.2rem; background: #0d9488; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                        + Onboard New Hospital
-                    </button>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button id="btn-open-add-super-admin" class="btn" onclick="openAddSuperAdminModal();"
+                            style="display: none; padding: 0.6rem 1.2rem; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> + Create Super Admin
+                        </button>
+                        <button id="btn-open-add-hospital" class="btn btn-primary" onclick="openAddHospitalModal();"
+                            style="padding: 0.6rem 1.2rem; background: #0d9488; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            + Onboard New Hospital
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-responsive-wrapper">
@@ -692,10 +975,6 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <h2 style="font-size: 1.2rem; color: #0f2744;">Registered Hospital Staff & Doctors</h2>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button id="btn-open-add-super-admin" class="btn" onclick="openAddSuperAdminModal();"
-                            style="display: none; padding: 0.6rem 1.2rem; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                            ⚡ + Create Super Admin
-                        </button>
                         <button id="btn-open-add-doctor" class="btn btn-primary" onclick="openAddDoctorModal();"
                             style="padding: 0.6rem 1.2rem; background: #0d9488; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
                             + Register New Staff / Doctor
@@ -727,7 +1006,7 @@
             <!-- Section 2: Doctor Patient Consultation & Record Addition -->
             <div id="admin-view-consult" style="display: none;">
                 <div style="background: #ffffff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
-                    <h3 style="font-size: 1.1rem; color: #0f2744; margin-bottom: 1rem;">🔍 Doctor Patient Search & Record Access</h3>
+                    <h3 style="font-size: 1.1rem; color: #0f2744; margin-bottom: 1rem;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.25rem; vertical-align: text-bottom;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Doctor Patient Search & Record Access</h3>
                     <div class="admin-search-row" style="display: flex; gap: 0.75rem;">
                         <input type="text" id="doctor-patient-search" placeholder="Enter Patient ID (e.g. MT-10482) or Mobile Number (9876543210)"
                             onkeypress="if(event.key === 'Enter') doctorSearchPatient()"
@@ -904,7 +1183,6 @@
                     <select id="new-doc-role" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
                         <option value="doctor">🩺 Doctor / Attending Specialist</option>
                         <option value="hospital_admin">🏥 Hospital Admin (Main Admin)</option>
-                        <option value="super_admin">⚡ Platform Super Admin</option>
                     </select>
                 </div>
                 <div style="margin-bottom: 1rem;">
@@ -987,6 +1265,81 @@
     <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
     <script src="js/views/admin.js"></script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordInput = document.getElementById('admin-password');
+            const toggleBtn = document.getElementById('toggle-password');
+            
+            if (toggleBtn) {
+                const eyeIcon = toggleBtn.querySelector('.eye-icon');
+                toggleBtn.addEventListener('click', () => {
+                    const isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+                    
+                    toggleBtn.classList.add('animating');
+                    setTimeout(() => toggleBtn.classList.remove('animating'), 200);
+                    
+                    if (isPassword) {
+                        eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+                    } else {
+                        eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+                    }
+                });
+            }
+        });
+
+        async function handleEnhancedLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('admin-email');
+            const pass = document.getElementById('admin-password');
+            const errEmail = document.getElementById('error-email');
+            const errPass = document.getElementById('error-password');
+            const btnLogin = document.getElementById('btn-login');
+            const btnText = btnLogin.querySelector('.btn-text');
+            const btnArrow = btnLogin.querySelector('.btn-arrow');
+            const spinner = document.getElementById('btn-spinner');
+
+            errEmail.style.display = 'none';
+            errPass.style.display = 'none';
+
+            let isValid = true;
+            
+            if (!email.value || !email.value.includes('@')) {
+                errEmail.style.display = 'block';
+                isValid = false;
+            }
+            if (!pass.value) {
+                errPass.style.display = 'block';
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            btnLogin.disabled = true;
+            btnText.textContent = 'Authenticating...';
+            btnArrow.style.display = 'none';
+            spinner.style.display = 'block';
+
+            if (typeof handleAdminLogin === 'function') {
+                try {
+                    await handleAdminLogin(e);
+                } catch (err) {
+                    console.error(err);
+                }
+                
+                setTimeout(() => {
+                    const authScreen = document.getElementById('admin-auth-screen');
+                    if (authScreen && authScreen.style.display !== 'none') {
+                        btnLogin.disabled = false;
+                        btnText.textContent = 'Sign in to MediTrail';
+                        btnArrow.style.display = 'inline';
+                        spinner.style.display = 'none';
+                    }
+                }, 1000);
+            }
+        }
+    </script>
 </body>
 
 </html>

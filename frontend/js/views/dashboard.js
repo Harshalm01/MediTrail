@@ -207,7 +207,7 @@ let timelineAutoScrollAnimId = null;
 let timelinePauseTimeout = null;
 let isTimelineHovered = false;
 let isTimelinePausingAtEnd = false;
-const TIMELINE_AUTO_SCROLL_SPEED = 0.55; // Pixels per frame
+const TIMELINE_AUTO_SCROLL_SPEED = 0.08; // Pixels per frame
 
 /**
  * Fully resets all dynamic styling and animation state on dashboard elements.
@@ -339,7 +339,15 @@ export function renderDashboard() {
         if (sharedDocs.length === 0) {
             sharedAccessContainer.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-style: italic;">No doctors authorized yet.</div>`;
         } else {
-            sharedDocs.forEach(doc => {
+            let docsToRender = sharedDocs;
+            if (docsToRender.length > 0 && docsToRender.length < 15) {
+                while(docsToRender.length < 15) {
+                    docsToRender = [...docsToRender, ...sharedDocs];
+                }
+                docsToRender = docsToRender.slice(0, 15);
+            }
+            
+            docsToRender.forEach(doc => {
                 const item = document.createElement('div');
                 item.className = 'activity-item';
                 item.title = `Click to manage access permissions for ${doc.doctorName}`;
@@ -362,6 +370,8 @@ export function renderDashboard() {
                 `;
                 sharedAccessContainer.appendChild(item);
             });
+            
+            initSharedDocsCarousel(docsToRender.length);
         }
     }
 
@@ -372,7 +382,16 @@ export function renderDashboard() {
         if (medications.length === 0) {
             medicationsContainer.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-style: italic;">No active prescriptions prescribed yet.</div>`;
         } else {
-            medications.forEach(med => {
+            let medsToRender = medications;
+            if (medsToRender.length > 0 && medsToRender.length < 15) {
+                // Duplicate medications so it triggers auto-scroll even on large screens
+                while(medsToRender.length < 15) {
+                    medsToRender = [...medsToRender, ...medications];
+                }
+                medsToRender = medsToRender.slice(0, 15);
+            }
+            
+            medsToRender.forEach(med => {
                 const card = document.createElement('div');
                 card.className = 'medication-card';
                 card.title = `Click to view all medications`;
@@ -387,6 +406,9 @@ export function renderDashboard() {
                 `;
                 medicationsContainer.appendChild(card);
             });
+            
+            // Add vertical auto-scroll for active medications
+            initMedicationsCarousel(medsToRender.length);
         }
     }
 
@@ -397,7 +419,15 @@ export function renderDashboard() {
         if (reports.length === 0) {
             reportsContainer.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-style: italic;">No lab diagnostic reports uploaded.</div>`;
         } else {
-            reports.forEach(rep => {
+            let reportsToRender = reports;
+            if (reportsToRender.length > 0 && reportsToRender.length < 15) {
+                while(reportsToRender.length < 15) {
+                    reportsToRender = [...reportsToRender, ...reports];
+                }
+                reportsToRender = reportsToRender.slice(0, 15);
+            }
+
+            reportsToRender.forEach(rep => {
                 const repItem = document.createElement('div');
                 repItem.className = 'activity-item';
                 repItem.title = `Click to view diagnostic reports`;
@@ -423,6 +453,7 @@ export function renderDashboard() {
                 `;
                 reportsContainer.appendChild(repItem);
             });
+            initReportsCarousel(reportsToRender.length);
         }
     }
 
@@ -433,7 +464,16 @@ export function renderDashboard() {
         if (records.length === 0) {
             timelineContainer.innerHTML = `<div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-style: italic; width: 100%;">No medical records added yet by your attending doctor.</div>`;
         } else {
-            const timelineRecords = records.slice(0, 6).reverse();
+            let timelineRecords = records.slice(0, 15).reverse();
+            // Duplicate records if not enough to trigger scroll animation
+            if (timelineRecords.length > 0 && timelineRecords.length < 25) {
+                let initialLength = timelineRecords.length;
+                let copyArr = [...timelineRecords];
+                while(timelineRecords.length < 25) {
+                    timelineRecords = [...timelineRecords, ...copyArr];
+                }
+                timelineRecords = timelineRecords.slice(0, 25);
+            }
 
             timelineRecords.forEach((rec, index) => {
                 const node = document.createElement('div');
@@ -576,6 +616,151 @@ export function initTimelineCarousel(itemCount) {
     }
 
     timelineAutoScrollAnimId = requestAnimationFrame(stepAutoScroll);
+}
+
+let medAutoScrollAnimId = null;
+let medPauseTimeout = null;
+let isMedHovered = false;
+let isMedPausingAtEnd = false;
+
+export function initMedicationsCarousel(itemCount) {
+    const track = document.getElementById('dash-medications-list');
+    if (!track) return;
+
+    if (medAutoScrollAnimId) {
+        cancelAnimationFrame(medAutoScrollAnimId);
+        medAutoScrollAnimId = null;
+    }
+    if (medPauseTimeout) {
+        clearTimeout(medPauseTimeout);
+        medPauseTimeout = null;
+    }
+    isMedHovered = false;
+    isMedPausingAtEnd = false;
+
+    track.onmouseenter = () => {
+        isMedHovered = true;
+    };
+
+    track.onmouseleave = () => {
+        isMedHovered = false;
+    };
+
+    function stepAutoScroll() {
+        if (!isMedHovered && !isMedPausingAtEnd && track.scrollHeight > track.clientHeight) {
+            track.scrollTop += 0.2;
+
+            const maxScrollTop = track.scrollHeight - track.clientHeight;
+            if (track.scrollTop >= maxScrollTop - 1) {
+                isMedPausingAtEnd = true;
+                medPauseTimeout = setTimeout(() => {
+                    if (track) {
+                        track.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                    setTimeout(() => {
+                        isMedPausingAtEnd = false;
+                    }, 650);
+                }, 2000);
+            }
+        }
+        medAutoScrollAnimId = requestAnimationFrame(stepAutoScroll);
+    }
+
+    medAutoScrollAnimId = requestAnimationFrame(stepAutoScroll);
+}
+
+let docsAutoScrollAnimId = null;
+let docsPauseTimeout = null;
+let isDocsHovered = false;
+let isDocsPausingAtEnd = false;
+
+export function initSharedDocsCarousel(itemCount) {
+    const track = document.getElementById('dash-shared-access');
+    if (!track) return;
+
+    if (docsAutoScrollAnimId) {
+        cancelAnimationFrame(docsAutoScrollAnimId);
+        docsAutoScrollAnimId = null;
+    }
+    if (docsPauseTimeout) {
+        clearTimeout(docsPauseTimeout);
+        docsPauseTimeout = null;
+    }
+    isDocsHovered = false;
+    isDocsPausingAtEnd = false;
+
+    track.onmouseenter = () => {
+        isDocsHovered = true;
+    };
+
+    track.onmouseleave = () => {
+        isDocsHovered = false;
+    };
+
+    function stepAutoScrollDocs() {
+        if (!isDocsHovered && !isDocsPausingAtEnd && track.scrollHeight > track.clientHeight) {
+            track.scrollTop += 0.2;
+
+            const maxScrollTop = track.scrollHeight - track.clientHeight;
+            if (track.scrollTop >= maxScrollTop - 1) {
+                isDocsPausingAtEnd = true;
+                docsPauseTimeout = setTimeout(() => {
+                    if (track) {
+                        track.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                    setTimeout(() => {
+                        isDocsPausingAtEnd = false;
+                    }, 650);
+                }, 2000);
+            }
+        }
+        docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
+    }
+
+    docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
+    docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
+}
+
+let reportsAutoScrollAnimId = null;
+let reportsPauseTimeout = null;
+let isReportsHovered = false;
+let isReportsPausingAtEnd = false;
+
+export function initReportsCarousel(itemCount) {
+    const track = document.getElementById('dash-reports-list');
+    if (!track) return;
+
+    if (reportsAutoScrollAnimId) {
+        cancelAnimationFrame(reportsAutoScrollAnimId);
+        reportsAutoScrollAnimId = null;
+    }
+    if (reportsPauseTimeout) {
+        clearTimeout(reportsPauseTimeout);
+        reportsPauseTimeout = null;
+    }
+    isReportsHovered = false;
+    isReportsPausingAtEnd = false;
+
+    track.onmouseenter = () => { isReportsHovered = true; };
+    track.onmouseleave = () => { isReportsHovered = false; };
+
+    function stepAutoScrollReports() {
+        if (!isReportsHovered && !isReportsPausingAtEnd && track.scrollHeight > track.clientHeight) {
+            track.scrollTop += 0.2;
+
+            const maxScrollTop = track.scrollHeight - track.clientHeight;
+            if (track.scrollTop >= maxScrollTop - 1) {
+                isReportsPausingAtEnd = true;
+                reportsPauseTimeout = setTimeout(() => {
+                    if (track) track.scrollTo({ top: 0, behavior: 'smooth' });
+                    setTimeout(() => { isReportsPausingAtEnd = false; }, 650);
+                }, 2000);
+            }
+        }
+        reportsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollReports);
+    }
+
+    reportsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollReports);
 }
 
 // Global DevTools helper

@@ -713,5 +713,13 @@ const MEDITRAIL_DATA = {
     ]
 };
 
+// Create a backup of the raw dummy data so services can recover it if cleared
+window.MEDITRAIL_DATA_RAW = {
+    activeMedications: JSON.parse(JSON.stringify(MEDITRAIL_DATA.activeMedications)),
+    recentReports: JSON.parse(JSON.stringify(MEDITRAIL_DATA.recentReports)),
+    sharedAccess: JSON.parse(JSON.stringify(MEDITRAIL_DATA.sharedAccess)),
+    medicalRecords: JSON.parse(JSON.stringify(MEDITRAIL_DATA.medicalRecords))
+};
+
 // Export to window object for access across vanilla JS scripts
 window.MEDITRAIL_DATA = MEDITRAIL_DATA;

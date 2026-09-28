@@ -27,22 +27,22 @@ export function getPatientData() {
                 } catch (e) {}
             }
 
-            const isAarnav = ptId === 'MT-10482' || (pt.name || '').toLowerCase().includes('aarnav');
-            const ptName = pt.name || (isAarnav ? "Aarnav Mehta" : "Patient");
+            const isDemoUser = ptId === 'MT-10482' || ptId === 'MT-50298' || (pt.name || '').toLowerCase().includes('aarnav') || (pt.name || '').toLowerCase().includes('harshal');
+            const ptName = pt.name || (isDemoUser ? "Harshal Mehta" : "Patient");
 
             window.MEDITRAIL_DATA.patient = {
                 id: ptId,
                 name: ptName,
-                age: pt.age || 24,
-                dob: pt.dob || "2002-04-15",
+                age: pt.age || 19,
+                dob: pt.dob || "2007-04-15",
                 gender: pt.gender || "Male",
                 bloodGroup: pt.blood_group || pt.bloodGroup || "B+",
-                allergies: (pt.allergies && pt.allergies.length > 0) ? pt.allergies : (isAarnav ? ["Penicillin", "Dust Mites"] : []),
-                chronicConditions: (pt.chronic_conditions || pt.chronicConditions) ? (pt.chronic_conditions || pt.chronicConditions) : (isAarnav ? ["Mild Asthma (controlled)"] : []),
+                allergies: (pt.allergies && pt.allergies.length > 0) ? pt.allergies : (isDemoUser ? ["Penicillin", "Dust Mites"] : []),
+                chronicConditions: (pt.chronic_conditions || pt.chronicConditions) ? (pt.chronic_conditions || pt.chronicConditions) : (isDemoUser ? ["Mild Asthma (controlled)"] : []),
                 chronicConditionNotes: pt.chronicConditionNotes || "",
                 conditionsDetailed: pt.conditionsDetailed || null,
                 policies: pt.policies || null,
-                emergencyContact: pt.emergency_contact || pt.emergencyContact || (isAarnav ? {
+                emergencyContact: pt.emergency_contact || pt.emergencyContact || (isDemoUser ? {
                     name: "Sunita Mehta",
                     relation: "Mother",
                     phone: "+91 98765 43210"
@@ -91,13 +91,18 @@ export function updateUiPatientProfile() {
     if (dashAvatar) dashAvatar.textContent = initials;
 
     // Sidebar User Snippet
-    const sideAvatars = document.querySelectorAll('.user-avatar');
-    const sideNames = document.querySelectorAll('.user-meta-name');
-    const sideIds = document.querySelectorAll('.user-meta-id');
+    const sideAvatar = document.getElementById('sidebar-user-avatar');
+    const sideName = document.getElementById('sidebar-user-name');
+    const sideId = document.getElementById('sidebar-user-id');
 
-    sideAvatars.forEach(el => el.textContent = initials);
-    sideNames.forEach(el => el.textContent = pt.name);
-    sideIds.forEach(el => el.textContent = pt.id);
+    if (sideAvatar) sideAvatar.textContent = initials;
+    if (sideName) sideName.textContent = pt.name;
+    if (sideId) sideId.textContent = pt.id;
+
+    // Fallback for any other classes
+    document.querySelectorAll('.user-avatar').forEach(el => el.textContent = initials);
+    document.querySelectorAll('.user-meta-name').forEach(el => el.textContent = pt.name);
+    document.querySelectorAll('.user-meta-id').forEach(el => el.textContent = pt.id);
 
     // Profile & QR Modals
     const emgName = document.getElementById('emg-display-name');
@@ -149,10 +154,20 @@ export function getSharedAccessList() {
  * Syncs derived medications, lab reports, and shared doctor lists from timeline records
  */
 export function syncDerivedPatientLists() {
-    const records = window.MEDITRAIL_DATA.timelineRecords || [];
+    const records = getMedicalRecords();
+    
+    const ptSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
+    const pt = ptSession ? JSON.parse(ptSession) : null;
+    const ptCode = pt ? (pt.patient_code || pt.id) : null;
+    const isDemoUser = ptCode === 'MT-10482' || ptCode === 'MT-50298';
+
+    // Preserve rich hardcoded data for demo accounts if they are using the default mock records
+    if (records === window.MEDITRAIL_DATA.medicalRecords || records.length === 0) {
+        return;
+    }
 
     // 1. Build activeMedications
-    const meds = [];
+    let meds = [];
     records.forEach(rec => {
         if (rec.details && Array.isArray(rec.details.medications) && rec.details.medications.length > 0) {
             rec.details.medications.forEach((m, idx) => {
@@ -178,6 +193,13 @@ export function syncDerivedPatientLists() {
             });
         }
     });
+    
+    if (isDemoUser && meds.length === 0) {
+        if (window.MEDITRAIL_DATA.activeMedications && window.MEDITRAIL_DATA.activeMedications.length > 0) {
+            meds = window.MEDITRAIL_DATA.activeMedications;
+        }
+    }
+    
     window.MEDITRAIL_DATA.activeMedications = meds;
 
     // 2. Build recentReports
@@ -195,6 +217,13 @@ export function syncDerivedPatientLists() {
             });
         }
     });
+    
+    if (isDemoUser && reports.length === 0) {
+        if (window.MEDITRAIL_DATA.recentReports && window.MEDITRAIL_DATA.recentReports.length > 0) {
+            reports = window.MEDITRAIL_DATA.recentReports;
+        }
+    }
+    
     window.MEDITRAIL_DATA.recentReports = reports;
 
     // 3. Build sharedAccess (Doctors who added records for this patient)
@@ -213,7 +242,15 @@ export function syncDerivedPatientLists() {
             });
         }
     });
-    window.MEDITRAIL_DATA.sharedAccess = Array.from(docsMap.values());
+
+    let access = Array.from(docsMap.values());
+    if (isDemoUser && access.length === 0) {
+        if (window.MEDITRAIL_DATA.sharedAccess && window.MEDITRAIL_DATA.sharedAccess.length > 0) {
+            access = window.MEDITRAIL_DATA.sharedAccess;
+        }
+    }
+    
+    window.MEDITRAIL_DATA.sharedAccess = access;
 }
 
 /**
