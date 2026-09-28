@@ -567,6 +567,7 @@ export function initTimelineCarousel(itemCount) {
     };
 
     let targetScrollLeft = track.scrollLeft;
+    let exactScrollLeft = track.scrollLeft;
     let isWheeling = false;
     let wheelAnimId = null;
 
@@ -575,9 +576,11 @@ export function initTimelineCarousel(itemCount) {
         const diff = targetScrollLeft - track.scrollLeft;
         if (Math.abs(diff) > 0.5) {
             track.scrollLeft += diff * 0.18;
+            exactScrollLeft = track.scrollLeft;
             wheelAnimId = requestAnimationFrame(smoothWheelScroll);
         } else {
             track.scrollLeft = targetScrollLeft;
+            exactScrollLeft = targetScrollLeft;
             isWheeling = false;
         }
     }
@@ -597,7 +600,8 @@ export function initTimelineCarousel(itemCount) {
 
     function stepAutoScroll() {
         if (!isTimelineHovered && !isTimelinePausingAtEnd && !isWheeling && track.scrollWidth > track.clientWidth) {
-            track.scrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
+            exactScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
+            track.scrollLeft = exactScrollLeft;
 
             const maxScrollLeft = track.scrollWidth - track.clientWidth;
             if (track.scrollLeft >= maxScrollLeft - 1) {
@@ -605,6 +609,7 @@ export function initTimelineCarousel(itemCount) {
                 timelinePauseTimeout = setTimeout(() => {
                     if (track) {
                         track.scrollTo({ left: 0, behavior: 'smooth' });
+                        exactScrollLeft = 0;
                     }
                     setTimeout(() => {
                         isTimelinePausingAtEnd = false;
@@ -646,9 +651,12 @@ export function initMedicationsCarousel(itemCount) {
         isMedHovered = false;
     };
 
+    let exactMedScrollTop = track.scrollTop;
+
     function stepAutoScroll() {
         if (!isMedHovered && !isMedPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            track.scrollTop += 0.2;
+            exactMedScrollTop += 0.2;
+            track.scrollTop = exactMedScrollTop;
 
             const maxScrollTop = track.scrollHeight - track.clientHeight;
             if (track.scrollTop >= maxScrollTop - 1) {
@@ -656,6 +664,7 @@ export function initMedicationsCarousel(itemCount) {
                 medPauseTimeout = setTimeout(() => {
                     if (track) {
                         track.scrollTo({ top: 0, behavior: 'smooth' });
+                        exactMedScrollTop = 0;
                     }
                     setTimeout(() => {
                         isMedPausingAtEnd = false;
@@ -697,9 +706,12 @@ export function initSharedDocsCarousel(itemCount) {
         isDocsHovered = false;
     };
 
+    let exactDocsScrollTop = track.scrollTop;
+
     function stepAutoScrollDocs() {
         if (!isDocsHovered && !isDocsPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            track.scrollTop += 0.2;
+            exactDocsScrollTop += 0.2;
+            track.scrollTop = exactDocsScrollTop;
 
             const maxScrollTop = track.scrollHeight - track.clientHeight;
             if (track.scrollTop >= maxScrollTop - 1) {
@@ -707,6 +719,7 @@ export function initSharedDocsCarousel(itemCount) {
                 docsPauseTimeout = setTimeout(() => {
                     if (track) {
                         track.scrollTo({ top: 0, behavior: 'smooth' });
+                        exactDocsScrollTop = 0;
                     }
                     setTimeout(() => {
                         isDocsPausingAtEnd = false;
@@ -744,15 +757,21 @@ export function initReportsCarousel(itemCount) {
     track.onmouseenter = () => { isReportsHovered = true; };
     track.onmouseleave = () => { isReportsHovered = false; };
 
+    let exactReportsScrollTop = track.scrollTop;
+
     function stepAutoScrollReports() {
         if (!isReportsHovered && !isReportsPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            track.scrollTop += 0.2;
+            exactReportsScrollTop += 0.2;
+            track.scrollTop = exactReportsScrollTop;
 
             const maxScrollTop = track.scrollHeight - track.clientHeight;
             if (track.scrollTop >= maxScrollTop - 1) {
                 isReportsPausingAtEnd = true;
                 reportsPauseTimeout = setTimeout(() => {
-                    if (track) track.scrollTo({ top: 0, behavior: 'smooth' });
+                    if (track) {
+                        track.scrollTo({ top: 0, behavior: 'smooth' });
+                        exactReportsScrollTop = 0;
+                    }
                     setTimeout(() => { isReportsPausingAtEnd = false; }, 650);
                 }, 2000);
             }
