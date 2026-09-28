@@ -653,10 +653,12 @@ export function initMedicationsCarousel(itemCount) {
     };
 
     let exactMedScrollTop = track.scrollTop;
+    // Disable snap so the continuous 0.4px increments aren't snapped back
+    track.style.scrollSnapType = 'none';
 
     function stepAutoScroll() {
         if (!isMedHovered && !isMedPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactMedScrollTop += 0.2;
+            exactMedScrollTop += TIMELINE_AUTO_SCROLL_SPEED;
             track.scrollTop = exactMedScrollTop;
 
             const maxScrollTop = track.scrollHeight - track.clientHeight;
@@ -708,10 +710,12 @@ export function initSharedDocsCarousel(itemCount) {
     };
 
     let exactDocsScrollTop = track.scrollTop;
+    // Disable snap so the continuous 0.4px increments aren't snapped back
+    track.style.scrollSnapType = 'none';
 
     function stepAutoScrollDocs() {
         if (!isDocsHovered && !isDocsPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactDocsScrollTop += 0.2;
+            exactDocsScrollTop += TIMELINE_AUTO_SCROLL_SPEED;
             track.scrollTop = exactDocsScrollTop;
 
             const maxScrollTop = track.scrollHeight - track.clientHeight;
@@ -758,10 +762,12 @@ export function initReportsCarousel(itemCount) {
     track.onmouseleave = () => { isReportsHovered = false; };
 
     let exactReportsScrollTop = track.scrollTop;
+    // Disable snap so the continuous 0.4px increments aren't snapped back
+    track.style.scrollSnapType = 'none';
 
     function stepAutoScrollReports() {
         if (!isReportsHovered && !isReportsPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactReportsScrollTop += 0.2;
+            exactReportsScrollTop += TIMELINE_AUTO_SCROLL_SPEED;
             track.scrollTop = exactReportsScrollTop;
 
             const maxScrollTop = track.scrollHeight - track.clientHeight;
