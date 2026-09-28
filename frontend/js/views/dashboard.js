@@ -207,7 +207,8 @@ let timelineAutoScrollAnimId = null;
 let timelinePauseTimeout = null;
 let isTimelineHovered = false;
 let isTimelinePausingAtEnd = false;
-const TIMELINE_AUTO_SCROLL_SPEED = 0.4; // Pixels per frame
+const TIMELINE_AUTO_SCROLL_SPEED = 0.4;  // Pixels per frame (horizontal timeline)
+const VERTICAL_AUTO_SCROLL_SPEED = 0.2;  // Pixels per frame (vertical panels)
 
 /**
  * Fully resets all dynamic styling and animation state on dashboard elements.
@@ -658,7 +659,7 @@ export function initMedicationsCarousel(itemCount) {
 
     function stepAutoScroll() {
         if (!isMedHovered && !isMedPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactMedScrollTop += TIMELINE_AUTO_SCROLL_SPEED;
+            exactMedScrollTop += VERTICAL_AUTO_SCROLL_SPEED;
             track.scrollTop = exactMedScrollTop;
 
             const maxScrollTop = track.scrollHeight - track.clientHeight;
@@ -715,7 +716,7 @@ export function initSharedDocsCarousel(itemCount) {
 
     function stepAutoScrollDocs() {
         if (!isDocsHovered && !isDocsPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactDocsScrollTop += TIMELINE_AUTO_SCROLL_SPEED;
+            exactDocsScrollTop += VERTICAL_AUTO_SCROLL_SPEED;
             track.scrollTop = exactDocsScrollTop;
 
             const maxScrollTop = track.scrollHeight - track.clientHeight;
@@ -767,7 +768,7 @@ export function initReportsCarousel(itemCount) {
 
     function stepAutoScrollReports() {
         if (!isReportsHovered && !isReportsPausingAtEnd && track.scrollHeight > track.clientHeight) {
-            exactReportsScrollTop += TIMELINE_AUTO_SCROLL_SPEED;
+            exactReportsScrollTop += VERTICAL_AUTO_SCROLL_SPEED;
             track.scrollTop = exactReportsScrollTop;
 
             const maxScrollTop = track.scrollHeight - track.clientHeight;
