@@ -105,7 +105,7 @@ export function initLandingScrollExperience() {
                 }
             });
 
-            const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+            const currentScroll = window.scrollY || document.documentElement.scrollTop || (landingContainer ? landingContainer.scrollTop : 0);
             if (currentScroll < 80) {
                 updateActiveLandingDot(1);
             } else if (bestId && sectionMap[bestId]) {
