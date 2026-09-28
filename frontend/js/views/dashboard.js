@@ -542,6 +542,8 @@ export function getDashboardDensityLimits() {
 /**
  * Initializes continuous auto-scrolling with a 2s pause upon reaching the end.
  */
+const TIMELINE_AUTO_SCROLL_SPEED = 0.4;
+
 export function initTimelineCarousel(itemCount) {
     const track = document.getElementById('dash-horizontal-timeline');
     const wrap = document.getElementById('dash-timeline-body-wrap') || track;
@@ -730,7 +732,6 @@ export function initSharedDocsCarousel(itemCount) {
         docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
     }
 
-    docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
     docsAutoScrollAnimId = requestAnimationFrame(stepAutoScrollDocs);
 }
 
