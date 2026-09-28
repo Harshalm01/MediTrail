@@ -3342,91 +3342,172 @@ body.drawer-open #view-landing .concept-grid {
 }
 
 /* Activity Items & Scrollable Card Lists */
-/* Horizontal carousel rail for the three dashboard panels —
-   scoped to specific IDs only so other uses of .activity-list are unaffected */
-#dash-shared-access,
-#dash-reports-list,
-#dash-medications-list {
+/* max-height is set dynamically by JS (snapListHeight) after render
+   so it always fits an exact integer number of items with no clipping */
+.activity-list {
     display: flex;
-    flex-direction: row;
-    gap: 0.75rem;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 0.65rem 0.5rem 0.8rem 0.25rem;
-    -webkit-overflow-scrolling: touch;
+    flex-direction: column;
+    gap: 0.55rem;
+    overflow-y: auto;
+    padding-right: 0.35rem;
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: 0px;
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
     transition: scrollbar-color 0.25s ease;
-    min-height: 86px;
-    max-height: 100px;
-    align-items: center;
+    /* Exactly 3 items fit in standard viewports without any partial cuts */
+    max-height: 206px;
 }
 
-.card:hover #dash-shared-access,
-.card:hover #dash-reports-list,
+@media (min-height: 900px) and (min-width: 1300px) {
+    .activity-list {
+        max-height: 275px;
+        /* 4 items on taller screens */
+    }
+}
+
+@media (min-height: 1000px) and (min-width: 1500px) {
+    .activity-list {
+        max-height: 345px;
+        /* 5 items on extra tall displays */
+    }
+}
+
+#dash-medications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    /* Fixed height — generous enough to always show 2 full medication cards
+       even when card text wraps to multiple lines. JS measurement is skipped
+       for this list since scrollbar reflow makes dynamic sizing unreliable. */
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 0.35rem;
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: 0px;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.25s ease;
+}
+
+.card:hover .activity-list,
 .card:hover #dash-medications-list,
-#dash-shared-access:hover,
-#dash-reports-list:hover,
+.activity-list:hover,
 #dash-medications-list:hover {
     scrollbar-color: rgba(13, 148, 136, 0.42) transparent;
 }
 
-#dash-shared-access::-webkit-scrollbar,
-#dash-reports-list::-webkit-scrollbar,
+.activity-list::-webkit-scrollbar,
 #dash-medications-list::-webkit-scrollbar {
-    height: 5px;
+    width: 5px;
     background: transparent;
 }
 
-#dash-shared-access::-webkit-scrollbar-track,
-#dash-shared-access::-webkit-scrollbar-track-piece,
-#dash-reports-list::-webkit-scrollbar-track,
-#dash-reports-list::-webkit-scrollbar-track-piece,
+.activity-list::-webkit-scrollbar-track,
+.activity-list::-webkit-scrollbar-track-piece,
 #dash-medications-list::-webkit-scrollbar-track,
 #dash-medications-list::-webkit-scrollbar-track-piece {
     background: transparent;
     border: none;
 }
 
-#dash-shared-access::-webkit-scrollbar-thumb,
-#dash-reports-list::-webkit-scrollbar-thumb,
+.activity-list::-webkit-scrollbar-thumb,
 #dash-medications-list::-webkit-scrollbar-thumb {
     background: transparent;
     border-radius: 99px;
     transition: background 0.25s ease;
 }
 
-.card:hover #dash-shared-access::-webkit-scrollbar-thumb,
-.card:hover #dash-reports-list::-webkit-scrollbar-thumb,
+.card:hover .activity-list::-webkit-scrollbar-thumb,
 .card:hover #dash-medications-list::-webkit-scrollbar-thumb,
-#dash-shared-access:hover::-webkit-scrollbar-thumb,
-#dash-reports-list:hover::-webkit-scrollbar-thumb,
+.activity-list:hover::-webkit-scrollbar-thumb,
 #dash-medications-list:hover::-webkit-scrollbar-thumb {
     background: rgba(13, 148, 136, 0.42);
 }
 
-.card:hover #dash-shared-access::-webkit-scrollbar-thumb:hover,
-.card:hover #dash-reports-list::-webkit-scrollbar-thumb:hover,
+.card:hover .activity-list::-webkit-scrollbar-thumb:hover,
 .card:hover #dash-medications-list::-webkit-scrollbar-thumb:hover,
-#dash-shared-access::-webkit-scrollbar-thumb:hover,
-#dash-reports-list::-webkit-scrollbar-thumb:hover,
+.activity-list::-webkit-scrollbar-thumb:hover,
 #dash-medications-list::-webkit-scrollbar-thumb:hover {
     background: rgba(13, 148, 136, 0.75);
 }
 
-.activity-item {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.2rem;
+/* Horizontal auto-scroll carousel — added by JS to dash-shared-access,
+   dash-reports-list, dash-medications-list. Overrides vertical defaults. */
+.dash-horiz-carousel {
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: unset !important;
+    padding: 0.65rem 0.5rem 0.8rem 0.35rem !important;
+    gap: 0.75rem !important;
+    min-height: 88px;
+    max-height: 100px !important;
+    align-items: center;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.25s ease;
+}
+
+.dash-horiz-carousel::-webkit-scrollbar {
+    height: 5px;
+    width: 0;
+    background: transparent;
+}
+
+.dash-horiz-carousel::-webkit-scrollbar-track,
+.dash-horiz-carousel::-webkit-scrollbar-track-piece {
+    background: transparent;
+    border: none;
+}
+
+.dash-horiz-carousel::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 99px;
+    transition: background 0.25s ease;
+}
+
+.card:hover .dash-horiz-carousel::-webkit-scrollbar-thumb,
+.dash-horiz-carousel:hover::-webkit-scrollbar-thumb {
+    background: rgba(13, 148, 136, 0.42);
+}
+
+.card:hover .dash-horiz-carousel::-webkit-scrollbar-thumb:hover,
+.dash-horiz-carousel::-webkit-scrollbar-thumb:hover {
+    background: rgba(13, 148, 136, 0.75);
+}
+
+/* Horizontal card item — used when activity-item is inside .dash-horiz-carousel */
+.dash-horiz-carousel .activity-item,
+.dash-horiz-carousel .medication-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
     min-width: 200px;
     max-width: 240px;
     height: 72px;
+    transform: none;
+    scroll-snap-align: unset;
+}
+
+.dash-horiz-carousel .activity-item:hover,
+.dash-horiz-carousel .medication-card:hover {
+    transform: translateY(-3px) !important;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 62px;
     box-sizing: border-box;
-    padding: 0.6rem 0.9rem;
+    padding: 0.55rem 0.85rem;
     border-radius: var(--radius-md);
     background-color: var(--bg-app);
     border: 1px solid var(--border-subtle);
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
     flex-shrink: 0;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
@@ -3435,7 +3516,7 @@ body.drawer-open #view-landing .concept-grid {
 .activity-item:hover {
     background-color: #ffffff;
     border-color: var(--primary);
-    transform: translateY(-3px);
+    transform: translateX(4px);
     box-shadow: var(--shadow-sm);
 }
 
@@ -3504,26 +3585,24 @@ body.drawer-open #view-landing .concept-grid {
 /* Medication items */
 .medication-card {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.15rem;
-    min-width: 210px;
-    max-width: 250px;
-    height: 72px;
-    padding: 0.6rem 0.9rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 0.65rem 0.85rem;
     border-radius: var(--radius-md);
     background-color: var(--bg-app);
     border: 1px solid var(--border-subtle);
+    /* gap on the parent handles spacing — no margin needed */
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
     flex-shrink: 0;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
-    overflow: hidden;
 }
 
 .medication-card:hover {
     background-color: #ffffff;
     border-color: var(--primary);
-    transform: translateY(-3px);
+    transform: translateX(4px);
     box-shadow: var(--shadow-sm);
 }
 

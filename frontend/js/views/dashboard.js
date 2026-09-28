@@ -508,9 +508,8 @@ export function renderDashboard() {
 export function snapListHeight(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-
+    // Clear any inline max-height; CSS controls overflow
     container.style.maxHeight = '';
-    container.style.overflowY = 'auto';
     debugLog(`[MediTrail Sizing] #${containerId} active | clientHeight=${container.clientHeight}px`);
 }
 
@@ -518,9 +517,8 @@ export function snapListHeight(containerId) {
  * Calls snapListHeight for each dashboard scrollable list.
  */
 export function snapListHeights() {
-    snapListHeight('dash-shared-access');
+    // dash-shared-access and dash-reports-list are horizontal carousels
     snapListHeight('dash-recent-activity');
-    snapListHeight('dash-reports-list');
 }
 
 /**
@@ -633,6 +631,9 @@ export function initMedicationsCarousel(itemCount) {
     const track = document.getElementById('dash-medications-list');
     if (!track) return;
 
+    // Activate horizontal carousel mode
+    track.classList.add('dash-horiz-carousel');
+
     if (medAutoScrollAnimId) {
         cancelAnimationFrame(medAutoScrollAnimId);
         medAutoScrollAnimId = null;
@@ -647,20 +648,19 @@ export function initMedicationsCarousel(itemCount) {
     track.onmouseenter = () => { isMedHovered = true; };
     track.onmouseleave = () => { isMedHovered = false; };
 
-    let exactMedScrollLeft = track.scrollLeft;
+    let exactScrollLeft = track.scrollLeft;
 
     function stepMedScroll() {
         if (!isMedHovered && !isMedPausingAtEnd && track.scrollWidth > track.clientWidth) {
-            exactMedScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
-            track.scrollLeft = exactMedScrollLeft;
-
-            const maxScrollLeft = track.scrollWidth - track.clientWidth;
-            if (track.scrollLeft >= maxScrollLeft - 1) {
+            exactScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
+            track.scrollLeft = exactScrollLeft;
+            const maxLeft = track.scrollWidth - track.clientWidth;
+            if (track.scrollLeft >= maxLeft - 1) {
                 isMedPausingAtEnd = true;
                 medPauseTimeout = setTimeout(() => {
                     if (track) {
                         track.scrollTo({ left: 0, behavior: 'smooth' });
-                        exactMedScrollLeft = 0;
+                        exactScrollLeft = 0;
                     }
                     setTimeout(() => { isMedPausingAtEnd = false; }, 650);
                 }, 2000);
@@ -681,6 +681,9 @@ export function initSharedDocsCarousel(itemCount) {
     const track = document.getElementById('dash-shared-access');
     if (!track) return;
 
+    // Activate horizontal carousel mode
+    track.classList.add('dash-horiz-carousel');
+
     if (docsAutoScrollAnimId) {
         cancelAnimationFrame(docsAutoScrollAnimId);
         docsAutoScrollAnimId = null;
@@ -695,20 +698,19 @@ export function initSharedDocsCarousel(itemCount) {
     track.onmouseenter = () => { isDocsHovered = true; };
     track.onmouseleave = () => { isDocsHovered = false; };
 
-    let exactDocsScrollLeft = track.scrollLeft;
+    let exactScrollLeft = track.scrollLeft;
 
     function stepDocsScroll() {
         if (!isDocsHovered && !isDocsPausingAtEnd && track.scrollWidth > track.clientWidth) {
-            exactDocsScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
-            track.scrollLeft = exactDocsScrollLeft;
-
-            const maxScrollLeft = track.scrollWidth - track.clientWidth;
-            if (track.scrollLeft >= maxScrollLeft - 1) {
+            exactScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
+            track.scrollLeft = exactScrollLeft;
+            const maxLeft = track.scrollWidth - track.clientWidth;
+            if (track.scrollLeft >= maxLeft - 1) {
                 isDocsPausingAtEnd = true;
                 docsPauseTimeout = setTimeout(() => {
                     if (track) {
                         track.scrollTo({ left: 0, behavior: 'smooth' });
-                        exactDocsScrollLeft = 0;
+                        exactScrollLeft = 0;
                     }
                     setTimeout(() => { isDocsPausingAtEnd = false; }, 650);
                 }, 2000);
@@ -729,6 +731,9 @@ export function initReportsCarousel(itemCount) {
     const track = document.getElementById('dash-reports-list');
     if (!track) return;
 
+    // Activate horizontal carousel mode
+    track.classList.add('dash-horiz-carousel');
+
     if (reportsAutoScrollAnimId) {
         cancelAnimationFrame(reportsAutoScrollAnimId);
         reportsAutoScrollAnimId = null;
@@ -743,20 +748,19 @@ export function initReportsCarousel(itemCount) {
     track.onmouseenter = () => { isReportsHovered = true; };
     track.onmouseleave = () => { isReportsHovered = false; };
 
-    let exactReportsScrollLeft = track.scrollLeft;
+    let exactScrollLeft = track.scrollLeft;
 
     function stepReportsScroll() {
         if (!isReportsHovered && !isReportsPausingAtEnd && track.scrollWidth > track.clientWidth) {
-            exactReportsScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
-            track.scrollLeft = exactReportsScrollLeft;
-
-            const maxScrollLeft = track.scrollWidth - track.clientWidth;
-            if (track.scrollLeft >= maxScrollLeft - 1) {
+            exactScrollLeft += TIMELINE_AUTO_SCROLL_SPEED;
+            track.scrollLeft = exactScrollLeft;
+            const maxLeft = track.scrollWidth - track.clientWidth;
+            if (track.scrollLeft >= maxLeft - 1) {
                 isReportsPausingAtEnd = true;
                 reportsPauseTimeout = setTimeout(() => {
                     if (track) {
                         track.scrollTo({ left: 0, behavior: 'smooth' });
-                        exactReportsScrollLeft = 0;
+                        exactScrollLeft = 0;
                     }
                     setTimeout(() => { isReportsPausingAtEnd = false; }, 650);
                 }, 2000);
