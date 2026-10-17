@@ -1,96 +1,183 @@
 # MediTrail
 
-MediTrail is a centralized, chronological medical history management system designed for patients and healthcare providers. It provides a clean, unified platform to view clinical events, track active prescriptions, inspect diagnostic reports, manage health insurance policies, and grant time-limited record access to attending physicians.
+**Centralized, Chronological Medical History & Secure Health Record Management System**
 
-This repository hosts the frontend prototype, built with browser-native technologies and organized into modular ES modules designed to connect to a future Java backend service.
+MediTrail is an end-to-end medical history management system for patients, hospitals, and attending physicians. It provides a single source of truth for clinical records, active medications, emergency profiles, diagnostic history, insurance policy documents, and doctor authorization access.
 
-## Features
+---
 
-- **Marketing Landing Experience (`index.html`)**: Apple-inspired showcase with scroll-snapped visual stages, progressive element reveals, interactive timeline preview card with hover dwell, and floating header navigation.
-- **Clinical Patient Portal (`portal.html`)**: Full prototype application shell featuring responsive sidebar navigation, deep-dive record drawer, and tab-based routing.
-- **Patient Dashboard**: Clinical overview displaying active patient demographics, vitals summary, interactive metric carousel, recent clinical activity, and a quick timeline strip.
-- **Chronological Medical Timeline**: Complete medical history organized and grouped by year, featuring category filter pills (`All`, `Surgeries`, `Diagnostics`, `Prescriptions`, etc.), real-time search, and year section jumping.
-- **Slide-Over Record Detail Drawer**: Deep-dive clinical inspection drawer displaying physician notes, diagnoses, procedures, prescribed medications, and downloadable official record summaries.
-- **Medications & Prescriptions**: Dedicated regimen tracker showing dosage, frequency, prescribing physician, start dates, and refill request actions.
-- **Shared Doctor Access**: Access-control management panel displaying authorized healthcare providers, validity periods, permission scopes, and one-click access revocation.
-- **Emergency Profile Modal**: Quick-access critical medical ID displaying blood group, severe allergies tag input, dynamic health insurance policy document uploads, pre-existing chronic conditions, and friendly "Nothing added yet. Update it?" empty states.
-- **Health Insurance Policy Viewer**: Digital policy certificate modal with cashless hospital coverage details and mock PDF schedule export.
-- **QR-Based Sharing Modal**: Temporary encrypted QR code session generator and shareable doctor verification link for contactless clinical handoffs.
-- **Responsive Architecture**: Fully responsive design supporting desktop, tablet, and mobile off-canvas drawer navigation.
+## 🌟 Key Features
 
-## Tech Stack
+### 1. Patient Experience & Clinical Portal (`portal.html`)
+- **Real-Time 6-Digit Email OTP Authentication**: Secure patient sign-in and new patient registration powered by Brevo Transactional Email API.
+- **Interactive Blood Group Selector**: Tactile radio-pill selector (`B+`, `B-`, `A+`, `A-`, `O+`, `O-`, `AB+`, `AB-`) with single-choice enforcement.
+- **Streamlined 2-Tier Dashboard**:
+  - **Top Row (50% / 50%)**: *Doctors with Access* and *Active Medications* stretched edge-to-edge for optimal clarity.
+  - **Bottom Row**: *Quick Medical Timeline* horizontal scroll rail (1.8fr) alongside the *Emergency Contact & Policy Card* (1fr).
+- **Chronological Medical Timeline (`timeline.html` / View)**: Complete lifetime medical history grouped by year, with real-time text search and category filter pills (`All`, `Surgeries`, `Diagnostics`, `Prescriptions`, etc.).
+- **Deep-Dive Record Detail Drawer**: Slide-over panel displaying comprehensive clinical notes, vitals, procedures, attached lab scans, and prescribing doctors.
+- **Active Prescriptions & Regimens**: Regimen tracker detailing dosage, frequency, prescribing doctor, start dates, and refill actions.
+- **Emergency Profile & Digital Medical Pass**: Critical medical ID with blood group, allergy tags, pre-existing conditions, emergency contacts, and insurance documents.
+- **Official Insurance Policy Viewer**: In-browser PDF certificate viewer with direct "Open in New Tab" support.
+- **Secure QR-Based Sharing**: Encrypted, 15-minute time-limited QR codes and doctor links for contactless clinical record handoffs.
 
-- **HTML5**: Semantic document structure with dual entry points (`index.html` landing page and `portal.html` clinical portal).
-- **CSS3**: Vanilla CSS with custom properties (CSS variables), CSS Grid, Flexbox, custom scrollbars, and keyframe animations (no Tailwind or Bootstrap). Organized into `style.css` (design tokens, reset, typography) and `components.css` (components, views, modals, drawer, animations).
-- **JavaScript (ES6+)**: Browser-native Vanilla JavaScript utilizing ES Modules (`import`/`export`) without frameworks, bundlers, or npm dependencies.
-- **Python**: Standard library multi-threaded HTTP development server (`runner.py`) and static code scanner utilities (`scanner/`).
+### 2. Hospital Staff & Doctor Admin Portal (`admin.html`)
+- **Role-Based Access Control (RBAC)**: Secure access for Super Admins, Hospital Admins, and Attending Physicians.
+- **Custom Admin Credentials**: Onboarded hospital managers set their own custom, secure passwords (BCrypt hashed with salting).
+- **Empanelled Hospital Network**: Create and manage hospital branches, associate attending doctors, and inspect hospital-wide patient activity.
+- **Doctor Consultation & Record Creation**: Attending doctors can search patients by ID/mobile, verify patient access via instant 6-digit OTP, view clinical history, and publish new consultation records.
 
-## Project Structure
+### 3. Dual Storage Architecture (Cloudflare R2 + Local Fallback)
+- **Cloudflare R2 Object Storage**: Direct S3-compatible cloud storage for authentic insurance policy PDFs.
+- **Zero-Config Local Storage Fallback**: When R2 credentials are not provided, files are automatically stored securely on disk under `backend/java-server/data/storage/policies/` with zero configuration required.
+
+### 4. Marketing Landing Experience (`index.html`)
+- Apple-inspired cinematic showcase featuring scroll snapping, progressive element reveals, interactive timeline preview card with hover dwell, and quick prototype access.
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technology | Details |
+|---|---|---|
+| **Frontend** | Vanilla HTML5, CSS3, ES6+ Modules | Zero frameworks (no React/Vue), CSS Grid & Flexbox, native fetch API |
+| **Backend** | Java SE 17 | Lightweight embedded `com.sun.net.httpserver.HttpServer`, standard JDBC |
+| **Local Database** | H2 Database Engine | Embedded thread-safe file storage (`backend/java-server/data/meditraildb.mv.db`) |
+| **Production Database** | PostgreSQL / Neon | Scalable cloud database via standard JDBC connection string |
+| **Email Service** | Brevo API | Real-time delivery of 6-digit verification OTPs |
+| **Object Storage** | Cloudflare R2 / Local Disk | S3-compatible cloud storage with automatic local fallback |
+| **Development Runner** | Python 3 | Multi-threaded runner (`runner.py`) that compiles Java and serves frontend |
+| **Containerization** | Docker | Multi-stage build (`Dockerfile`) for one-click deployment on Render / Cloud |
+
+---
+
+## 📁 Repository Structure
 
 ```text
 MediTrail/
-├── frontend/
-│   ├── index.html          # Marketing Landing experience
-│   ├── portal.html         # Clinical Patient Portal shell
-│   ├── image.png           # Brand logo and favicon asset
+├── Dockerfile                  # Multi-stage production container build (Java 17 + Frontend)
+├── requirements.txt            # Python dependencies (standard library compatible)
+├── runner.py                   # Local development launcher (compiles Java & serves frontend)
+├── .env.example                # Template for environment configuration
+├── AGENTS.md                   # Authoritative engineering guidelines
+├── README.md                   # Project documentation
+│
+├── frontend/                   # Client-side web application
+│   ├── index.html              # Marketing Landing & Patient OTP Login/Register
+│   ├── portal.html             # Clinical Patient Portal (Dashboard, Timeline, Meds, QR)
+│   ├── admin.html              # Hospital Staff & Doctor Admin Portal (RBAC)
+│   ├── image.png               # Brand logo and favicon
 │   ├── css/
-│   │   ├── style.css       # Global design tokens, reset, typography, and base styles
-│   │   └── components.css  # Component rules, view layouts, modals, animations, and media queries
+│   │   ├── style.css           # Design tokens, variables, reset, and base typography
+│   │   └── components.css      # Component layouts, grids, modals, drawer, animations
 │   └── js/
-│       ├── main.js         # Application bootstrap & DOM event listener initialization
-│       ├── app.js          # Application coordinator and backward-compatibility window bridges
-│       ├── data.js         # Raw mock patient and clinical history dataset (window.MEDITRAIL_DATA)
-│       ├── core/
-│       │   ├── navigation.js# High-level view switching and sidebar tab routing
-│       │   └── ui.js       # Shared UI utilities (slide-over drawer, modals, toast system)
+│       ├── main.js             # Bootstrap and top-level DOM event initialization
+│       ├── app.js              # Coordinator and global window bridges
 │       ├── services/
-│       │   └── data.js     # Data access service layer (future Java REST API gateway)
-│       ├── views/
-│       │   ├── landing.js  # Landing page scroll reveal and presentation behavior
-│       │   ├── dashboard.js# Dashboard view rendering and metric carousel
-│       │   ├── timeline.js # Medical timeline grouping, search, and category filters
-│       │   ├── medications.js# Medications regimen view and refill actions
-│       │   ├── shared-access.js# Doctor authorization list and access controls
-│       │   └── emergency.js# Emergency summary section and full profile modal
-│       └── utils/
-│           ├── debug.js    # Centralized toggleable debug logging utility (debugLog)
-│           └── qr.js       # Standalone mathematical QR code SVG generator
-├── backend/
-│   └── [reserved for future Java backend service]
-├── agents/
-│   └── agent.md            # Agent engineering rules reference
-├── scanner/
-│   ├── .gitignore          # Scanner report ignore rules
-│   ├── audit_scanner.py    # Static analyzer for code metrics and DOM checks
-│   └── deep_scan.py        # Token and architectural dependency scanner
-├── runner.py               # Lightweight multi-threaded local Python development HTTP server
-├── README.md               # Project overview and developer onboarding guide
-├── AGENTS.md               # Authoritative engineering rules and multi-agent guidelines
-└── .gitignore              # Git ignore rules for caches, artifacts, and OS files
+│       │   ├── api.js          # REST API client for Java backend
+│       │   └── data.js         # Frontend data access service layer
+│       ├── views/              # View-specific controllers (dashboard, timeline, etc.)
+│       └── utils/              # QR generator, PDF helpers, debug utilities
+│
+└── backend/
+    └── java-server/            # Portable Java SE 17 REST API
+        ├── lib/                # Standalone JARs (H2, Postgres, Jackson, BCrypt, MinIO, Brevo)
+        ├── data/               # Persistent local H2 database & file storage
+        ├── src/main/java/      # REST API handlers, models, repositories, and services
+        └── src/main/resources/ # SQL schemas (schema-h2.sql, schema-postgres.sql)
 ```
 
-## Getting Started
+---
 
-Because MediTrail relies on JavaScript ES Modules (`<script type="module">`), it must be served over a local HTTP server (browsers block ES modules when loaded via `file://` URLs).
+## ⚙️ Environment Configuration (`.env`)
 
-### Running Locally
+Create a `.env` file in the project directory (or copy from `.env.example`):
 
-Run the included Python runner from the project root:
+```env
+# ── Email / OTP Delivery (Brevo) ──────────────────────────────────────────────
+BREVO_API_KEY=your_brevo_api_key_here
+BREVO_SENDER_EMAIL=your_verified_sender@domain.com
+BREVO_SENDER_NAME=MediTrail
+DEMO_PATIENT_EMAIL=
 
+# ── Server & Networking ───────────────────────────────────────────────────────
+FRONTEND_PORT=8000
+API_PORT=8080
+ENV=development
+HOST=0.0.0.0
+
+# ── Database (Local H2 vs Production PostgreSQL) ──────────────────────────────
+DB_TYPE=h2
+SEED_DEMO_DATA=true
+DATABASE_URL=
+DB_USER=sa
+DB_PASSWORD=
+
+# ── Cloudflare R2 Storage (Optional — falls back to local disk if blank) ───────
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=meditrail
+R2_ENDPOINT=
+
+# ── CORS Allowed Origins ──────────────────────────────────────────────────────
+ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+```
+
+---
+
+## 🚀 Running Locally
+
+### Prerequisites
+- **Java JDK 17+** installed and available in PATH (`javac -version`).
+- **Python 3.8+** installed (`python --version`).
+
+### Start the Application
+From the repository root (or `LATEST CODE/mt-feature-otp-integration`):
 ```bash
 python runner.py
 ```
 
-The multi-threaded runner serves `frontend/` at `http://localhost:8000/`, injects dynamic debug configuration via virtual `/js/debug-config.js`, and opens the application in your default web browser.
+The runner automatically:
+1. Compiles the Java backend into bytecode (`backend/java-server/bin/`).
+2. Starts the Java REST API server on `http://localhost:8080`.
+3. Initializes the H2 database and seeds demo patient/doctor accounts.
+4. Starts the multi-threaded frontend server on `http://localhost:8000`.
+5. Automatically opens the application in your default browser.
 
-Alternatively, serve the frontend directly using Python's built-in HTTP server:
+### Local Access URLs
+- **Patient Portal & Landing**: `http://localhost:8000/`
+- **Patient Clinical Portal**: `http://localhost:8000/portal.html`
+- **Hospital / Doctor Admin Portal**: `http://localhost:8000/admin.html`
+- **Backend Health Check**: `http://localhost:8080/api/health`
 
-```bash
-cd frontend
-python -m http.server 8000
-```
+---
 
-### URLs
+## ☁️ Deployment Guide (Render.com)
 
-- **Marketing Landing Experience**: `http://localhost:8000/` (or `http://localhost:8000/index.html`)
-- **Clinical Patient Portal**: `http://localhost:8000/portal.html`
+MediTrail includes a production multi-stage **`Dockerfile`** that builds both the Java 17 backend and serves the frontend in a single secure container.
+
+### Deploying on Render:
+1. Connect your GitHub repository to [Render.com](https://render.com).
+2. Create a **New Web Service**.
+3. Configure the following settings in your Render dashboard:
+   - **Environment / Runtime**: `Docker`
+   - **Root Directory**: `LATEST CODE/mt-feature-otp-integration` *(or `.` if at repo root)*
+   - **Dockerfile Path**: `Dockerfile`
+4. Under the **Environment** tab, add your environment variables:
+   - `ENV=production`
+   - `DB_TYPE=h2` *(or `postgres` with your Neon / PostgreSQL connection string)*
+   - `BREVO_API_KEY=your_brevo_api_key`
+   - `BREVO_SENDER_EMAIL=your_verified_sender_email`
+   - `BREVO_SENDER_NAME=MediTrail`
+   - `SEED_DEMO_DATA=false`
+5. Click **Create Web Service**. Render will automatically build the Docker container and deploy the app.
+
+---
+
+## 🔒 Security & Privacy Architecture
+
+- **End-to-End Ownership**: Patients retain full control over their records, granting time-limited access to authorized physicians.
+- **Ephemeral QR Codes**: Clinical QR codes expire automatically after 15 minutes to prevent unauthorized reuse.
+- **Zero Raw Secret Leaks**: `.env`, credentials, local database files (`*.mv.db`, `*.db`), and uploaded PDFs are strictly ignored by `.gitignore`.
+- **BCrypt Salting**: All doctor and admin passwords are encrypted with industry-standard BCrypt before persistent storage.
