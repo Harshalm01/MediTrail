@@ -1,0 +1,50 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+
+# Scanner and audit outputs
+scanner/*.json
+backend/scanner/*.json
+output.json
+deep_output.json
+
+# Operating System files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE & Editor configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs, test artifacts, and scratch files
+*.log
+scratch/
+test-results/
+playwright-report/
+
+# Environment secrets and credentials
+.env
+.env.*
+!.env.example
+*env*.pdf
+*.pem
+*.key
+*.cert
+
+# Java build artifacts and compiler outputs
+backend/java-server/bin/
+backend/java-server/sources.txt
+*.class
+
+# Local database files
+backend/java-server/data/
+*.db
+*.mv.db
+*.trace.db
+*.lock.db

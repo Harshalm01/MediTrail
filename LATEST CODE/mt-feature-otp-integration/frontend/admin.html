@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTrail - Hospital Staff & Doctor Admin Portal</title>
+    <meta name="description"
+        content="Encrypted Role-Based Access Control (RBAC) portal for hospital administrators and attending doctors.">
+
+    <link rel="icon" type="image/png" href="image.png">
+
+    <!-- Dynamic Asset Cache Busting -->
+    <script>
+        const __BUILD_V = Date.now();
+        document.write('<link rel="stylesheet" href="css/style.css?v=' + __BUILD_V + '">');
+        document.write('<link rel="stylesheet" href="css/components.css?v=' + __BUILD_V + '">');
+    </script>
+    <noscript>
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/components.css">
+    </noscript>
+
+</head>
+
+<body class="admin-view-body">
+
+    <!-- ================================================================= -->
+    <!-- 1. HOSPITAL & DOCTOR ADMIN AUTHENTICATION SCREEN                  -->
+    <!-- ================================================================= -->
+    <div id="admin-auth-screen" class="admin-auth-wrapper">
+        <div class="auth-branding-panel">
+            <div class="auth-branding-orb"></div>
+            <div class="branding-content">
+                <div class="branding-logo">
+                    <img src="image.png" alt="MediTrail Logo" onerror="this.style.display='none'">
+                    <div class="branding-logo-text">
+                        <span class="branding-logo-name">MediTrail</span>
+                        <span class="branding-logo-sub">Healthcare Management Platform</span>
+                    </div>
+                </div>
+                <h2 class="branding-title">One secure place for <span class="branding-title-highlight">smarter</span>
+                    healthcare management.</h2>
+                <ul class="branding-features">
+                    <li>
+                        <span class="feature-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <div class="feature-text">
+                            <span class="feature-title">Centralized patient records</span>
+                            <span class="feature-desc">Access organized patient information</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="feature-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <div class="feature-text">
+                            <span class="feature-title">Secure hospital access</span>
+                            <span class="feature-desc">Protected staff authentication</span>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="feature-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <div class="feature-text">
+                            <span class="feature-title">Connected healthcare management</span>
+                            <span class="feature-desc">Streamline hospital workflows</span>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="branding-trust">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    Designed for modern healthcare teams
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <img src="image.png" alt="MediTrail Logo" class="login-logo" onerror="this.style.display='none'">
+                    <h1>Hospital Staff Portal</h1>
+                    <p>Secure access to patient healthcare records</p>
+                    <div class="security-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Secure staff authentication
+                    </div>
+                </div>
+
+                <form id="admin-login-form" onsubmit="handleEnhancedLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="admin-email">Hospital Email Address</label>
+                        <div class="input-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                </path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <input type="email" id="admin-email" class="form-input" placeholder="doctor@hospital.org"
+                                autocomplete="email">
+                        </div>
+                        <div class="inline-error" id="error-email">Please enter a valid hospital email.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="admin-password">Staff Password</label>
+                        <div class="input-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
+                                <path
+                                    d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4">
+                                </path>
+                            </svg>
+                            <input type="password" id="admin-password" class="form-input"
+                                placeholder="Enter your password" autocomplete="current-password">
+                            <button type="button" class="password-toggle" id="toggle-password"
+                                aria-label="Toggle password visibility">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="inline-error" id="error-password">Password is required.</div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btn-login">
+                        <span class="btn-text">Sign in to MediTrail</span>
+                        <span class="btn-arrow">→</span>
+                        <span class="loading-spinner" id="btn-spinner"></span>
+                    </button>
+                </form>
+
+                <div class="security-footer">
+                    <div class="security-footer-divider"></div>
+                    <div class="security-footer-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        Protected healthcare environment
+                    </div>
+                    <p>Your staff credentials are securely handled and access<br>is restricted to authorized personnel.
+                    </p>
+
+                    <a href="index.html" class="back-link">
+                        <span class="back-arrow">←</span> Return to Patient Main Portal
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- 2. HOSPITAL RBAC DASHBOARD SHELL                                  -->
+    <!-- ================================================================= -->
+    <div id="admin-dashboard-screen" class="admin-dashboard-container">
+        <!-- Navigation Header -->
+        <header class="admin-nav">
+            <div class="admin-nav-brand">
+                <img src="image.png" alt="Logo" style="height: 32px;">
+                <span id="hospital-brand-name">St. Jude Orthopedic Care (Admin)</span>
+            </div>
+
+            <div class="admin-nav-user">
+                <div class="user-tag">
+                    <div class="user-name" id="admin-user-name">Dr. Arthur Vance</div>
+                    <div class="user-role" id="admin-user-role">MANAGER</div>
+                </div>
+                <button class="btn btn-secondary" onclick="logoutAdmin()"
+                    style="padding: 0.4rem 0.85rem; font-size: 0.8rem; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; cursor: pointer;">
+                    Logout Staff Session
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="admin-content">
+
+            <!-- Super Admin Metrics Overview -->
+            <div class="rbac-grid" id="admin-metrics-grid">
+                <div class="metric-card-admin" id="metric-card-1">
+                    <h3 id="metric-title-1">Empanelled Physicians</h3>
+                    <div class="val" id="metric-val-1">12</div>
+                </div>
+                <div class="metric-card-admin" id="metric-card-2">
+                    <h3 id="metric-title-2">Active Patient Access Grants</h3>
+                    <div class="val" id="metric-val-2">142</div>
+                </div>
+                <div class="metric-card-admin" id="metric-card-3">
+                    <h3 id="metric-title-3">Today's Consultations</h3>
+                    <div class="val" id="metric-val-3">28</div>
+                </div>
+                <div class="metric-card-admin" id="metric-card-4">
+                    <h3 id="metric-title-4">Security Audit Status</h3>
+                    <div class="val" id="metric-val-4" style="color: #0d9488; font-size: 1.25rem;">100% Encrypted</div>
+                </div>
+            </div>
+
+            <!-- View Switcher Tabs for Admin vs Doctor -->
+            <div class="admin-tabs-rail">
+                <button id="tab-btn-hospitals" class="btn admin-tab-btn" onclick="switchAdminTab('hospitals')"
+                    style="border-bottom: 3px solid #0d9488; background: none; border-top: none; border-left: none; border-right: none; color: #0f2744; cursor: pointer; font-weight: 600;">
+                    <span class="btn-text-full"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right: 0.25rem; vertical-align: text-bottom;">
+                            <path
+                                d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4M10 9h4M12 7v4">
+                            </path>
+                        </svg> Empanelled Hospitals</span>
+                    <span class="btn-text-mobile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right: 0.15rem; vertical-align: text-bottom;">
+                            <path
+                                d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4M10 9h4M12 7v4">
+                            </path>
+                        </svg> Hospitals</span>
+                </button>
+                <button id="tab-btn-doctors" class="btn admin-tab-btn" onclick="switchAdminTab('doctors')"
+                    style="display: none; border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer; font-weight: 600;">
+                    <span class="btn-text-full"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right: 0.25rem; vertical-align: text-bottom;">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5c-2.2 0-4 1.8-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <polyline points="17 11 19 13 23 9"></polyline>
+                        </svg> Manage Staff & Doctors</span>
+                    <span class="btn-text-mobile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right: 0.15rem; vertical-align: text-bottom;">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5c-2.2 0-4 1.8-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <polyline points="17 11 19 13 23 9"></polyline>
+                        </svg> Staff & Doctors</span>
+                </button>
+                <button id="tab-btn-consult" class="btn admin-tab-btn" onclick="switchAdminTab('consult')"
+                    style="display: none; border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer; font-weight: 600;">
+                    <span class="btn-text-full"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right: 0.25rem; vertical-align: text-bottom;">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg> Doctor Patient Consultation Portal</span>
+                    <span class="btn-text-mobile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right: 0.15rem; vertical-align: text-bottom;">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg> Consultations</span>
+                </button>
+                <button id="tab-btn-audit" class="btn admin-tab-btn" onclick="switchAdminTab('audit')"
+                    style="display: none; border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none; color: #64748b; cursor: pointer; font-weight: 600;">
+                    <span class="btn-text-full"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right: 0.25rem; vertical-align: text-bottom;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg> Security Audit Logs</span>
+                    <span class="btn-text-mobile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right: 0.15rem; vertical-align: text-bottom;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg> Audit Logs</span>
+                </button>
+            </div>
+
+            <!-- Section 0: Super Admin - Manage Hospitals -->
+            <div id="admin-view-hospitals">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h2 style="font-size: 1.2rem; color: #0f2744;">Empanelled Network Hospitals</h2>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button id="btn-open-add-super-admin" class="btn" onclick="openAddSuperAdminModal();"
+                            style="display: none; padding: 0.6rem 1.2rem; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                style="margin-right: 0.25rem;">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg> + Create Manager
+                        </button>
+                        <button id="btn-open-add-hospital" class="btn btn-primary" onclick="openAddHospitalModal();"
+                            style="padding: 0.6rem 1.2rem; background: #0d9488; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            + Onboard New Hospital
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Hospital Name</th>
+                                <th>Hospital Code</th>
+                                <th>City / Location</th>
+                                <th>Associated Doctors / Staff</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hospitals-table-body">
+                            <!-- Populated dynamically by admin.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 1: Super Admin & Hospital Admin - Manage Staff & Doctors -->
+            <div id="admin-view-doctors" style="display: none;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div>
+                        <h2 style="font-size: 1.2rem; color: #0f2744; margin: 0;" id="doctors-section-title">Hospital Staff & Attending Doctors</h2>
+                        <p style="font-size: 0.8rem; color: #64748b; margin: 0.25rem 0 0 0;" id="doctors-section-desc">Manage clinical specialists, attending doctors, and hospital administrators.</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button id="btn-open-add-doctor" class="btn btn-primary" onclick="openAddDoctorModal();"
+                            style="padding: 0.6rem 1.2rem; background: #0d9488; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            + Register New Staff / Doctor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scope / Role Filter Controls (Super Admin & Admin) -->
+                <div id="doctors-filter-row" style="display: flex; gap: 0.75rem; margin-bottom: 1.25rem; align-items: center; flex-wrap: wrap; background: #f8fafc; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                        <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">Hospital:</span>
+                        <select id="filter-doctor-hospital" onchange="renderDoctorsTable()"
+                            style="padding: 0.45rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; color: #0f2744; background: #fff;">
+                            <option value="">All Hospitals</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                        <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">Role:</span>
+                        <select id="filter-doctor-role" onchange="renderDoctorsTable()"
+                            style="padding: 0.45rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; color: #0f2744; background: #fff;">
+                            <option value="">All Roles</option>
+                            <option value="doctor">Attending Doctors</option>
+                            <option value="hospital_admin">Hospital Admins</option>
+                            <option value="super_admin">Platform Managers</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Staff / Doctor Name</th>
+                                <th>Role</th>
+                                <th>Hospital</th>
+                                <th>License ID</th>
+                                <th>Department / Specialty</th>
+                                <th>Email Address</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="doctors-table-body">
+                            <!-- Populated dynamically by admin.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 2: Doctor Patient Consultation & Record Addition -->
+            <div id="admin-view-consult" style="display: none;">
+                <div
+                    style="background: #ffffff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.1rem; color: #0f2744; margin-bottom: 1rem;"><svg width="18" height="18"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-right: 0.25rem; vertical-align: text-bottom;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg> Doctor Patient Search & Record Access</h3>
+                    <div class="admin-search-row" style="display: flex; gap: 0.75rem;">
+                        <input type="text" id="doctor-patient-search"
+                            placeholder="Enter Patient ID (e.g. MT-10482) or Mobile Number (9876543210)"
+                            onkeypress="if(event.key === 'Enter') doctorSearchPatient()"
+                            style="flex: 1; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem;">
+                        <button class="btn btn-primary" onclick="doctorSearchPatient()"
+                            style="padding: 0.75rem 1.5rem; background: #0f2744; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                            Access Patient Records
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dedicated Doctor Patient Access OTP Verification Card -->
+                <div id="doctor-access-otp-card"
+                    style="display: none; background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 1px solid #fed7aa; background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.08);">
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.25rem;">
+                        <div style="background: #fef3c7; color: #d97706; padding: 0.75rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background: #fef3c7; color: #b45309; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid #fde68a;">Patient Consent Required</span>
+                                <span id="access-otp-patient-badge" style="font-size: 0.8rem; font-weight: 600; color: #475569;">Patient: --</span>
+                            </div>
+                            <h2 style="font-size: 1.25rem; color: #0f2744; margin: 0.4rem 0 0.25rem 0; font-weight: 700;">Enter Patient Access OTP</h2>
+                            <p style="font-size: 0.875rem; color: #64748b; margin: 0; line-height: 1.4;">
+                                Clinical records are protected. A dedicated 6-digit access code has been dispatched to the patient at <strong id="access-otp-recipient" style="color: #0f2744;">...</strong>. Please request this code from the patient to unlock medical history.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="background: #ffffff; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 1rem; max-width: 480px;">
+                        <div>
+                            <label for="doctor-access-otp-input" style="display: block; font-size: 0.85rem; font-weight: 600; color: #0f2744; margin-bottom: 0.4rem;">
+                                6-Digit Patient Access Code
+                            </label>
+                            <input type="text" id="doctor-access-otp-input" maxlength="6" placeholder="• • • • • •" autocomplete="one-time-code"
+                                onkeypress="if(event.key === 'Enter') verifyDoctorAccessOtp()"
+                                style="width: 100%; text-align: center; font-size: 1.6rem; letter-spacing: 0.4rem; font-family: monospace; font-weight: 700; padding: 0.65rem; border: 2px solid #cbd5e1; border-radius: 8px; color: #0f2744; transition: border-color 0.2s;"
+                                onfocus="this.style.borderColor='#0d9488'" onblur="this.style.borderColor='#cbd5e1'">
+                        </div>
+
+                        <div id="access-otp-error-msg" style="display: none; padding: 0.6rem 0.8rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; color: #b91c1c; font-size: 0.85rem;"></div>
+
+                        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                            <button class="btn btn-primary" id="btn-verify-access-otp" onclick="verifyDoctorAccessOtp()"
+                                style="flex: 1; padding: 0.75rem 1.25rem; background: #0d9488; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                Verify & Unlock Records
+                            </button>
+                            <button type="button" class="btn" id="btn-resend-access-otp" onclick="resendDoctorAccessOtp()" disabled
+                                style="padding: 0.75rem 1rem; background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; cursor: not-allowed;">
+                                Resend (<span id="access-otp-timer">60s</span>)
+                            </button>
+                            <button type="button" class="btn" onclick="cancelDoctorAccessOtp()"
+                                style="padding: 0.75rem 1rem; background: transparent; color: #64748b; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patient Active Clinical Workspace (Hidden until patient ID or mobile is searched) -->
+                <div id="doctor-patient-card"
+                    style="display: none; background: #ffffff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 2rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <span class="status-pill active">ACTIVE PATIENT ACCESS GRANTED</span>
+                            <h2 style="font-size: 1.35rem; color: #0f2744; margin-top: 0.5rem;" id="doc-pt-name">Patient
+                                Details</h2>
+                            <p style="font-size: 0.85rem; color: #64748b;" id="doc-pt-info">ID: -- • Age: -- • Blood
+                                Group: -- • Phone: --</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openAddRecordModal()"
+                            style="padding: 0.75rem 1.25rem; background: #0d9488; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            + Add New Clinical Event / Prescription
+                        </button>
+                    </div>
+
+                    <h3
+                        style="font-size: 1rem; color: #0f2744; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">
+                        Recent Patient Medical History
+                    </h3>
+
+                    <div id="doc-patient-records-list">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Audit Logs -->
+            <div id="admin-view-audit" style="display: none;">
+                <h2 style="font-size: 1.2rem; color: #0f2744; margin-bottom: 1rem;">Real-time Access Audit Trail</h2>
+                <div class="table-responsive-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Doctor / Physician</th>
+                                <th>Patient ID</th>
+                                <th>Action Performed</th>
+                                <th>IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-table-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Portal Footer -->
+            <footer
+                style="text-align: center; padding: 2rem 1rem; margin-top: 3rem; color: #64748b; font-size: 0.85rem; border-top: 1px solid #e2e8f0;">
+                <p>&copy; 2026 MediTrail Health Technologies. Encrypted Patient Data Infrastructure.</p>
+            </footer>
+
+        </main>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- 2.5 MODAL: ONBOARD NEW HOSPITAL & SETUP ADMIN (SUPER ADMIN ONLY)  -->
+    <!-- ================================================================= -->
+    <div id="modal-add-hospital" class="modal-backdrop"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
+        <div
+            style="background: #ffffff; width: 100%; max-width: 520px; padding: 2rem; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;">
+            <h3 style="font-size: 1.2rem; color: #0f2744; margin-bottom: 0.35rem;">Onboard New Empanelled Hospital
+            </h3>
+            <p style="font-size: 0.825rem; color: #64748b; margin-bottom: 1.25rem;">Onboard hospital and create its Main
+                Admin login credentials in one step.</p>
+
+            <form onsubmit="saveNewHospital(event)">
+                <!-- Section 1: Hospital Details -->
+                <div
+                    style="font-size: 0.75rem; font-weight: 700; color: #0d9488; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.25rem;">
+                    1. Hospital Profile
+                </div>
+
+                <div style="margin-bottom: 0.85rem;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Hospital
+                        Full Name</label>
+                    <input type="text" id="new-hosp-name" required
+                        placeholder="e.g. KJ Somaiya Hospital & Research Centre"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+                    <div style="flex: 1;">
+                        <label
+                            style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Hospital
+                            Code</label>
+                        <input type="text" id="new-hosp-code" required placeholder="e.g. KJS-04"
+                            style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label
+                            style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">City /
+                            Location</label>
+                        <input type="text" id="new-hosp-city" required placeholder="e.g. Mumbai, Maharashtra"
+                            style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    </div>
+                </div>
+
+                <!-- Section 2: Hospital Main Admin Account Setup -->
+                <div
+                    style="font-size: 0.75rem; font-weight: 700; color: #0d9488; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; margin-top: 1.25rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.25rem;">
+                    2. Hospital Main Admin Credentials Setup
+                </div>
+
+                <div style="margin-bottom: 0.85rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Admin
+                        Full Name</label>
+                    <input type="text" id="new-hosp-admin-name" required
+                        placeholder="e.g. Vikram Malhotra (Hospital Admin)"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="margin-bottom: 0.85rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Admin
+                        Login Email</label>
+                    <input type="email" id="new-hosp-admin-email" required placeholder="admin@kjsomaiya.org"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Admin
+                        Password</label>
+                    <input type="password" id="new-hosp-admin-password" required
+                        placeholder="Set password for hospital login"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeAddHospitalModal()"
+                        style="padding: 0.6rem 1rem; border: 1px solid #cbd5e1; background: #fff; border-radius: 6px; cursor: pointer;">Cancel</button>
+                    <button type="submit"
+                        style="padding: 0.6rem 1.2rem; background: #0d9488; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Save
+                        & Onboard Hospital</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- 2.8 MODAL: CREATE NEW PLATFORM SUPER ADMIN (SUPER ADMIN ONLY)    -->
+    <!-- ================================================================= -->
+    <div id="modal-add-super-admin" class="modal-backdrop"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
+        <div
+            style="background: #ffffff; width: 100%; max-width: 480px; padding: 2rem; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
+            <h3 style="font-size: 1.2rem; color: #0f2744; margin-bottom: 0.35rem;">Create Platform Manager</h3>
+            <p style="font-size: 0.825rem; color: #64748b; margin-bottom: 1.25rem;">Managers have full system-wide
+                control across all hospitals and audit logs.</p>
+
+            <form onsubmit="saveNewSuperAdmin(event)">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Manager
+                        Full Name</label>
+                    <input type="text" id="new-super-name" required placeholder="e.g. Dr. Alex Morgan (Manager)"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Login
+                        Email Address</label>
+                    <input type="email" id="new-super-email" required placeholder="manager2@meditrail.org"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Password</label>
+                    <input type="password" id="new-super-password" required placeholder="Set password for manager"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeAddSuperAdminModal()"
+                        style="padding: 0.6rem 1rem; border: 1px solid #cbd5e1; background: #fff; border-radius: 6px; cursor: pointer;">Cancel</button>
+                    <button type="submit"
+                        style="padding: 0.6rem 1.2rem; background: #6366f1; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        Create Manager Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- 3. MODAL: REGISTER NEW DOCTOR (SUPER ADMIN / HOSPITAL ADMIN)      -->
+    <!-- ================================================================= -->
+    <div id="modal-add-doctor" class="modal-backdrop"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
+        <div
+            style="background: #ffffff; width: 100%; max-width: 500px; padding: 2rem; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
+            <h3 style="font-size: 1.2rem; color: #0f2744; margin-bottom: 1rem;">Register New Hospital Specialist</h3>
+            <form onsubmit="saveNewDoctor(event)">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Doctor
+                        Full Name</label>
+                    <input type="text" id="new-doc-name" required placeholder="Dr. Sarah Jenkins"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Medical
+                        License Number</label>
+                    <input type="text" id="new-doc-license" required placeholder="MCI-55201-IN"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Department
+                        / Specialty</label>
+                    <input type="text" id="new-doc-dept" required placeholder="Orthopedics & Sports Medicine"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="margin-bottom: 1rem;" id="container-new-doc-role">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Staff
+                        Account Role</label>
+                    <select id="new-doc-role"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        <option value="doctor">Doctor / Attending Specialist</option>
+                        <option value="hospital_admin">Hospital Admin (Main Admin)</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Hospital
+                        Name</label>
+                    <input type="text" id="new-doc-hospital" list="hospitals-datalist" required
+                        placeholder="e.g. Lilavati Hospital & Research Centre"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <datalist id="hospitals-datalist"></datalist>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Hospital
+                        Email</label>
+                    <input type="email" id="new-doc-email" required placeholder="dr.jenkins@stjude.org"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Password</label>
+                    <input type="password" id="new-doc-password" required placeholder="Set a password for login"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeAddDoctorModal()"
+                        style="padding: 0.6rem 1rem; border: 1px solid #cbd5e1; background: #fff; border-radius: 6px; cursor: pointer;">Cancel</button>
+                    <button type="submit"
+                        style="padding: 0.6rem 1.2rem; background: #0d9488; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Save
+                        Doctor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- 3.5 MODAL: MANAGE ADMINISTRATIVE ROLES & PERMISSIONS (SUPER ADMIN)-->
+    <!-- ================================================================= -->
+    <div id="modal-edit-role" class="modal-backdrop"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
+        <div
+            style="background: #ffffff; width: 100%; max-width: 480px; padding: 2rem; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
+            <h3 style="font-size: 1.2rem; color: #0f2744; margin-bottom: 0.35rem;">Manage Staff Role & Permissions</h3>
+            <p style="font-size: 0.825rem; color: #64748b; margin-bottom: 1.25rem;">Manager privilege: Adjust administrative role, permissions, and platform authority.</p>
+
+            <form onsubmit="saveRoleChange(event)">
+                <input type="hidden" id="edit-role-email">
+                <input type="hidden" id="edit-role-id">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Staff Member</label>
+                    <div id="edit-role-display-name" style="padding: 0.6rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 600; color: #0f2744;">--</div>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Assigned Administrative Role</label>
+                    <select id="edit-role-select" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 500;">
+                        <option value="doctor">Doctor / Attending Specialist (Clinical Patient Records only)</option>
+                        <option value="hospital_admin">Hospital Admin (Manage Hospital Staff & Doctors)</option>
+                        <option value="super_admin">Platform Manager (Full Platform-Wide Access)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeEditRoleModal()"
+                        style="padding: 0.6rem 1rem; border: 1px solid #cbd5e1; background: #fff; border-radius: 6px; cursor: pointer;">Cancel</button>
+                    <button type="submit"
+                        style="padding: 0.6rem 1.2rem; background: #0f2744; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Save Role Permissions</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- 4. MODAL: DOCTOR ADD CLINICAL EVENT / CONSULTATION                -->
+    <!-- ================================================================= -->
+    <div id="modal-add-record" class="modal-backdrop"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
+        <div
+            style="background: #ffffff; width: 100%; max-width: 600px; padding: 2rem; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;">
+            <h3 style="font-size: 1.2rem; color: #0f2744; margin-bottom: 1rem;">Add New Clinical Event for Patient</h3>
+            <form onsubmit="saveDoctorClinicalRecord(event)">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Event
+                        Title</label>
+                    <input type="text" id="rec-add-title" required
+                        placeholder="Post-Op Rehabilitation Consultation & Joint Examination"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="flex: 1;">
+                        <label
+                            style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Category</label>
+                        <select id="rec-add-category"
+                            style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                            <option value="Treatments">Treatments</option>
+                            <option value="Diagnostics">Diagnostics</option>
+                            <option value="Surgeries">Surgeries</option>
+                            <option value="Prescriptions">Prescriptions</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label
+                            style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Status</label>
+                        <select id="rec-add-status"
+                            style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                            <option value="Completed">Completed</option>
+                            <option value="Ongoing">Ongoing</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Diagnosis
+                        & Findings</label>
+                    <textarea id="rec-add-diagnosis" required rows="2"
+                        placeholder="Ligament healing progress evaluated. Minimal residual swelling."
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;"></textarea>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Physician
+                        Clinical Notes</label>
+                    <textarea id="rec-add-notes" required rows="2"
+                        placeholder="Patient advised to continue strengthening exercises."
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;"></textarea>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Prescribed
+                        Medication (Name & Dose)</label>
+                    <input type="text" id="rec-add-med"
+                        placeholder="Ibuprofen 400mg - Take 1 tablet after meals as needed"
+                        style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeAddRecordModal()"
+                        style="padding: 0.6rem 1rem; border: 1px solid #cbd5e1; background: #fff; border-radius: 6px; cursor: pointer;">Cancel</button>
+                    <button type="submit"
+                        style="padding: 0.6rem 1.2rem; background: #0d9488; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Save
+                        Clinical Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/vendor/jspdf.umd.min.js"></script>
+    <script src="js/debug-config.js"></script>
+    <script src="js/dummy_data.js"></script>
+    <script type="module" src="js/services/api.js"></script>
+    <script>
+        document.write('<script src="js/views/admin.js?v=' + Date.now() + '"><\/script>');
+    </script>
+    <noscript>
+        <script src="js/views/admin.js"></script>
+    </noscript>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordInput = document.getElementById('admin-password');
+            const toggleBtn = document.getElementById('toggle-password');
+
+            if (toggleBtn) {
+                const eyeIcon = toggleBtn.querySelector('.eye-icon');
+                toggleBtn.addEventListener('click', () => {
+                    const isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+
+                    toggleBtn.classList.add('animating');
+                    setTimeout(() => toggleBtn.classList.remove('animating'), 200);
+
+                    if (isPassword) {
+                        eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+                    } else {
+                        eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+                    }
+                });
+            }
+        });
+
+        async function handleEnhancedLogin(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('admin-email');
+            const pass = document.getElementById('admin-password');
+            const errEmail = document.getElementById('error-email');
+            const errPass = document.getElementById('error-password');
+            const btnLogin = document.getElementById('btn-login');
+            const btnText = btnLogin.querySelector('.btn-text');
+            const btnArrow = btnLogin.querySelector('.btn-arrow');
+            const spinner = document.getElementById('btn-spinner');
+
+            errEmail.style.display = 'none';
+            errPass.style.display = 'none';
+
+            let isValid = true;
+
+            if (!email.value || !email.value.includes('@')) {
+                errEmail.style.display = 'block';
+                isValid = false;
+            }
+            if (!pass.value) {
+                errPass.style.display = 'block';
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            btnLogin.disabled = true;
+            btnText.textContent = 'Authenticating...';
+            btnArrow.style.display = 'none';
+            spinner.style.display = 'block';
+
+            if (typeof handleAdminLogin === 'function') {
+                try {
+                    await handleAdminLogin(e);
+                } catch (err) {
+                    console.error(err);
+                }
+
+                setTimeout(() => {
+                    const authScreen = document.getElementById('admin-auth-screen');
+                    if (authScreen && authScreen.style.display !== 'none') {
+                        btnLogin.disabled = false;
+                        btnText.textContent = 'Sign in to MediTrail';
+                        btnArrow.style.display = 'inline';
+                        spinner.style.display = 'none';
+                    }
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+
+</html>

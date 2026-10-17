@@ -23,3 +23,18 @@ Desktop.ini
 # Logs and scratch files
 *.log
 scratch/
+
+# Environment secrets and credentials
+.env
+.env.*
+!.env.example
+*env*.pdf
+*.pem
+*.key
+*.cert
+
+# Local database files
+*.db
+*.mv.db
+*.trace.db
+*.lock.db

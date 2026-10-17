@@ -1,0 +1,50 @@
+# ==============================================================================
+# .dockerignore for MediTrail Production Docker Build
+# Excludes local secrets, git history, caches, and test artifacts
+# ==============================================================================
+
+# Environment files and credentials (CRITICAL: Never bake secrets into image)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Git directory
+.git
+.gitignore
+
+# Python virtual environment, caches, and tooling
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+
+# Local databases and runtime state
+backend/java-server/data/
+*.mv.db
+*.trace.db
+*.lock.db
+
+# Scanner and test outputs
+scanner/*.json
+backend/scanner/*.json
+output.json
+deep_output.json
+*.log
+scratch/
+test-results/
+playwright-report/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
