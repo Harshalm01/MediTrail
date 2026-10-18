@@ -175,9 +175,32 @@ export function updateUiPatientProfile() {
 }
 
 /**
+ * Helper to check if current logged-in patient is one of the two designated demo accounts.
+ */
+function isCurrentPatientDemo() {
+    if (typeof sessionStorage === 'undefined') return false;
+    try {
+        const ptSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
+        if (!ptSession) return false;
+        const pt = JSON.parse(ptSession);
+        const ptCode = pt ? (pt.patient_code || pt.patientCode || pt.id || '') : '';
+        const phone = (pt.phone || '').replace(/[^0-9]/g, '');
+        return ptCode === 'MT-26926' || ptCode === 'MT-50298'
+            || phone.endsWith('9820480534') || phone.endsWith('9324476116');
+    } catch (e) {
+        return false;
+    }
+}
+
+/**
  * Retrieves all chronological medical records.
  */
 export function getMedicalRecords() {
+    if (!window.MEDITRAIL_DATA) return [];
+    if (!isCurrentPatientDemo()) {
+        // Authenticated real patients MUST NEVER receive mock/dummy records
+        return window.MEDITRAIL_DATA.timelineRecords || [];
+    }
     return window.MEDITRAIL_DATA.timelineRecords || window.MEDITRAIL_DATA.medicalRecords || [];
 }
 
@@ -193,6 +216,10 @@ export function getRecordById(recordId) {
  * Retrieves active medications.
  */
 export function getActiveMedications() {
+    if (!window.MEDITRAIL_DATA) return [];
+    if (!isCurrentPatientDemo()) {
+        return window.MEDITRAIL_DATA.activeMedications || [];
+    }
     return window.MEDITRAIL_DATA.activeMedications || [];
 }
 
@@ -200,6 +227,10 @@ export function getActiveMedications() {
  * Retrieves recent diagnostic reports.
  */
 export function getRecentReports() {
+    if (!window.MEDITRAIL_DATA) return [];
+    if (!isCurrentPatientDemo()) {
+        return window.MEDITRAIL_DATA.recentReports || [];
+    }
     return window.MEDITRAIL_DATA.recentReports || [];
 }
 
@@ -207,6 +238,10 @@ export function getRecentReports() {
  * Retrieves list of authorized doctors with access permissions.
  */
 export function getSharedAccessList() {
+    if (!window.MEDITRAIL_DATA) return [];
+    if (!isCurrentPatientDemo()) {
+        return window.MEDITRAIL_DATA.sharedAccess || [];
+    }
     return window.MEDITRAIL_DATA.sharedAccess || [];
 }
 
@@ -214,15 +249,19 @@ export function getSharedAccessList() {
  * Syncs derived medications, lab reports, and shared doctor lists from timeline records
  */
 export function syncDerivedPatientLists() {
+    if (!window.MEDITRAIL_DATA) return;
     const records = getMedicalRecords();
-    
-    const ptSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
-    const pt = ptSession ? JSON.parse(ptSession) : null;
-    const ptCode = pt ? (pt.patient_code || pt.id) : null;
-    const isDemoUser = ptCode === 'MT-26926' || ptCode === 'MT-50298';
+    const isDemo = isCurrentPatientDemo();
+
+    if (!isDemo && records.length === 0) {
+        window.MEDITRAIL_DATA.activeMedications = [];
+        window.MEDITRAIL_DATA.recentReports = [];
+        window.MEDITRAIL_DATA.sharedAccess = [];
+        return;
+    }
 
     // Preserve rich hardcoded data for demo accounts if they are using the default mock records
-    if (records === window.MEDITRAIL_DATA.medicalRecords || records.length === 0) {
+    if (isDemo && (records === window.MEDITRAIL_DATA.medicalRecords || records.length === 0)) {
         return;
     }
 

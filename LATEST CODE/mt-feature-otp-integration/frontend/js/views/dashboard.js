@@ -30,32 +30,35 @@ export function getPatientStatItems() {
     const records = getMedicalRecords();
     const medications = getActiveMedications();
 
+    const recCount = records ? records.length : 0;
+    const medCount = medications ? medications.length : 0;
+
     return [
         {
             id: 'records',
             label: 'TOTAL RECORDS',
-            value: records ? records.length : 10,
-            sub: 'Logged across 4 yrs',
+            value: recCount,
+            sub: recCount > 0 ? (recCount === 1 ? '1 record logged' : `${recCount} records logged`) : 'No records yet',
             icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="16" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`
         },
         {
             id: 'medications',
             label: 'ACTIVE MEDICATIONS',
-            value: medications ? medications.length : 2,
-            sub: 'Current prescriptions',
+            value: medCount,
+            sub: medCount > 0 ? (medCount === 1 ? '1 active prescription' : `${medCount} prescriptions`) : 'No active prescriptions',
             icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>`
         },
         {
             id: 'hospitals',
             label: 'HOSPITALS VISITED',
-            value: (patient && patient.stats) ? patient.stats.hospitalsVisited : 4,
+            value: (patient && patient.stats) ? patient.stats.hospitalsVisited : 0,
             sub: 'Specialty facilities',
             icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 9V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5"></path><rect x="6" y="14" width="12" height="8"></rect><line x1="10" y1="6" x2="14" y2="6"></line><line x1="12" y1="4" x2="12" y2="8"></line></svg>`
         },
         {
             id: 'shared-doctors',
             label: 'SHARED DOCTORS',
-            value: (patient && patient.stats) ? patient.stats.sharedDoctors : 2,
+            value: (patient && patient.stats) ? patient.stats.sharedDoctors : 0,
             sub: 'Granted access',
             icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`
         }

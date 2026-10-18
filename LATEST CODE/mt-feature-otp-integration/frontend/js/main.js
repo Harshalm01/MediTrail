@@ -32,6 +32,7 @@ import {
 
 import { initLandingScrollExperience } from './views/landing.js';
 import { closeProfileModal } from './views/emergency.js';
+import { updateUiPatientProfile, syncDerivedPatientLists } from './services/data.js';
 
 /**
  * Initializes MediTrail core event handlers and visual presentation.
@@ -68,100 +69,112 @@ function initApp() {
         const appShell = document.getElementById('view-app-shell');
         if (appShell) appShell.classList.add('active');
 
-        // Apply dynamic logged in patient profile & record isolation
-        import(`./services/data.js?v=${Date.now()}`).then(async (dataMod) => {
-            if (dataMod.updateUiPatientProfile) dataMod.updateUiPatientProfile();
+        // Immediately isolate patient data synchronously before ANY tab or view can render
+        const ptSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
+        const pt = ptSession ? JSON.parse(ptSession) : null;
+        const ptCode = pt ? (pt.patient_code || pt.patientCode || pt.id) : null;
+        const phone = pt && pt.phone ? pt.phone.replace(/[^0-9]/g, '') : '';
+        const isDemo = ptCode === 'MT-26926' || ptCode === 'MT-50298'
+            || phone.endsWith('9820480534') || phone.endsWith('9324476116');
 
-            const ptSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
-            const pt = ptSession ? JSON.parse(ptSession) : null;
-            const ptCode = pt ? (pt.patient_code || pt.id) : null;
+        if (ptCode && !isDemo && window.MEDITRAIL_DATA) {
+            // Instantly clear pre-filled mock records for real patients so mock data never leaks
+            window.MEDITRAIL_DATA.timelineRecords = [];
+            window.MEDITRAIL_DATA.medicalRecords = [];
+            window.MEDITRAIL_DATA.activeMedications = [];
+            window.MEDITRAIL_DATA.recentReports = [];
+            window.MEDITRAIL_DATA.sharedAccess = [];
 
-            if (ptCode && ptCode !== 'MT-26926' && ptCode !== 'MT-50298') {
-                // Clear pre-filled mock records for new/other patients
-                window.MEDITRAIL_DATA.timelineRecords = [];
-                window.MEDITRAIL_DATA.activeMedications = [];
-                window.MEDITRAIL_DATA.recentReports = [];
-                window.MEDITRAIL_DATA.sharedAccess = [];
-            }
-
-            // Load local records if saved
-            if (ptCode) {
-                const localSaved = localStorage.getItem(`MEDITRAIL_RECORDS_${ptCode}`);
-                if (localSaved) {
-                    try {
-                        const parsed = JSON.parse(localSaved);
-                        if (Array.isArray(parsed) && parsed.length > 0) {
-                            window.MEDITRAIL_DATA.timelineRecords = parsed;
-                        }
-                    } catch (e) {}
-                }
-            }
-
-            // Sync live records from Java Backend REST API
-            if (window.MediTrailAPI && window.MediTrailAPI.getMedicalRecords && ptCode) {
+            // Load locally-cached records if saved
+            const localSaved = localStorage.getItem(`MEDITRAIL_RECORDS_${ptCode}`);
+            if (localSaved) {
                 try {
-                    const apiRecords = await window.MediTrailAPI.getMedicalRecords(ptCode);
-                    if (Array.isArray(apiRecords) && apiRecords.length > 0) {
-                        window.MEDITRAIL_DATA.timelineRecords = apiRecords;
-                        console.log(`[MediTrail] Portal synced live records for ${ptCode} from Java Backend!`);
+                    const parsed = JSON.parse(localSaved);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        window.MEDITRAIL_DATA.timelineRecords = parsed;
                     }
-                } catch (apiErr) {
-                    console.warn('Java API auto-sync notice:', apiErr.message);
-                }
+                } catch (e) {}
             }
+        }
 
-            // Sync live insurance policy documents from Java Backend REST API / Cloudflare R2
-            if (window.MediTrailAPI && window.MediTrailAPI.getInsurancePolicies && ptCode) {
-                try {
-                    const policiesRes = await window.MediTrailAPI.getInsurancePolicies(ptCode);
-                    const policiesList = Array.isArray(policiesRes)
-                        ? policiesRes
-                        : (policiesRes && policiesRes.success && Array.isArray(policiesRes.policies) ? policiesRes.policies : []);
-                    if (policiesList.length > 0) {
-                        const mappedPolicies = policiesList.map(p => ({
-                            id: p.id,
-                            provider: p.providerName || p.provider || '',
-                            fileName: p.originalFilename || p.fileName || '',
-                            fileSize: p.fileSize || 0,
-                            policyNumber: p.policyNumber || '',
-                            validUntil: p.validUntil ? p.validUntil.slice(0, 4) : ''
-                        }));
-                        const primary = mappedPolicies[0];
-                        const val = primary.validUntil;
-
-                        if (window.MEDITRAIL_DATA.patient) {
-                            window.MEDITRAIL_DATA.patient.policies = mappedPolicies;
-                            window.MEDITRAIL_DATA.patient.insurance = {
-                                id: primary.id,
-                                provider: primary.provider || (primary.fileName ? primary.fileName.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ') : 'Active Insurance'),
-                                fileName: primary.fileName,
-                                fileSize: primary.fileSize,
-                                policyNumber: primary.policyNumber,
-                                validUntil: val && val.length === 4 ? `${val}-12-31` : val
-                            };
-                        }
-
-                        const savedSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
-                        let sessionObj = savedSession ? JSON.parse(savedSession) : {};
-                        sessionObj.policies = mappedPolicies;
-                        sessionObj.insurance = window.MEDITRAIL_DATA.patient ? window.MEDITRAIL_DATA.patient.insurance : null;
-                        sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(sessionObj));
-                        localStorage.setItem(`MEDITRAIL_PATIENT_PROFILE_${ptCode}`, JSON.stringify(sessionObj));
-                        console.log(`[MediTrail] Portal synced ${mappedPolicies.length} live policy document(s) for ${ptCode}!`);
-                    }
-                } catch (polErr) {
-                    console.warn('Java API policy auto-sync notice:', polErr.message);
-                }
-            }
-
-            if (dataMod.syncDerivedPatientLists) dataMod.syncDerivedPatientLists();
-            renderDashboard();
-        }).catch(err => console.warn('Profile UI update:', err));
+        updateUiPatientProfile();
+        syncDerivedPatientLists();
 
         // Support direct linking via hash (e.g. portal.html#timeline)
         const hashTab = window.location.hash.replace('#', '');
         const validTabs = ['dashboard', 'timeline', 'medications', 'shared-access', 'emergency-info'];
         selectTab(validTabs.includes(hashTab) ? hashTab : 'dashboard');
+
+        // Asynchronously sync live records and policies from Java Backend REST API
+        if (ptCode) {
+            (async () => {
+                let stateUpdated = false;
+
+                // 1. Sync live medical records
+                if (window.MediTrailAPI && window.MediTrailAPI.getMedicalRecords) {
+                    try {
+                        const apiRecords = await window.MediTrailAPI.getMedicalRecords(ptCode);
+                        if (Array.isArray(apiRecords)) {
+                            window.MEDITRAIL_DATA.timelineRecords = apiRecords;
+                            stateUpdated = true;
+                            console.log(`[MediTrail] Portal synced live records for ${ptCode} from Java Backend!`);
+                        }
+                    } catch (apiErr) {
+                        console.warn('Java API auto-sync notice:', apiErr.message);
+                    }
+                }
+
+                // 2. Sync live insurance policies
+                if (window.MediTrailAPI && window.MediTrailAPI.getInsurancePolicies) {
+                    try {
+                        const policiesRes = await window.MediTrailAPI.getInsurancePolicies(ptCode);
+                        const policiesList = Array.isArray(policiesRes)
+                            ? policiesRes
+                            : (policiesRes && policiesRes.success && Array.isArray(policiesRes.policies) ? policiesRes.policies : []);
+                        if (policiesList.length > 0) {
+                            const mappedPolicies = policiesList.map(p => ({
+                                id: p.id,
+                                provider: p.providerName || p.provider || '',
+                                fileName: p.originalFilename || p.fileName || '',
+                                fileSize: p.fileSize || 0,
+                                policyNumber: p.policyNumber || '',
+                                validUntil: p.validUntil ? p.validUntil.slice(0, 4) : ''
+                            }));
+                            const primary = mappedPolicies[0];
+                            const val = primary.validUntil;
+
+                            if (window.MEDITRAIL_DATA.patient) {
+                                window.MEDITRAIL_DATA.patient.policies = mappedPolicies;
+                                window.MEDITRAIL_DATA.patient.insurance = {
+                                    id: primary.id,
+                                    provider: primary.provider || (primary.fileName ? primary.fileName.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ') : 'Active Insurance'),
+                                    fileName: primary.fileName,
+                                    fileSize: primary.fileSize,
+                                    policyNumber: primary.policyNumber,
+                                    validUntil: val && val.length === 4 ? `${val}-12-31` : val
+                                };
+                            }
+
+                            const savedSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
+                            let sessionObj = savedSession ? JSON.parse(savedSession) : {};
+                            sessionObj.policies = mappedPolicies;
+                            sessionObj.insurance = window.MEDITRAIL_DATA.patient ? window.MEDITRAIL_DATA.patient.insurance : null;
+                            sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(sessionObj));
+                            localStorage.setItem(`MEDITRAIL_PATIENT_PROFILE_${ptCode}`, JSON.stringify(sessionObj));
+                            stateUpdated = true;
+                            console.log(`[MediTrail] Portal synced ${mappedPolicies.length} live policy document(s) for ${ptCode}!`);
+                        }
+                    } catch (polErr) {
+                        console.warn('Java API policy auto-sync notice:', polErr.message);
+                    }
+                }
+
+                if (stateUpdated) {
+                    syncDerivedPatientLists();
+                    renderDashboard();
+                }
+            })();
+        }
     }
 
     // Auto-rotate patient summary stat carousel; pause when user hovers

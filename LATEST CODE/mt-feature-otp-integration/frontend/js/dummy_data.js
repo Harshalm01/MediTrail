@@ -687,3 +687,26 @@ window.MEDITRAIL_DATA_RAW = {
 
 // Export to window object for access across vanilla JS scripts
 window.MEDITRAIL_DATA = MEDITRAIL_DATA;
+
+// Immediately enforce strict patient data isolation at startup if authenticated
+if (typeof sessionStorage !== 'undefined') {
+    try {
+        const ptSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
+        if (ptSession) {
+            const pt = JSON.parse(ptSession);
+            const ptCode = pt ? (pt.patient_code || pt.patientCode || pt.id || '') : '';
+            const phone = (pt.phone || '').replace(/[^0-9]/g, '');
+            const isDemo = ptCode === 'MT-26926' || ptCode === 'MT-50298'
+                || phone.endsWith('9820480534') || phone.endsWith('9324476116');
+
+            if (!isDemo) {
+                // Instantly wipe all dummy lists at startup so dummy data NEVER leaks into DOM!
+                window.MEDITRAIL_DATA.timelineRecords = [];
+                window.MEDITRAIL_DATA.medicalRecords = [];
+                window.MEDITRAIL_DATA.activeMedications = [];
+                window.MEDITRAIL_DATA.recentReports = [];
+                window.MEDITRAIL_DATA.sharedAccess = [];
+            }
+        }
+    } catch (e) {}
+}
