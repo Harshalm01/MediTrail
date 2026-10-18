@@ -91,18 +91,15 @@
 
         <div class="auth-login-container">
             <div class="login-card">
+                <div class="login-card-top">
+                    <a href="index.html" class="back-link">
+                        <span class="back-arrow">←</span> Return to landing page
+                    </a>
+                </div>
+
                 <div class="login-header">
                     <img src="image.png" alt="MediTrail Logo" class="login-logo" onerror="this.style.display='none'">
                     <h1>Hospital Staff Portal</h1>
-                    <p>Secure access to patient healthcare records</p>
-                    <div class="security-badge">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        Secure staff authentication
-                    </div>
                 </div>
 
                 <form id="admin-login-form" onsubmit="handleEnhancedLogin(event)">
@@ -150,22 +147,6 @@
                         <span class="loading-spinner" id="btn-spinner"></span>
                     </button>
                 </form>
-
-                <div class="security-footer">
-                    <div class="security-footer-divider"></div>
-                    <div class="security-footer-title">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        </svg>
-                        Protected healthcare environment
-                    </div>
-                    <p>Your staff credentials are securely handled and access<br>is restricted to authorized personnel.
-                    </p>
-
-                    <a href="index.html" class="back-link">
-                        <span class="back-arrow">←</span> Return to Patient Main Portal
-                    </a>
-                </div>
             </div>
         </div>
     </div>
