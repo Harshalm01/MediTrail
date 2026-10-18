@@ -51,8 +51,8 @@ USER meditrail
 ENV HOST=0.0.0.0 \
     PORT=8080 \
     ENV=production \
-    DB_TYPE=postgres \
-    SEED_DEMO_DATA=false
+    DB_TYPE=h2 \
+    SEED_DEMO_DATA=true
 
 # Expose Render default port
 EXPOSE 8080
