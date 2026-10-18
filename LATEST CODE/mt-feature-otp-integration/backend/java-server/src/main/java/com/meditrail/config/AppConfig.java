@@ -36,6 +36,10 @@ public class AppConfig {
     private final String brevoSenderName;
     private final String demoPatientEmail;
 
+    // Platform Super Admin Credentials
+    private final String adminEmail;
+    private final String adminPassword;
+
     public AppConfig() {
         // Load key-value pairs from .env in project root if present
         loadDotEnvFile();
@@ -201,6 +205,12 @@ public class AppConfig {
         String senderName = getEnvOrDotEnv("BREVO_SENDER_NAME");
         this.brevoSenderName = (senderName != null && !senderName.trim().isEmpty()) ? senderName.trim() : "MediTrail";
         this.demoPatientEmail = getEnvOrDotEnv("DEMO_PATIENT_EMAIL");
+
+        // Platform Super Admin Credentials (defaults to superadmin@gmail.com / admin123)
+        String aEmail = getEnvOrDotEnv("ADMIN_EMAIL");
+        this.adminEmail = (aEmail != null && !aEmail.trim().isEmpty()) ? aEmail.trim() : "superadmin@gmail.com";
+        String aPass = getEnvOrDotEnv("ADMIN_PASSWORD");
+        this.adminPassword = (aPass != null && !aPass.trim().isEmpty()) ? aPass.trim() : "admin123";
     }
 
     private final java.util.Map<String, String> dotEnvProps = new java.util.HashMap<>();
@@ -289,6 +299,14 @@ public class AppConfig {
     public boolean isBrevoConfigured() {
         return brevoApiKey != null && !brevoApiKey.trim().isEmpty()
                 && brevoSenderEmail != null && !brevoSenderEmail.trim().isEmpty();
+    }
+
+    public String getAdminEmail() {
+        return adminEmail;
+    }
+
+    public String getAdminPassword() {
+        return adminPassword;
     }
 
     public boolean isOriginAllowed(String origin) {

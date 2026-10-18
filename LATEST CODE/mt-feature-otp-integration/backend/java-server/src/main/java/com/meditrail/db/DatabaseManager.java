@@ -246,15 +246,12 @@ public class DatabaseManager {
             }
         }
 
-        // 4. Seed development accounts idempotently for local development only
-        if (config.isSeedDemoData() && !config.isProduction()) {
-            try {
-                // 1. Platform Manager
-                ensureDevStaffAccount(conn, "usr-super-admin-dev", "Platform Manager", "superadmin@gmail.com",
-                        "super_admin", "hosp-1", "MediTrail Platform", "Platform Administration", "SA-00100-IN", "admin123");
-            } catch (SQLException e) {
-                LOGGER.warning("Dev accounts migration check note: " + e.getMessage());
-            }
+        // 4. Ensure Platform Manager / Super Admin account is always provisioned
+        try {
+            ensureDevStaffAccount(conn, "usr-super-admin-root", "Platform Manager", config.getAdminEmail(),
+                    "super_admin", null, "MediTrail Platform", "Platform Administration", "SA-00100-IN", config.getAdminPassword());
+        } catch (SQLException e) {
+            LOGGER.warning("Platform manager account initialization note: " + e.getMessage());
         }
     }
 
