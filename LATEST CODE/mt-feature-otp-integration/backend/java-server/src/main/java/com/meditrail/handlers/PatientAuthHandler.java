@@ -23,6 +23,9 @@ public class PatientAuthHandler extends BaseHandler {
 
     private static final Logger LOGGER = Logger.getLogger(PatientAuthHandler.class.getName());
 
+    private static final java.util.regex.Pattern EMAIL_PATTERN = 
+        java.util.regex.Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+
     private final PatientRepository patientRepository;
     private final AuthService authService;
     private final com.meditrail.db.DatabaseManager dbManager;
@@ -81,8 +84,8 @@ public class PatientAuthHandler extends BaseHandler {
         JSONObject req = parseJsonBody(exchange);
         String email = req.optString("email", "").trim();
 
-        if (email.isEmpty() || !email.contains("@") || !email.contains(".")) {
-            sendError(exchange, 400, "A valid email address is required.");
+        if (email.isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
+            sendError(exchange, 400, "A valid email address is required (e.g. name@domain.com).");
             return;
         }
 
@@ -245,8 +248,8 @@ public class PatientAuthHandler extends BaseHandler {
             return;
         }
 
-        if (!email.contains("@") || !email.contains(".")) {
-            sendError(exchange, 400, "Please provide a valid email address.");
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            sendError(exchange, 400, "Please provide a valid email address (e.g. name@domain.com).");
             return;
         }
 

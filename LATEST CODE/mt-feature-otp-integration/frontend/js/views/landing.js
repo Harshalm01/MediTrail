@@ -172,6 +172,7 @@ export function showCustomAlert(title, message, isSuccess, callback) {
 }
 
 let isRegisteringPatient = false;
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // Prevent accidental window close or back navigation while registration is actively processing
 if (typeof window !== 'undefined') {
@@ -258,8 +259,8 @@ export async function handlePatientRequestOtp(e) {
     const emailInput = document.getElementById('pt-auth-email');
     const email = emailInput ? emailInput.value.trim() : '';
 
-    if (!email || !email.includes('@') || !email.includes('.')) {
-        return showCustomAlert('Invalid Email', 'Please enter a valid registered email address.', false);
+    if (!email || !EMAIL_REGEX.test(email)) {
+        return showCustomAlert('Invalid Email', 'Please enter a valid email address (e.g. name@domain.com).', false);
     }
 
     const btnRequest = document.getElementById('btn-request-otp');
@@ -426,8 +427,8 @@ export async function handlePatientRegisterSubmit(e) {
         return showCustomAlert('Incomplete Form', 'Please fill in all required fields including your email address.', false);
     }
 
-    if (!email.includes('@') || !email.includes('.')) {
-        return showCustomAlert('Invalid Email', 'Please provide a valid email address for receiving verification codes.', false);
+    if (!email || !EMAIL_REGEX.test(email)) {
+        return showCustomAlert('Invalid Email', 'Please provide a valid email address for receiving verification codes (e.g. name@domain.com).', false);
     }
 
     // Lock registration interface to prevent multiple clicks, navigating back, or switching tabs
