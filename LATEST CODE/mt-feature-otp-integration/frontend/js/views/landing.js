@@ -353,10 +353,32 @@ export async function handlePatientResendOtp(e) {
 }
 
 /**
+ * Master signin form submit handler that delegates to Step 1 (Request OTP) or Step 2 (Verify OTP)
+ * depending on which step is currently active.
+ */
+export async function handlePatientSigninFormSubmit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const stepOtp = document.getElementById('pt-signin-step-otp');
+    const isOtpStepVisible = stepOtp && stepOtp.style.display !== 'none';
+    if (isOtpStepVisible) {
+        return handlePatientVerifyOtpSubmit(e);
+    } else {
+        return handlePatientRequestOtp(e);
+    }
+}
+
+/**
  * Step 2: Verifies the real 6-digit OTP code against the backend database.
  */
 export async function handlePatientVerifyOtpSubmit(e) {
     if (e && e.preventDefault) e.preventDefault();
+
+    // Guard: If the OTP entry step is not yet visible, delegate to Step 1 (Request OTP)
+    const stepOtp = document.getElementById('pt-signin-step-otp');
+    if (!stepOtp || stepOtp.style.display === 'none') {
+        return handlePatientRequestOtp(e);
+    }
+
     const emailInput = document.getElementById('pt-auth-email');
     const otpInput = document.getElementById('pt-auth-otp');
 
@@ -635,6 +657,7 @@ if (typeof window !== 'undefined') {
     window.scrollLandingToSection = scrollLandingToSection;
     window.updateActiveLandingDot = updateActiveLandingDot;
     window.openPatientAuthModal = openPatientAuthModal;
+    window._openPatientAuthModalReal = openPatientAuthModal;
     window.closePatientAuthModal = closePatientAuthModal;
     window.updateLandingAuthUI = updateLandingAuthUI;
     window.showCustomAlert = showCustomAlert;
@@ -642,8 +665,14 @@ if (typeof window !== 'undefined') {
     window.handlePatientRequestOtp = handlePatientRequestOtp;
     window.handlePatientResendOtp = handlePatientResendOtp;
     window.handlePatientVerifyOtpSubmit = handlePatientVerifyOtpSubmit;
+    window.handlePatientSigninFormSubmit = handlePatientSigninFormSubmit;
     window.backToEmailStep = backToEmailStep;
     window.handlePatientRegisterSubmit = handlePatientRegisterSubmit;
+
+    if (window._queuedOpenAuthModal) {
+        window._queuedOpenAuthModal = false;
+        openPatientAuthModal();
+    }
 
     if (window.location.search && window.location.search.includes('auth=required')) {
         window.addEventListener('load', () => {

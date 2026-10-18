@@ -15,6 +15,13 @@
         const __BUILD_V = Date.now();
         document.write('<link rel="stylesheet" href="css/style.css?v=' + __BUILD_V + '">');
         document.write('<link rel="stylesheet" href="css/components.css?v=' + __BUILD_V + '">');
+        window.openPatientAuthModal = function() {
+            if (window._openPatientAuthModalReal) {
+                window._openPatientAuthModalReal();
+            } else {
+                window._queuedOpenAuthModal = true;
+            }
+        };
     </script>
     <noscript>
         <link rel="stylesheet" href="css/style.css">
@@ -655,7 +662,7 @@
                 </div>
 
                 <!-- 1. SIGN IN FORM (2-Step Real Email OTP) -->
-                <form id="patient-signin-form" class="pt-form-animate" onsubmit="handlePatientVerifyOtpSubmit(event)">
+                <form id="patient-signin-form" class="pt-form-animate" onsubmit="handlePatientSigninFormSubmit(event)">
                     <!-- Step 1: Email Address Entry -->
                     <div id="pt-signin-step-email">
                         <div style="margin-bottom: 1.5rem;">
