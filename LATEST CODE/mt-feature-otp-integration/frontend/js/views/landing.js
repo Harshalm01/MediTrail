@@ -112,6 +112,9 @@ export function initLandingScrollExperience() {
         // Fallback: immediately activate all sections if IntersectionObserver is not supported
         snapSections.forEach(section => section.classList.add('active'));
     }
+
+    // Refresh landing action buttons to reflect logged in session if active
+    updateLandingAuthUI();
 }
 
 /**
@@ -538,6 +541,22 @@ export async function handlePatientRegisterSubmit(e) {
  * Patient Authentication Modal Controllers
  */
 export function openPatientAuthModal() {
+    // If patient is already authenticated in session, bypass login and redirect directly to patient portal
+    if (typeof sessionStorage !== 'undefined') {
+        const isPatientLoggedIn = sessionStorage.getItem('MEDITRAIL_PATIENT_LOGGED_IN') === 'true'
+            || !!sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
+        if (isPatientLoggedIn) {
+            window.location.href = 'portal.html';
+            return;
+        }
+
+        // If logged in as hospital staff, redirect to staff dashboard
+        if (sessionStorage.getItem('MEDITRAIL_ADMIN_USER')) {
+            window.location.href = 'admin.html';
+            return;
+        }
+    }
+
     const modal = document.getElementById('patient-auth-modal');
     if (modal) {
         modal.style.display = 'flex';
@@ -559,12 +578,65 @@ export function closePatientAuthModal() {
     }
 }
 
+/**
+ * Updates landing page CTAs dynamically if the user is already authenticated.
+ */
+export function updateLandingAuthUI() {
+    if (typeof sessionStorage === 'undefined') return;
+
+    const isPatientLoggedIn = sessionStorage.getItem('MEDITRAIL_PATIENT_LOGGED_IN') === 'true'
+        || !!sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
+
+    if (isPatientLoggedIn) {
+        let ptName = '';
+        try {
+            const pt = JSON.parse(sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT') || '{}');
+            if (pt.name) {
+                ptName = pt.name.split(' ')[0];
+            }
+        } catch (e) {}
+
+        const ctaBtn = document.querySelector('.landing-floating-cta');
+        if (ctaBtn) {
+            const fullText = ctaBtn.querySelector('.btn-text-full');
+            const mobileText = ctaBtn.querySelector('.btn-text-mobile');
+            const xsText = ctaBtn.querySelector('.btn-text-xs');
+            if (fullText) fullText.textContent = ptName ? `Open Portal (${ptName}) →` : 'Open Patient Portal →';
+            if (mobileText) mobileText.textContent = ptName ? `Portal (${ptName})` : 'Patient Portal';
+            if (xsText) xsText.textContent = 'Portal';
+            ctaBtn.title = ptName ? `Return to Patient Portal for ${ptName}` : 'Return to Patient Portal';
+        }
+
+        document.querySelectorAll('button[onclick*="openPatientAuthModal"]').forEach(btn => {
+            if (btn.classList.contains('btn-navy')) {
+                const span = btn.querySelector('span');
+                if (span) span.textContent = 'Go to My Patient Portal';
+            }
+        });
+    } else if (sessionStorage.getItem('MEDITRAIL_ADMIN_USER')) {
+        let staffName = '';
+        try {
+            const admin = JSON.parse(sessionStorage.getItem('MEDITRAIL_ADMIN_USER') || '{}');
+            if (admin.name) staffName = admin.name.split(' ')[0];
+        } catch (e) {}
+
+        const hospBtn = document.querySelector('.nav-hosp-btn');
+        if (hospBtn) {
+            const fullText = hospBtn.querySelector('.btn-text-full');
+            const mobileText = hospBtn.querySelector('.btn-text-mobile');
+            if (fullText) fullText.textContent = staffName ? `Hospital Portal (${staffName}) →` : 'Hospital Portal →';
+            if (mobileText) mobileText.textContent = staffName ? `Portal (${staffName})` : 'Hospital Portal';
+        }
+    }
+}
+
 // Attach window bridges for backward-compatibility with inline HTML event callers
 if (typeof window !== 'undefined') {
     window.scrollLandingToSection = scrollLandingToSection;
     window.updateActiveLandingDot = updateActiveLandingDot;
     window.openPatientAuthModal = openPatientAuthModal;
     window.closePatientAuthModal = closePatientAuthModal;
+    window.updateLandingAuthUI = updateLandingAuthUI;
     window.showCustomAlert = showCustomAlert;
     window.switchPatientAuthMode = switchPatientAuthMode;
     window.handlePatientRequestOtp = handlePatientRequestOtp;
@@ -577,6 +649,13 @@ if (typeof window !== 'undefined') {
         window.addEventListener('load', () => {
             openPatientAuthModal();
         });
+    }
+
+    // Run dynamic auth check as soon as landing script executes
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateLandingAuthUI);
+    } else {
+        updateLandingAuthUI();
     }
 }
 
