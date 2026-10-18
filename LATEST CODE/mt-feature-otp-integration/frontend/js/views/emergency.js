@@ -101,10 +101,29 @@ export function renderEmergencyView() {
     }
 
     // Health Insurance Policy
-    if (patient.insurance && (patient.insurance.provider || patient.insurance.policyNumber)) {
+    updateEmergencyInsuranceCard(patient);
+
+    // Asynchronously synchronize live policies from Java backend & Cloudflare R2 if not yet loaded
+    syncEmergencyPolicies();
+}
+
+/**
+ * Updates the emergency insurance card DOM elements with active policy data.
+ */
+export function updateEmergencyInsuranceCard(patient) {
+    if (!patient) patient = getPatientData();
+    if (!patient) return;
+
+    const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    };
+
+    if (patient.insurance && (patient.insurance.provider || patient.insurance.policyNumber || patient.insurance.fileName)) {
         const insNameEl = document.getElementById('emg-insurance-name');
         const count = (patient.policies && patient.policies.length > 1) ? patient.policies.length - 1 : 0;
-        const providerName = patient.insurance.provider || 'Active Health Insurance';
+        const providerName = patient.insurance.provider 
+            || (patient.insurance.fileName ? patient.insurance.fileName.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ') : 'Active Health Insurance');
         if (insNameEl) {
             if (count > 0) {
                 insNameEl.innerHTML = `<span class="insurance-name-wrapper"><span>${providerName}</span><span class="insurance-count-badge">+${count} more</span></span>`;
@@ -126,6 +145,57 @@ export function renderEmergencyView() {
             insNameEl.innerHTML = `No insurance policy added. <a href="javascript:void(0)" onclick="openEditEmergencyModal('all')" style="color: var(--primary); text-decoration: underline; font-weight: 500; font-size: 0.85rem;">Add Policy</a>`;
         }
         set('emg-insurance-num', '');
+    }
+}
+
+/**
+ * Background synchronizer for insurance policies from Java Backend REST API / Cloudflare R2.
+ */
+export async function syncEmergencyPolicies() {
+    if (!window.MediTrailAPI || !window.MediTrailAPI.getInsurancePolicies) return;
+    const patient = getPatientData();
+    const ptCode = patient ? (patient.id || patient.patient_code || '') : '';
+    if (!ptCode) return;
+
+    try {
+        const res = await window.MediTrailAPI.getInsurancePolicies(ptCode);
+        const list = Array.isArray(res) ? res : (res && res.success && Array.isArray(res.policies) ? res.policies : []);
+        if (list.length > 0) {
+            const mapped = list.map(p => ({
+                id: p.id,
+                provider: p.providerName || p.provider || '',
+                fileName: p.originalFilename || p.fileName || '',
+                fileSize: p.fileSize || 0,
+                policyNumber: p.policyNumber || '',
+                validUntil: p.validUntil ? p.validUntil.slice(0, 4) : ''
+            }));
+            const primary = mapped[0];
+            const val = primary.validUntil;
+
+            if (patient) {
+                patient.policies = mapped;
+                patient.insurance = {
+                    id: primary.id,
+                    provider: primary.provider || (primary.fileName ? primary.fileName.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ') : 'Active Insurance'),
+                    fileName: primary.fileName,
+                    fileSize: primary.fileSize,
+                    policyNumber: primary.policyNumber,
+                    validUntil: val && val.length === 4 ? `${val}-12-31` : val
+                };
+            }
+
+            // Sync into session & local storage
+            const savedSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
+            let sessionObj = savedSession ? JSON.parse(savedSession) : {};
+            sessionObj.policies = mapped;
+            sessionObj.insurance = patient ? patient.insurance : null;
+            sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(sessionObj));
+            localStorage.setItem(`MEDITRAIL_PATIENT_PROFILE_${ptCode}`, JSON.stringify(sessionObj));
+
+            updateEmergencyInsuranceCard(patient);
+        }
+    } catch (err) {
+        console.warn('[MediTrail] Emergency view policy sync notice:', err.message);
     }
 }
 
@@ -245,7 +315,7 @@ export function renderPoliciesEditList() {
                         </svg>
                     </div>
                     <div class="emg-upload-meta">
-                        <span class="emg-upload-filename" id="emg-policy-filename-display-${idx}">${pol.fileName || 'Upload Document'}</span>
+                        <span class="emg-upload-filename" id="emg-policy-filename-display-${idx}">${pol.fileName ? `${pol.fileName}${pol.fileSize ? ` (${Math.round(pol.fileSize / 1024)} KB)` : ''}` : 'Upload Document'}</span>
                         <span class="emg-upload-subtext">${pol.fileName ? 'Click or browse to change' : 'Upload policy file'}</span>
                     </div>
                     <button type="button" class="btn btn-secondary emg-upload-browse-btn" onclick="triggerPolicyFileInputAtIndex(${idx}, event)">
@@ -534,25 +604,38 @@ export function openEditEmergencyModal(focusSection = 'all') {
     // Populate activePolicies list for dynamic add/remove
     if (Array.isArray(patient.policies) && patient.policies.length > 0) {
         activePolicies = patient.policies.map(p => ({ ...p }));
-    } else if (patient.insurance) {
-        const cleanProvider = (patient.insurance.provider || 'Star Health Premier').replace(/\s+/g, '_');
+        renderPoliciesEditList();
+    } else if (patient.insurance && (patient.insurance.fileName || patient.insurance.provider)) {
+        const cleanProvider = (patient.insurance.provider || 'Active Health Insurance').replace(/\s+/g, '_');
         activePolicies = [{
-            provider: patient.insurance.provider || 'Star Health Premier',
+            id: patient.insurance.id || '',
+            provider: patient.insurance.provider || 'Active Health Insurance',
             fileName: patient.insurance.fileName || `${cleanProvider}.pdf`,
+            fileSize: patient.insurance.fileSize || 0,
             policyNumber: patient.insurance.policyNumber || '',
             validUntil: patient.insurance.validUntil ? patient.insurance.validUntil.slice(0, 4) : '2027'
         }];
+        renderPoliciesEditList();
     } else {
         activePolicies = [];
+        const listEl = document.getElementById('emg-policies-edit-list');
+        if (listEl) {
+            listEl.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: var(--text-muted); padding: 0.75rem 0;">
+                    <div style="width: 14px; height: 14px; border: 2px solid var(--border-subtle); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                    <span>Checking cloud storage for policy documents...</span>
+                </div>
+            `;
+        }
     }
-    renderPoliciesEditList();
 
     // Sync persisted policies from Java backend / Cloudflare R2 if available.
     // Merges backend-persisted entries while preserving any locally-added
     // policies that already have a pending .file attachment (prevents race
     // condition where this async callback overwrites user-selected files).
     if (window.MediTrailAPI && window.MediTrailAPI.getInsurancePolicies) {
-        window.MediTrailAPI.getInsurancePolicies().then(res => {
+        const ptCode = patient.id || patient.patient_code || '';
+        window.MediTrailAPI.getInsurancePolicies(ptCode).then(res => {
             const list = Array.isArray(res) ? res : (res && res.success && Array.isArray(res.policies) ? res.policies : []);
             if (list.length > 0) {
                 // Collect any locally-pending policies the user already attached files to
@@ -570,7 +653,8 @@ export function openEditEmergencyModal(focusSection = 'all') {
                 // Re-append any local policies with pending file uploads
                 for (const local of pendingLocal) {
                     const alreadyExists = merged.some(m =>
-                        m.fileName === local.fileName && m.policyNumber === local.policyNumber
+                        (m.id && local.id && m.id === local.id) ||
+                        (m.fileName === local.fileName && m.policyNumber === local.policyNumber)
                     );
                     if (!alreadyExists) {
                         merged.push(local);
@@ -583,10 +667,36 @@ export function openEditEmergencyModal(focusSection = 'all') {
                     delete copy.file; // Don't persist File references in patient data
                     return copy;
                 });
+                if (activePolicies.length > 0 && (!patient.insurance || !patient.insurance.fileName)) {
+                    const primary = activePolicies[0];
+                    const val = primary.validUntil;
+                    patient.insurance = {
+                        id: primary.id,
+                        provider: primary.provider || primary.fileName.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' '),
+                        fileName: primary.fileName,
+                        fileSize: primary.fileSize,
+                        policyNumber: primary.policyNumber,
+                        validUntil: val && val.length === 4 ? `${val}-12-31` : val
+                    };
+                }
+
+                // Sync into session & local storage
+                const savedSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
+                let sessionObj = savedSession ? JSON.parse(savedSession) : {};
+                sessionObj.policies = patient.policies;
+                sessionObj.insurance = patient.insurance;
+                sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(sessionObj));
+                if (ptCode) {
+                    localStorage.setItem(`MEDITRAIL_PATIENT_PROFILE_${ptCode}`, JSON.stringify(sessionObj));
+                }
+
+                renderPoliciesEditList();
+            } else {
                 renderPoliciesEditList();
             }
         }).catch(err => {
             console.warn('[MediTrail] Background policies fetch:', err.message);
+            renderPoliciesEditList();
         });
     }
 
@@ -762,8 +872,10 @@ export async function saveEmergencyChanges(e) {
     // Update optional policy fields from dynamic policies list
     const validPolicies = activePolicies
         .map(p => ({
+            id: p.id,
             provider: (p.provider || '').trim(),
             fileName: (p.fileName || '').trim(),
+            fileSize: p.fileSize || 0,
             policyNumber: (p.policyNumber || '').trim(),
             validUntil: (p.validUntil || '').trim()
         }))
@@ -774,8 +886,10 @@ export async function saveEmergencyChanges(e) {
         const primary = validPolicies[0];
         const val = primary.validUntil;
         patient.insurance = {
-            provider: primary.provider || (primary.fileName ? primary.fileName.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ') : 'Star Health Premier'),
+            id: primary.id,
+            provider: primary.provider || (primary.fileName ? primary.fileName.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ') : 'Active Insurance'),
             fileName: primary.fileName,
+            fileSize: primary.fileSize || 0,
             policyNumber: primary.policyNumber,
             validUntil: val && val.length === 4 ? `${val}-12-31` : val
         };

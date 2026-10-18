@@ -110,6 +110,50 @@ function initApp() {
                 }
             }
 
+            // Sync live insurance policy documents from Java Backend REST API / Cloudflare R2
+            if (window.MediTrailAPI && window.MediTrailAPI.getInsurancePolicies && ptCode) {
+                try {
+                    const policiesRes = await window.MediTrailAPI.getInsurancePolicies(ptCode);
+                    const policiesList = Array.isArray(policiesRes)
+                        ? policiesRes
+                        : (policiesRes && policiesRes.success && Array.isArray(policiesRes.policies) ? policiesRes.policies : []);
+                    if (policiesList.length > 0) {
+                        const mappedPolicies = policiesList.map(p => ({
+                            id: p.id,
+                            provider: p.providerName || p.provider || '',
+                            fileName: p.originalFilename || p.fileName || '',
+                            fileSize: p.fileSize || 0,
+                            policyNumber: p.policyNumber || '',
+                            validUntil: p.validUntil ? p.validUntil.slice(0, 4) : ''
+                        }));
+                        const primary = mappedPolicies[0];
+                        const val = primary.validUntil;
+
+                        if (window.MEDITRAIL_DATA.patient) {
+                            window.MEDITRAIL_DATA.patient.policies = mappedPolicies;
+                            window.MEDITRAIL_DATA.patient.insurance = {
+                                id: primary.id,
+                                provider: primary.provider || (primary.fileName ? primary.fileName.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ') : 'Active Insurance'),
+                                fileName: primary.fileName,
+                                fileSize: primary.fileSize,
+                                policyNumber: primary.policyNumber,
+                                validUntil: val && val.length === 4 ? `${val}-12-31` : val
+                            };
+                        }
+
+                        const savedSession = sessionStorage.getItem('MEDITRAIL_CURRENT_PATIENT');
+                        let sessionObj = savedSession ? JSON.parse(savedSession) : {};
+                        sessionObj.policies = mappedPolicies;
+                        sessionObj.insurance = window.MEDITRAIL_DATA.patient ? window.MEDITRAIL_DATA.patient.insurance : null;
+                        sessionStorage.setItem('MEDITRAIL_CURRENT_PATIENT', JSON.stringify(sessionObj));
+                        localStorage.setItem(`MEDITRAIL_PATIENT_PROFILE_${ptCode}`, JSON.stringify(sessionObj));
+                        console.log(`[MediTrail] Portal synced ${mappedPolicies.length} live policy document(s) for ${ptCode}!`);
+                    }
+                } catch (polErr) {
+                    console.warn('Java API policy auto-sync notice:', polErr.message);
+                }
+            }
+
             if (dataMod.syncDerivedPatientLists) dataMod.syncDerivedPatientLists();
             renderDashboard();
         }).catch(err => console.warn('Profile UI update:', err));

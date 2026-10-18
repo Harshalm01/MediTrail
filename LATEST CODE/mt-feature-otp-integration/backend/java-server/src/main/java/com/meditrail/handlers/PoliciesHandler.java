@@ -107,6 +107,27 @@ public class PoliciesHandler extends BaseHandler {
         AuthService.Session session = sessionOpt.get();
         String patientCode = session.identifier;
 
+        // Check for optional explicit ?patientCode= query parameter
+        String query = exchange.getRequestURI().getQuery();
+        if (query != null && query.contains("patientCode=")) {
+            for (String part : query.split("&")) {
+                if (part.startsWith("patientCode=")) {
+                    String param = part.substring("patientCode=".length()).trim();
+                    if (!param.isEmpty()) {
+                        String requestedPatientCode = java.net.URLDecoder.decode(param, java.nio.charset.StandardCharsets.UTF_8);
+                        // Allow if session belongs to that patient, or staff member (doctor, super_admin, hospital_admin)
+                        if (session.identifier.equalsIgnoreCase(requestedPatientCode)
+                                || "doctor".equalsIgnoreCase(session.role)
+                                || "super_admin".equalsIgnoreCase(session.role)
+                                || "hospital_admin".equalsIgnoreCase(session.role)) {
+                            patientCode = requestedPatientCode;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
         List<InsurancePolicy> policies = policyRepository.findByPatientCode(patientCode);
         JSONArray arr = new JSONArray();
         for (InsurancePolicy p : policies) {

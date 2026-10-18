@@ -270,7 +270,8 @@ export async function viewPolicyDocument(policyId) {
     let uploadedPolicies = [];
     try {
         if (window.MediTrailAPI && window.MediTrailAPI.getInsurancePolicies) {
-            const res = await window.MediTrailAPI.getInsurancePolicies();
+            const ptCode = patient ? (patient.id || patient.patient_code || '') : '';
+            const res = await window.MediTrailAPI.getInsurancePolicies(ptCode);
             if (Array.isArray(res)) {
                 uploadedPolicies = res;
             } else if (res && res.success && Array.isArray(res.policies)) {

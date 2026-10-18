@@ -160,8 +160,9 @@ export async function revokeSharedAccess(patientCode, doctorNameOrId) {
 /**
  * Insurance Policy Document Operations (Cloudflare R2 Persistent Storage)
  */
-export async function getInsurancePolicies() {
-    return apiRequest('/policies');
+export async function getInsurancePolicies(patientCode = '') {
+    const query = patientCode ? `?patientCode=${encodeURIComponent(patientCode)}` : '';
+    return apiRequest(`/policies${query}`);
 }
 
 export async function uploadInsurancePolicy(policyPayload) {
