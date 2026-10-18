@@ -19,7 +19,6 @@ MediTrail is an end-to-end medical history management system for patients, hospi
 - **Active Prescriptions & Regimens**: Regimen tracker detailing dosage, frequency, prescribing doctor, start dates, and refill actions.
 - **Emergency Profile & Digital Medical Pass**: Critical medical ID with blood group, allergy tags, pre-existing conditions, emergency contacts, and insurance documents.
 - **Official Insurance Policy Viewer**: In-browser PDF certificate viewer with direct "Open in New Tab" support.
-- **Secure QR-Based Sharing**: Encrypted, 15-minute time-limited QR codes and doctor links for contactless clinical record handoffs.
 
 ### 2. Hospital Staff & Doctor Admin Portal (`admin.html`)
 - **Role-Based Access Control (RBAC)**: Secure access for Super Admins, Hospital Admins, and Attending Physicians.
@@ -64,7 +63,7 @@ MediTrail/
 │
 ├── frontend/                   # Client-side web application
 │   ├── index.html              # Marketing Landing & Patient OTP Login/Register
-│   ├── portal.html             # Clinical Patient Portal (Dashboard, Timeline, Meds, QR)
+│   ├── portal.html             # Clinical Patient Portal (Dashboard, Timeline, Meds, Emergency)
 │   ├── admin.html              # Hospital Staff & Doctor Admin Portal (RBAC)
 │   ├── image.png               # Brand logo and favicon
 │   ├── css/
@@ -77,7 +76,7 @@ MediTrail/
 │       │   ├── api.js          # REST API client for Java backend
 │       │   └── data.js         # Frontend data access service layer
 │       ├── views/              # View-specific controllers (dashboard, timeline, etc.)
-│       └── utils/              # QR generator, PDF helpers, debug utilities
+│       └── utils/              # PDF helpers, debug utilities
 │
 └── backend/
     └── java-server/            # Portable Java SE 17 REST API
@@ -178,6 +177,6 @@ MediTrail includes a production multi-stage **`Dockerfile`** that builds both th
 ## 🔒 Security & Privacy Architecture
 
 - **End-to-End Ownership**: Patients retain full control over their records, granting time-limited access to authorized physicians.
-- **Ephemeral QR Codes**: Clinical QR codes expire automatically after 15 minutes to prevent unauthorized reuse.
+- **OTP Verification**: Clinical access verification relies on 6-digit one-time passcodes delivered directly to the patient's verified email.
 - **Zero Raw Secret Leaks**: `.env`, credentials, local database files (`*.mv.db`, `*.db`), and uploaded PDFs are strictly ignored by `.gitignore`.
 - **BCrypt Salting**: All doctor and admin passwords are encrypted with industry-standard BCrypt before persistent storage.
