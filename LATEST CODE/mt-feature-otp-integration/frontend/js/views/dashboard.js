@@ -29,9 +29,26 @@ export function getPatientStatItems() {
     const patient = getPatientData();
     const records = getMedicalRecords();
     const medications = getActiveMedications();
+    const sharedDocs = getSharedAccessList();
 
     const recCount = records ? records.length : 0;
     const medCount = medications ? medications.length : 0;
+
+    const uniqueHospitals = new Set();
+    if (records) {
+        records.forEach(r => {
+            const h = r.hospital || r.hospital_name || r.facility;
+            if (h) uniqueHospitals.add(h.trim());
+        });
+    }
+
+    const hospCount = uniqueHospitals.size > 0 
+        ? uniqueHospitals.size 
+        : ((patient && patient.stats) ? patient.stats.hospitalsVisited : 0);
+
+    const docCount = (sharedDocs && sharedDocs.length > 0)
+        ? sharedDocs.length
+        : ((patient && patient.stats) ? patient.stats.sharedDoctors : 0);
 
     return [
         {
@@ -51,15 +68,15 @@ export function getPatientStatItems() {
         {
             id: 'hospitals',
             label: 'HOSPITALS VISITED',
-            value: (patient && patient.stats) ? patient.stats.hospitalsVisited : 0,
-            sub: 'Specialty facilities',
+            value: hospCount,
+            sub: hospCount > 0 ? (hospCount === 1 ? '1 facility visited' : `${hospCount} facilities visited`) : 'No facilities yet',
             icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 9V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5"></path><rect x="6" y="14" width="12" height="8"></rect><line x1="10" y1="6" x2="14" y2="6"></line><line x1="12" y1="4" x2="12" y2="8"></line></svg>`
         },
         {
             id: 'shared-doctors',
             label: 'SHARED DOCTORS',
-            value: (patient && patient.stats) ? patient.stats.sharedDoctors : 0,
-            sub: 'Granted access',
+            value: docCount,
+            sub: docCount > 0 ? (docCount === 1 ? '1 doctor authorized' : `${docCount} doctors authorized`) : 'No doctors yet',
             icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`
         }
     ];

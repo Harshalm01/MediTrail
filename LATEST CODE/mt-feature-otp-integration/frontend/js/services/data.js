@@ -293,7 +293,7 @@ export function syncDerivedPatientLists() {
         }
     });
     
-    if (isDemoUser && meds.length === 0) {
+    if (isDemo && meds.length === 0) {
         if (window.MEDITRAIL_DATA.activeMedications && window.MEDITRAIL_DATA.activeMedications.length > 0) {
             meds = window.MEDITRAIL_DATA.activeMedications;
         }
@@ -309,7 +309,7 @@ export function syncDerivedPatientLists() {
                 id: `rep-${rec.id || idx}`,
                 title: rec.title,
                 date: rec.date,
-                facility: rec.hospital,
+                facility: rec.hospital || rec.hospital_name || rec.facility || 'Clinical Laboratory',
                 status: rec.status || 'Normal',
                 summary: rec.shortDescription,
                 fileSize: 'PDF Record'
@@ -317,7 +317,7 @@ export function syncDerivedPatientLists() {
         }
     });
     
-    if (isDemoUser && reports.length === 0) {
+    if (isDemo && reports.length === 0) {
         if (window.MEDITRAIL_DATA.recentReports && window.MEDITRAIL_DATA.recentReports.length > 0) {
             reports = window.MEDITRAIL_DATA.recentReports;
         }
@@ -328,14 +328,15 @@ export function syncDerivedPatientLists() {
     // 3. Build sharedAccess (Doctors who added records for this patient)
     const docsMap = new Map();
     records.forEach(rec => {
-        if (rec.doctor && !docsMap.has(rec.doctor)) {
-            docsMap.set(rec.doctor, {
-                id: `doc-shared-${rec.doctor.replace(/[^a-zA-Z0-9]/g, '')}`,
-                doctorName: rec.doctor,
-                specialty: rec.department || 'Specialist',
-                hospital: rec.hospital || 'Hospital',
+        const docName = rec.doctor || rec.doctor_name || rec.physician;
+        if (docName && !docsMap.has(docName)) {
+            docsMap.set(docName, {
+                id: `doc-shared-${docName.replace(/[^a-zA-Z0-9]/g, '')}`,
+                doctorName: docName,
+                specialty: rec.department || 'Attending Specialist',
+                hospital: rec.hospital || rec.hospital_name || 'Hospital',
                 permissions: 'Full Medical History',
-                accessGranted: rec.date,
+                accessGranted: rec.date || 'Recent',
                 status: 'Active',
                 accessExpiry: 'Permanent'
             });
@@ -343,13 +344,27 @@ export function syncDerivedPatientLists() {
     });
 
     let access = Array.from(docsMap.values());
-    if (isDemoUser && access.length === 0) {
+    if (isDemo && access.length === 0) {
         if (window.MEDITRAIL_DATA.sharedAccess && window.MEDITRAIL_DATA.sharedAccess.length > 0) {
             access = window.MEDITRAIL_DATA.sharedAccess;
         }
     }
     
     window.MEDITRAIL_DATA.sharedAccess = access;
+
+    // 4. Update patient stats dynamically from live records
+    if (window.MEDITRAIL_DATA.patient) {
+        if (!window.MEDITRAIL_DATA.patient.stats) window.MEDITRAIL_DATA.patient.stats = {};
+        window.MEDITRAIL_DATA.patient.stats.totalRecords = records.length;
+        window.MEDITRAIL_DATA.patient.stats.activePrescriptions = meds.length;
+        const uniqueHospitals = new Set();
+        records.forEach(r => {
+            const h = r.hospital || r.hospital_name || r.facility;
+            if (h) uniqueHospitals.add(h.trim());
+        });
+        window.MEDITRAIL_DATA.patient.stats.hospitalsVisited = uniqueHospitals.size;
+        window.MEDITRAIL_DATA.patient.stats.sharedDoctors = access.length;
+    }
 }
 
 /**

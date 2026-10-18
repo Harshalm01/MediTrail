@@ -170,8 +170,26 @@ function initApp() {
                 }
 
                 if (stateUpdated) {
-                    syncDerivedPatientLists();
-                    renderDashboard();
+                    try {
+                        syncDerivedPatientLists();
+                    } catch (syncErr) {
+                        console.warn('Error syncing derived lists:', syncErr);
+                    }
+                    try {
+                        renderDashboard();
+                    } catch (dashErr) {
+                        console.warn('Error rendering dashboard:', dashErr);
+                    }
+
+                    // If user is currently on timeline, medications, or shared-access, refresh immediately
+                    const activeTab = window.location.hash.replace('#', '') || 'dashboard';
+                    if (activeTab === 'timeline' && window.renderTimeline) {
+                        window.renderTimeline();
+                    } else if (activeTab === 'shared-access' && window.renderSharedAccess) {
+                        window.renderSharedAccess();
+                    } else if (activeTab === 'medications' && window.renderMedicationsView) {
+                        window.renderMedicationsView();
+                    }
                 }
             })();
         }
