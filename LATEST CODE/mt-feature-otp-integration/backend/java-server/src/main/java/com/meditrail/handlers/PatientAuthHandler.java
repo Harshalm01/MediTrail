@@ -89,13 +89,12 @@ public class PatientAuthHandler extends BaseHandler {
         String cleanEmail = email.toLowerCase();
         Optional<Patient> patientOpt = patientRepository.findByEmail(cleanEmail);
 
-        // Anti-enumeration: if no patient is found with this email, return generic success
-        // without generating an OTP or contacting Brevo.
+        // If patient is not registered, notify client so it redirects to registration before sending OTP
         if (patientOpt.isEmpty()) {
             JSONObject resp = new JSONObject();
-            resp.put("success", true);
-            resp.put("message", "If an account with this email exists, a verification code has been sent.");
-            resp.put("cooldownSeconds", 60);
+            resp.put("success", false);
+            resp.put("notRegistered", true);
+            resp.put("error", "No patient account found with this email. Please register to create your health profile.");
             sendJson(exchange, 200, resp);
             return;
         }

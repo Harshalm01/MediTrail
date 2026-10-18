@@ -171,10 +171,24 @@ export function showCustomAlert(title, message, isSuccess, callback) {
     };
 }
 
+let isRegisteringPatient = false;
+
+// Prevent accidental window close or back navigation while registration is actively processing
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', (e) => {
+        if (isRegisteringPatient) {
+            e.preventDefault();
+            e.returnValue = 'Patient registration is processing. Please wait until your profile is created.';
+            return e.returnValue;
+        }
+    });
+}
+
 /**
  * Toggles between 'signin' and 'register' modes in the Patient Auth modal.
  */
 export function switchPatientAuthMode(mode) {
+    if (isRegisteringPatient) return; // Prevent switching tabs while registration is processing
     const signinForm = document.getElementById('patient-signin-form');
     const registerForm = document.getElementById('patient-register-form');
     const btnSignin = document.getElementById('tab-pt-signin');
@@ -279,10 +293,43 @@ export async function handlePatientRequestOtp(e) {
 
             const cooldown = res.cooldownSeconds || 60;
             startResendTimer(cooldown);
+        } else if (res && res.notRegistered) {
+            // Patient account does not exist! Redirect to registration before sending OTP
+            showCustomAlert(
+                'Account Not Registered',
+                `No patient account found with "${email}".\n\nPlease register your profile first before signing in.`,
+                false,
+                () => {
+                    switchPatientAuthMode('register');
+                    const regEmail = document.getElementById('pt-reg-email');
+                    if (regEmail) {
+                        regEmail.value = email;
+                    }
+                    const regName = document.getElementById('pt-reg-name');
+                    if (regName) {
+                        regName.focus();
+                    }
+                }
+            );
         } else {
             showCustomAlert('Notice', (res && res.error) || 'Unable to dispatch verification code. Please try again.', false);
         }
     } catch (err) {
+        if (err && (err.notRegistered || (err.message && err.message.toLowerCase().includes('no patient account found')))) {
+            showCustomAlert(
+                'Account Not Registered',
+                `No patient account found with "${email}".\n\nPlease register your profile first before signing in.`,
+                false,
+                () => {
+                    switchPatientAuthMode('register');
+                    const regEmail = document.getElementById('pt-reg-email');
+                    if (regEmail) regEmail.value = email;
+                    const regName = document.getElementById('pt-reg-name');
+                    if (regName) regName.focus();
+                }
+            );
+            return;
+        }
         showCustomAlert('Delivery Notice', err.message || 'Unable to connect to verification service.', false);
     } finally {
         if (btnRequest) {
@@ -365,6 +412,8 @@ export async function handlePatientVerifyOtpSubmit(e) {
  */
 export async function handlePatientRegisterSubmit(e) {
     if (e && e.preventDefault) e.preventDefault();
+    if (isRegisteringPatient) return;
+
     const name = (document.getElementById('pt-reg-name') || {}).value.trim();
     const mobile = (document.getElementById('pt-reg-mobile') || {}).value.trim();
     const email = (document.getElementById('pt-reg-email') || {}).value.trim();
@@ -380,6 +429,58 @@ export async function handlePatientRegisterSubmit(e) {
     if (!email.includes('@') || !email.includes('.')) {
         return showCustomAlert('Invalid Email', 'Please provide a valid email address for receiving verification codes.', false);
     }
+
+    // Lock registration interface to prevent multiple clicks, navigating back, or switching tabs
+    isRegisteringPatient = true;
+    const btnSubmit = document.getElementById('btn-register-patient') || (e.target && e.target.querySelector('button[type="submit"]'));
+    const btnTextSpan = document.getElementById('btn-reg-text');
+    const closeBtn = document.getElementById('btn-close-patient-auth');
+    const tabSignin = document.getElementById('tab-pt-signin');
+    const tabRegister = document.getElementById('tab-pt-register');
+    const regForm = document.getElementById('patient-register-form');
+
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.style.opacity = '0.65';
+        btnSubmit.style.cursor = 'not-allowed';
+    }
+    if (btnTextSpan) {
+        btnTextSpan.textContent = 'Registering Profile & Syncing Ledger... Please wait';
+    }
+    if (closeBtn) {
+        closeBtn.disabled = true;
+        closeBtn.style.pointerEvents = 'none';
+        closeBtn.style.opacity = '0.3';
+    }
+    if (tabSignin) tabSignin.style.pointerEvents = 'none';
+    if (tabRegister) tabRegister.style.pointerEvents = 'none';
+    if (regForm) {
+        regForm.style.pointerEvents = 'none';
+        regForm.style.opacity = '0.7';
+    }
+
+    const restoreRegisterUI = () => {
+        isRegisteringPatient = false;
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.style.opacity = '1';
+            btnSubmit.style.cursor = 'pointer';
+        }
+        if (btnTextSpan) {
+            btnTextSpan.textContent = 'Register Patient & Sync Health Ledger →';
+        }
+        if (closeBtn) {
+            closeBtn.disabled = false;
+            closeBtn.style.pointerEvents = 'auto';
+            closeBtn.style.opacity = '1';
+        }
+        if (tabSignin) tabSignin.style.pointerEvents = 'auto';
+        if (tabRegister) tabRegister.style.pointerEvents = 'auto';
+        if (regForm) {
+            regForm.style.pointerEvents = 'auto';
+            regForm.style.opacity = '1';
+        }
+    };
 
     const dobYear = new Date(dob).getFullYear();
     const age = new Date().getFullYear() - dobYear;
@@ -413,6 +514,8 @@ export async function handlePatientRegisterSubmit(e) {
             }
         }
 
+        restoreRegisterUI();
+
         showCustomAlert(
             'Registration Complete',
             `Health profile created for ${name} (${patientCode}).\n\nPlease now click "Send Verification Code" to sign in with your email.`,
@@ -425,6 +528,7 @@ export async function handlePatientRegisterSubmit(e) {
             }
         );
     } catch (apiErr) {
+        restoreRegisterUI();
         showCustomAlert('Registration Error', apiErr.message || 'Unable to register patient. Please verify your details.', false);
     }
 }
@@ -443,6 +547,7 @@ export function openPatientAuthModal() {
 }
 
 export function closePatientAuthModal() {
+    if (isRegisteringPatient) return; // Prevent closing while registration is processing
     const modal = document.getElementById('patient-auth-modal');
     if (modal) {
         modal.style.opacity = '0';
